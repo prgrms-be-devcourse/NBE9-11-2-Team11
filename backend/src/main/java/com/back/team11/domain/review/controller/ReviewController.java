@@ -8,6 +8,7 @@ import com.back.team11.domain.security.CustomUserDetails;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -30,6 +31,14 @@ public class ReviewController {
         return new RsData<>("리뷰가 작성되었습니다.", "201", data);
     }
 
+    //리뷰조회
+    @GetMapping
+    public RsData<List<ReviewResponseDto>> getReviews(
+            @PathVariable Long cafeId
+    ) {
+        List<ReviewResponseDto> data = reviewService.getReviews(cafeId);
+        return new RsData<>("리뷰 목록 조회 성공", "200", data);
+    }
 
 
 }

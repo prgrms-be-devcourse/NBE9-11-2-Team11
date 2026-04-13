@@ -42,5 +42,15 @@ public class ReviewService {
         return ReviewResponseDto.from(review);
     }
 
+    //리뷰 조회
+    @Transactional(readOnly = true)
+    public List<ReviewResponseDto> getReviews(Long cafeId) {
+        cafeRepository.findById(cafeId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 카페입니다."));
+
+        return reviewRepository.findAllByCafeId(cafeId).stream()
+                .map(ReviewResponseDto::from)
+                .collect(Collectors.toList());
+    }
 
 }
