@@ -1,5 +1,6 @@
 package com.back.team11.domain.auth.entity;
 
+import com.back.team11.domain.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
