@@ -14,7 +14,7 @@ public class GlobalExceptionHandler {
         ErrorCode errorCode = e.getErrorCode();
         return ResponseEntity
                 .status(errorCode.getHttpStatus())
-                .body(new RsData<>(errorCode.getCode(), errorCode.getMessage()));
+                .body(new RsData<>(errorCode.getMessage(),errorCode.getCode()));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class) // Valid 검증 오류에서 첫번째 오류
