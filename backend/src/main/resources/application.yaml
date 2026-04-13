@@ -2,10 +2,13 @@ spring:
   application:
     name: backend
 
+  config:
+    import: optional:file:.env[.properties]
+
   datasource:
     url: jdbc:mysql://localhost:3306/cafe_study?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
-    username: root
-    password: alison0525
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   sql:
@@ -23,7 +26,7 @@ spring:
     defer-datasource-initialization: true
 
 jwt:
-  secret: ##랜덤시크릿키256비트이상
+  secret: ${JWT_SECRET}
   access-token-expiration: 1800000
   refresh-token-expiration: 604800000
 

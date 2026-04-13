@@ -26,6 +26,6 @@ public class CafeSearchController {
             @Valid @ModelAttribute CafeSearchCondition condition
     ){
         List<CafeResponse> cafes = cafeService.searchCafes(condition);
-        return ResponseEntity.ok(new RsData<>("200", "카페 목록 조회 성공", cafes));
+        return ResponseEntity.ok(new RsData<>("카페 목록 조회 성공","200", cafes));
     }
 }
