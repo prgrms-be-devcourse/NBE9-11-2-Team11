@@ -53,4 +53,18 @@ public class ReviewService {
                 .collect(Collectors.toList());
     }
 
+    //리뷰 수정
+    public ReviewResponseDto updateReview(Long cafeId, Long reviewId, ReviewRequestDto requestDto, Long memberId) {
+        Review review = reviewRepository.findByIdAndCafeId(reviewId, cafeId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 리뷰가 존재하지 않습니다."));
+
+        if (!review.getMember().getId().equals(memberId)) {
+            throw new SecurityException("리뷰 수정 권한이 없습니다.");
+        }
+
+        review.update(requestDto.content());
+
+        return ReviewResponseDto.from(review);
+    }
+
 }

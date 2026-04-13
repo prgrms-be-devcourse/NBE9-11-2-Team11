@@ -40,5 +40,17 @@ public class ReviewController {
         return new RsData<>("리뷰 목록 조회 성공", "200", data);
     }
 
+    //리뷰수정
+    @PutMapping("/{reviewId}")
+    public RsData<ReviewResponseDto> updateReview(
+            @PathVariable Long cafeId,
+            @PathVariable Long reviewId,
+            @Valid @RequestBody ReviewRequestDto requestDto,
+            @AuthenticationPrincipal CustomUserDetails userDetails // 시큐리티 설정에 맞게 수정
+    ){
+        ReviewResponseDto data = reviewService.updateReview(cafeId, reviewId, requestDto, userDetails.getMember().getId());
+        return new RsData<>("리뷰가 수정되었습니다.", "200", data);
+    }
+
 
 }
