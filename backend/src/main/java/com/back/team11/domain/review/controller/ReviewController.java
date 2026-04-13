@@ -1,6 +1,7 @@
 package com.back.team11.domain.review.controller;
 
 
+import com.back.team11.domain.global.rsData.RsData;
 import com.back.team11.domain.review.dto.ReviewRequestDto;
 import com.back.team11.domain.review.dto.ReviewResponseDto;
 import com.back.team11.domain.review.service.ReviewService;
@@ -8,7 +9,6 @@ import com.back.team11.domain.security.CustomUserDetails;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -52,5 +52,15 @@ public class ReviewController {
         return new RsData<>("리뷰가 수정되었습니다.", "200", data);
     }
 
+    //리뷰삭제
+    @DeleteMapping("/{reviewId}")
+    public RsData<Void> deleteReview(
+            @PathVariable Long cafeId,
+            @PathVariable Long reviewId,
+            @AuthenticationPrincipal CustomUserDetails userDetails // 시큐리티 설정에 맞게 수정
+    ) {
+        reviewService.deleteReview(cafeId, reviewId, userDetails.getMember().getId());
+        return new RsData<>("리뷰가 삭제되었습니다.", "200");
+    }
 
 }

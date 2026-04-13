@@ -67,4 +67,15 @@ public class ReviewService {
         return ReviewResponseDto.from(review);
     }
 
+    //리뷰 삭제
+    public void deleteReview(Long cafeId, Long reviewId, Long memberId) {
+        Review review = reviewRepository.findByIdAndCafeId(reviewId, cafeId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 리뷰가 존재하지 않습니다."));
+
+        if (!review.getMember().getId().equals(memberId)) {
+            throw new SecurityException("리뷰 삭제 권한이 없습니다.");
+        }
+
+        reviewRepository.delete(review);
+    }
 }
