@@ -14,7 +14,7 @@ public record ReviewResponseDto(
     public static ReviewResponseDto from(Review review) {
         return new ReviewResponseDto(
                 review.getId(),
-                review.getMember().getId(),
+                review.getCafe().getId(),
                 review.getMember().getNickname(),
                 review.getContent(),
                 review.getCreatedAt()
