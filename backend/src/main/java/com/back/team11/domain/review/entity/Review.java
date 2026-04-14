@@ -49,4 +49,10 @@ public class Review {
     public void update(String content) {
         this.content = content;
     }
+
+    public Review(Member member, Cafe cafe, String content) {
+        this.member = member;
+        this.cafe = cafe;
+        this.content = content;
+    }
 }

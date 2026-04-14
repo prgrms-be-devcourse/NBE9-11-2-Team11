@@ -1,4 +1,13 @@
 package com.back.team11.domain.review.repository;
 
-public class ReviewRepository {
+import com.back.team11.domain.review.entity.Review;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
+import java.util.Optional;
+
+public interface ReviewRepository extends JpaRepository<Review, Long> {
+    boolean existsByMemberIdAndCafeId(Long memberId, Long cafeId);  //리뷰를 생성한지 안한지 체크
+    List<Review> findAllByCafeId(Long cafeId);
+    Optional<Review> findByIdAndCafeId(Long reviewId, Long cafeId);
 }
