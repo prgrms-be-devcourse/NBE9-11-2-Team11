@@ -3,6 +3,8 @@ package com.back.team11.domain.review.service;
 
 import com.back.team11.domain.cafe.entity.Cafe;
 import com.back.team11.domain.cafe.repository.CafeRepository;
+import com.back.team11.domain.global.exception.CustomException;
+import com.back.team11.domain.global.exception.ErrorCode;
 import com.back.team11.domain.member.entity.Member;
 import com.back.team11.domain.member.repository.MemberRepository;
 import com.back.team11.domain.review.dto.ReviewRequestDto;
@@ -27,13 +29,13 @@ public class ReviewService {
     // 리뷰 작성
     public ReviewResponseDto createReview(Long cafeId, ReviewRequestDto requestDto, Long memberId) {
         Cafe cafe = cafeRepository.findById(cafeId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 카페입니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.CAFE_NOT_FOUND));
 
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         if (reviewRepository.existsByMemberIdAndCafeId(memberId, cafeId)) {
-            throw new IllegalStateException("이미 해당 카페에 리뷰를 작성하셨습니다.");
+            throw new CustomException(ErrorCode.REVIEW_ALREADY_EXISTS);
         }
 
         Review review = new Review(member, cafe, requestDto.content());
@@ -46,7 +48,7 @@ public class ReviewService {
     @Transactional(readOnly = true)
     public List<ReviewResponseDto> getReviews(Long cafeId) {
         cafeRepository.findById(cafeId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 카페입니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.CAFE_NOT_FOUND));
 
         return reviewRepository.findAllByCafeId(cafeId).stream()
                 .map(ReviewResponseDto::from)
@@ -56,10 +58,10 @@ public class ReviewService {
     //리뷰 수정
     public ReviewResponseDto updateReview(Long cafeId, Long reviewId, ReviewRequestDto requestDto, Long memberId) {
         Review review = reviewRepository.findByIdAndCafeId(reviewId, cafeId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 리뷰가 존재하지 않습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.REVIEW_NOT_FOUND));
 
         if (!review.getMember().getId().equals(memberId)) {
-            throw new SecurityException("리뷰 수정 권한이 없습니다.");
+            throw new CustomException(ErrorCode.FORBIDDEN_REVIEW);
         }
 
         review.update(requestDto.content());
@@ -70,10 +72,10 @@ public class ReviewService {
     //리뷰 삭제
     public void deleteReview(Long cafeId, Long reviewId, Long memberId) {
         Review review = reviewRepository.findByIdAndCafeId(reviewId, cafeId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 리뷰가 존재하지 않습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.REVIEW_NOT_FOUND));
 
         if (!review.getMember().getId().equals(memberId)) {
-            throw new SecurityException("리뷰 삭제 권한이 없습니다.");
+            throw new CustomException(ErrorCode.FORBIDDEN_REVIEW);
         }
 
         reviewRepository.delete(review);
