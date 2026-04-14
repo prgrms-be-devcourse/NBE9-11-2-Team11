@@ -46,9 +46,9 @@ public class SecurityConfig {
                                 "/login/oauth2/code/**"
                         ).permitAll()
                         .requestMatchers(HttpMethod.GET,
-                                "/api/*/cafes",
-                                "/api/*/cafes/{id:\\d+}",
-                                "/api/*/cafes/*/reviews"   //리뷰 조회 누구나 가능하게
+                                "/api/*/cafe",
+                                "/api/*/cafe/{id:\\d+}",
+                                "/api/*/cafe/*/reviews"   //리뷰 조회 누구나 가능하게
                         ).permitAll()
                         .requestMatchers("/api/*/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/*/**").authenticated()
