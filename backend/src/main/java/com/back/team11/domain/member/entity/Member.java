@@ -51,7 +51,6 @@ public class Member {
         member.password = password;
         member.nickname = nickname;
         member.role = MemberRole.USER;
-        member.provider = Provider.LOCAL;
         return member;
     }
 
