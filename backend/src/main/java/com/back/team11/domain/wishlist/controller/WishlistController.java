@@ -35,7 +35,7 @@ public class WishlistController {
         return ResponseEntity.ok(new RsData<>( "찜이 취소되었습니다.", "200"));
     }
 
-    // 내 찜 목록 조회
+    // 내 찜 목록 조회, 필요시 페이지 기능 추가
     @GetMapping("/member/me/wishlist")
     public ResponseEntity<RsData<List<WishlistResponse>>> getWishlists() {
         List<WishlistResponse> wishlists = wishlistService.getWishlists();
