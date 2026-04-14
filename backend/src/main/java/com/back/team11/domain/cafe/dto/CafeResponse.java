@@ -3,6 +3,7 @@ package com.back.team11.domain.cafe.dto;
 import com.back.team11.domain.cafe.entity.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 public record CafeResponse(
         Long cafeId,
@@ -20,7 +21,8 @@ public record CafeResponse(
         FloorCount floorCount,
         Boolean hasSeparateSpace,
         CongestionLevel congestionLevel,
-        String imageUrl
+        String imageUrl,
+        LocalDateTime createdAt // 제보일을 기준으로 날짜를 표시
 ) {
     public static CafeResponse from(Cafe cafe){
         return new CafeResponse(
@@ -39,7 +41,8 @@ public record CafeResponse(
                 cafe.getFloorCount(),
                 cafe.getHasSeparateSpace(),
                 cafe.getCongestionLevel(),
-                cafe.getImageUrl()
+                cafe.getImageUrl(),
+                cafe.getCreatedAt() // 제보일을 기준으로 날짜를 표시
         );
     }
 }
