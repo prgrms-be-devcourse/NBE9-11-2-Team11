@@ -8,4 +8,6 @@ import org.springframework.stereotype.Repository;
 public interface WishlistRepository extends JpaRepository<Wishlist, Long> {
 
     boolean existsByMemberIdAndCafeId(Long id, Long cafeId);
+
+    void deleteByMemberIdAndCafeId(Long id, Long id1);
 }

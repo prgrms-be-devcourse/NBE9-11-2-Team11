@@ -25,7 +25,7 @@ public class WishlistService {
 
 
     @Transactional
-    public WishlistResponse addWishList(Long cafeId) {
+    public WishlistResponse addWishlist(Long cafeId) {
 
         // 멤버 임시 구현(JWT 도입 후 수정 예정)
         Member member = memberRepository.findById(1L)
@@ -45,5 +45,23 @@ public class WishlistService {
         wishlistRepository.save(wishlist);
 
         return WishlistResponse.from(wishlist);
+    }
+
+    @Transactional
+    public void deleteWishlist(Long cafeId) {
+        // 멤버 임시 구현(JWT 도입 후 수정 예정)
+        Member member = memberRepository.findById(1L)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        // 카페 존재 여부 확인
+        Cafe cafe = cafeRepository.findById(cafeId)
+                .orElseThrow(() -> new CustomException(ErrorCode.CAFE_NOT_FOUND));
+
+        // 찜 내역 없으면
+        if(!wishlistRepository.existsByMemberIdAndCafeId(member.getId(), cafeId)){
+            throw new CustomException(ErrorCode.REVIEW_NOT_FOUND);
+        }
+
+        wishlistRepository.deleteByMemberIdAndCafeId(member.getId(), cafe.getId());
     }
 }

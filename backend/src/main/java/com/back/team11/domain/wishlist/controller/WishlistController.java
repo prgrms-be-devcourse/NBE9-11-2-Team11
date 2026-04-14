@@ -5,10 +5,7 @@ import com.back.team11.domain.wishlist.dto.WishlistResponse;
 import com.back.team11.domain.wishlist.service.WishlistService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
 @RestController
@@ -22,7 +19,15 @@ public class WishlistController {
     public ResponseEntity<RsData<WishlistResponse>> addWishList(
             @PathVariable Long cafeId
     ){
-        WishlistResponse wishlist = wishlistService.addWishList(cafeId);
+        WishlistResponse wishlist = wishlistService.addWishlist(cafeId);
         return ResponseEntity.ok(new RsData<>("200", "찜이 추가되었습니다."));
+    }
+
+    @DeleteMapping("/cafe/{cafeId}/wishlist")
+    public ResponseEntity<RsData<Void>> deleteWishlist(
+            @PathVariable Long cafeId
+    ){
+        wishlistService.deleteWishlist(cafeId);
+        return ResponseEntity.ok(new RsData<>("200", "찜이 취소되었습니다."));
     }
 }
