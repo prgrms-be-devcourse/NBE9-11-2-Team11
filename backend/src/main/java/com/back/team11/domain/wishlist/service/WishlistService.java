@@ -13,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 
 @Service
 @Transactional(readOnly = true)
@@ -63,5 +65,17 @@ public class WishlistService {
         }
 
         wishlistRepository.deleteByMemberIdAndCafeId(member.getId(), cafe.getId());
+    }
+
+    public List<WishlistResponse> getWishlists() {
+        // 멤버 임시 구현(JWT 도입 후 수정 예정)
+        Member member = memberRepository.findById(1L)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        List<Wishlist> wishlists = wishlistRepository.findAllByMemberIdWithCafe(member.getId());
+
+        return wishlists.stream()
+                .map(WishlistResponse::from)
+                .toList();
     }
 }

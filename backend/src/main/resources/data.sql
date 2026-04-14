@@ -21,3 +21,13 @@ VALUES (1, '카페 봄', '서울시 강남구 삼성동 789', 37.5080, 127.0610,
 
 INSERT INTO cafe (member_id, name, address, latitude, longitude, phone, description, type, franchise, has_toilet, has_outlet, has_wifi, floor_count, has_separate_space, congestion_level, image_url, status, created_at, updated_at)
 VALUES (1, '승인대기 카페', '서울시 강남구 청담동 111', 37.5200, 127.0500, null, '승인 대기 중인 카페', 'INDIVIDUAL', 'NONE', true, true, false, 'ONE', false, 'LOW', null, 'PENDING', NOW(), NOW());
+
+-- Wishlist 데이터
+INSERT INTO wishlist (member_id, cafe_id, created_at, updated_at)
+VALUES (1, 1, NOW(), NOW());
+
+INSERT INTO wishlist (member_id, cafe_id, created_at, updated_at)
+VALUES (1, 2, NOW(), NOW());
+
+INSERT INTO wishlist (member_id, cafe_id, created_at, updated_at)
+VALUES (1, 3, NOW(), NOW());

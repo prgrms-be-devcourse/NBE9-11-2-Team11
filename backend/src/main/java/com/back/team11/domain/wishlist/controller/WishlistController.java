@@ -4,8 +4,11 @@ import com.back.team11.domain.global.rsData.RsData;
 import com.back.team11.domain.wishlist.dto.WishlistResponse;
 import com.back.team11.domain.wishlist.service.WishlistService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -20,14 +23,22 @@ public class WishlistController {
             @PathVariable Long cafeId
     ){
         WishlistResponse wishlist = wishlistService.addWishlist(cafeId);
-        return ResponseEntity.ok(new RsData<>("200", "찜이 추가되었습니다."));
+        return ResponseEntity.status(HttpStatus.CREATED).body(new RsData<>("찜이 추가되었습니다.", "201",wishlist));
     }
 
+    //찜 취소
     @DeleteMapping("/cafe/{cafeId}/wishlist")
     public ResponseEntity<RsData<Void>> deleteWishlist(
             @PathVariable Long cafeId
     ){
         wishlistService.deleteWishlist(cafeId);
-        return ResponseEntity.ok(new RsData<>("200", "찜이 취소되었습니다."));
+        return ResponseEntity.ok(new RsData<>( "찜이 취소되었습니다.", "200"));
+    }
+
+    // 내 찜 목록 조회
+    @GetMapping("/member/me/wishlist")
+    public ResponseEntity<RsData<List<WishlistResponse>>> getWishlists() {
+        List<WishlistResponse> wishlists = wishlistService.getWishlists();
+        return ResponseEntity.ok(new RsData<>("찜 목록 조회 성공","200", wishlists));
     }
 }
