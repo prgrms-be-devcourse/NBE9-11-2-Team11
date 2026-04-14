@@ -43,5 +43,12 @@ public class Wishlist {
     @LastModifiedDate
     @Column(nullable = false)
     private LocalDateTime updatedAt;
+
+    public static Wishlist create(Member member, Cafe cafe){
+        Wishlist wishlist = new Wishlist();
+        wishlist.member = member;
+        wishlist.cafe = cafe;
+        return wishlist;
+    }
 }
 
