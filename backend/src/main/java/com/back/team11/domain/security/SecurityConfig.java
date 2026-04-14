@@ -1,22 +1,119 @@
 package com.back.team11.domain.security;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+
+//직접 추가
+import org.springframework.http.HttpMethod;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
 
+    // JWT 인증 필터
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    // 팀원 OAuth2 코드 완성 후 주석 해제
+    // private final OAuth2SuccessHandler oAuth2SuccessHandler;
+    // private final CustomOAuth2UserService customOAuth2UserService;
+
+    /**
+     * HTTP 요청에 대한 보안 필터 체인 설정
+     * 인증/인가 규칙, 세션 정책, CSRF, 예외 처리 등을 정의
+     */
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .anyRequest().permitAll()  // 임시로 전체 허용
+                        .requestMatchers(
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**",
+                                "/swagger-ui.html"
+                        ).permitAll()
+                        .requestMatchers(
+                                "/oauth2/authorization/**",
+                                "/login/oauth2/code/**"
+                        ).permitAll()
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/*/cafes",
+                                "/api/*/cafes/{id:\\d+}"
+                        ).permitAll()
+                        .requestMatchers("/api/*/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/*/**").authenticated()
+                        .anyRequest().authenticated()
+                )
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+                .csrf(csrf -> csrf.disable())
+
+                // 팀원 OAuth2 코드 완성 후 주석 해제
+                // .oauth2Login(oauth2 -> oauth2
+                //         .userInfoEndpoint(userInfo ->
+                //                 userInfo.userService(customOAuth2UserService)
+                //         )
+                //         .successHandler(oAuth2SuccessHandler)
+                //         .failureHandler((request, response, exception) -> {
+                //             response.setContentType("application/json");
+                //             response.setCharacterEncoding("UTF-8");
+                //             response.setStatus(401);
+                //             response.getWriter().write("""
+                //                     {"resultCode": "401-1", "msg": "소셜 로그인에 실패했습니다."}
+                //                     """);
+                //         })
+                // )
+
+                // Spring 기본 로그인 필터 앞에 JWT 필터를 먼저 실행
+                // → 모든 요청에서 JWT 토큰 유효성을 먼저 검사
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+
+                // 인증/인가 실패 시 커스텀 에러 응답 설정
+                .exceptionHandling(exception -> exception
+                        // 인증 실패 (토큰 없음 / 만료 등) → 401 응답
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.setContentType("application/json");
+                            response.setCharacterEncoding("UTF-8");
+                            response.setStatus(401);
+                            response.getWriter().write("""
+                                    {"resultCode": "401-1", "msg": "로그인 후 이용해주세요."}
+                                    """);
+                        })
+                        // 권한 부족 (로그인은 됐지만 접근 불가) → 403 응답
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                            response.setContentType("application/json");
+                            response.setCharacterEncoding("UTF-8");
+                            response.setStatus(403);
+                            response.getWriter().write("""
+                                    {"resultCode": "403-1", "msg": "접근 권한이 없습니다."}
+                                    """);
+                        })
                 );
+
         return http.build();
+    }
+
+    @Bean
+    public UrlBasedCorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(List.of("http://localhost:3000"));   // 현재 로컬 개발 환경만 허용
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")); // 허용할 HTTP 메서드 목록
+        configuration.setAllowedHeaders(List.of("*")); // 모든 요청 헤더 허용
+        configuration.setAllowCredentials(true);  // 쿠키/인증 정보 포함 요청 허용
+
+        // /api/** 경로에 위 CORS 설정 적용
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/api/**", configuration);
+        return source;
     }
 }
