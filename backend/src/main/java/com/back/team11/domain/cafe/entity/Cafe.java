@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 @Builder  // cafe-CRUD 추가: 필드명 기반 명시적 생성, 선택 필드 생략 가능
 @NoArgsConstructor
 @AllArgsConstructor
-@EntityListeners(AuditingEntityListener.class)
+@EntityListeners(AuditingEntityListener.class) // createdAt, updatedAt 자동 관리
 @Table(name = "cafe")
 public class Cafe {
     @Id

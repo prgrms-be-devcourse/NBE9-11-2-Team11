@@ -45,6 +45,10 @@ public class SecurityConfig {
                                 "/oauth2/authorization/**",
                                 "/login/oauth2/code/**"
                         ).permitAll()
+
+                        // [임시 추가] 테스트를 위해 관리자 카페 API 열어두기 위함
+                        .requestMatchers(HttpMethod.POST, "/api/V1/admin/cafe/post").permitAll()
+
                         .requestMatchers(HttpMethod.GET,
                                 "/api/*/cafe",
                                 "/api/*/cafe/{id:\\d+}",
