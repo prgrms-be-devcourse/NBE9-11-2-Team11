@@ -1,5 +1,6 @@
 package com.back.team11.domain.security;
 
+import com.back.team11.domain.auth.oauth.CustomOAuth2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,18 +23,18 @@ import java.util.List;
 public class SecurityConfig {
 
     // JWT 인증 필터
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    //private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     // 팀원 OAuth2 코드 완성 후 주석 해제
     // private final OAuth2SuccessHandler oAuth2SuccessHandler;
-    // private final CustomOAuth2UserService customOAuth2UserService;
+    private final CustomOAuth2UserService customOAuth2UserService;
 
     /**
      * HTTP 요청에 대한 보안 필터 체인 설정
      * 인증/인가 규칙, 세션 정책, CSRF, 예외 처리 등을 정의
      */
     @Bean
-    SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
@@ -54,6 +55,13 @@ public class SecurityConfig {
                                 "/api/*/cafe/{id:\\d+}",
                                 "/api/*/cafe/*/reviews"   //리뷰 조회 누구나 가능하게
                         ).permitAll()
+                        .requestMatchers( // 홈, 에러, oauth 관련 경로 허용
+                                "/",
+                                "/login",
+                                "/error",
+                                "/api/V1/auth/oauth/**",
+                                "/login/oauth2/**"
+                        ).permitAll()
                         .requestMatchers("/api/*/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/*/**").authenticated()
                         .anyRequest().authenticated()
@@ -62,26 +70,38 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .csrf(csrf -> csrf.disable())
+                .formLogin(form -> form.disable())
+                .httpBasic(basic -> basic.disable())
 
                 // 팀원 OAuth2 코드 완성 후 주석 해제
-                // .oauth2Login(oauth2 -> oauth2
-                //         .userInfoEndpoint(userInfo ->
-                //                 userInfo.userService(customOAuth2UserService)
-                //         )
-                //         .successHandler(oAuth2SuccessHandler)
-                //         .failureHandler((request, response, exception) -> {
-                //             response.setContentType("application/json");
-                //             response.setCharacterEncoding("UTF-8");
-                //             response.setStatus(401);
-                //             response.getWriter().write("""
-                //                     {"resultCode": "401-1", "msg": "소셜 로그인에 실패했습니다."}
-                //                     """);
-                //         })
-                // )
+                 .oauth2Login(oauth2 -> oauth2
+                 .authorizationEndpoint(authorization -> authorization
+                                                .baseUri("/api/V1/auth/oauth") //OAuth 시작 엔드포인트 설정
+                                        )
+                                                .redirectionEndpoint(redirection -> redirection // OAuth 제공자가 로그인 후 redirect 해주는 콜백 URL
+                                                        .baseUri("/api/V1/auth/oauth/*/callback")
+                                                )
+                                        .defaultSuccessUrl("/loginSuccess", true)
+                                        .failureUrl("/login?error")
+                                 // OAuth 제공자로부터 받은 사용자 정보를 어떻게 처리할지 설정
+                                 // 여기서 CustomOAuth2UserService가 실행
+                         .userInfoEndpoint(userInfo ->
+                                 userInfo.userService(customOAuth2UserService)
+                         )
+                         //.successHandler(oAuth2SuccessHandler)
+                         .failureHandler((request, response, exception) -> {
+                             response.setContentType("application/json");
+                             response.setCharacterEncoding("UTF-8");
+                             response.setStatus(401);
+                             response.getWriter().write("""
+                                     {"resultCode": "401-1", "msg": "소셜 로그인에 실패했습니다."}
+                                     """);
+                         })
+                 )
 
                 // Spring 기본 로그인 필터 앞에 JWT 필터를 먼저 실행
                 // → 모든 요청에서 JWT 토큰 유효성을 먼저 검사
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                //.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
 
                 // 인증/인가 실패 시 커스텀 에러 응답 설정
                 .exceptionHandling(exception -> exception
@@ -104,7 +124,6 @@ public class SecurityConfig {
                                     """);
                         })
                 );
-
         return http.build();
     }
 
