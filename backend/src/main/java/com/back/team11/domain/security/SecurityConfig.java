@@ -10,6 +10,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
@@ -74,30 +75,30 @@ public class SecurityConfig {
                 .formLogin(form -> form.disable())
                 .httpBasic(basic -> basic.disable())
 
-                 .oauth2Login(oauth2 -> oauth2
-                 .authorizationEndpoint(authorization -> authorization
-                                                .baseUri("/api/V1/auth/oauth") //OAuth 시작 엔드포인트 설정
-                                        )
-                                                .redirectionEndpoint(redirection -> redirection // OAuth 제공자가 로그인 후 redirect 해주는 콜백 URL
-                                                        .baseUri("/api/V1/auth/oauth/*/callback")
-                                                )
-                                        .defaultSuccessUrl("/loginSuccess", true)
-                                        .failureUrl("/login?error")
-                                 // OAuth 제공자로부터 받은 사용자 정보를 어떻게 처리할지 설정
-                                 // 여기서 CustomOAuth2UserService가 실행
-                         .userInfoEndpoint(userInfo ->
-                                 userInfo.userService(customOAuth2UserService)
-                         )
-                         .successHandler(oAuth2SuccessHandler)  // 주석 해제
-                         .failureHandler((request, response, exception) -> {
-                             response.setContentType("application/json");
-                             response.setCharacterEncoding("UTF-8");
-                             response.setStatus(401);
-                             response.getWriter().write("""
+                .oauth2Login(oauth2 -> oauth2
+                        .authorizationEndpoint(authorization -> authorization
+                                .baseUri("/api/V1/auth/oauth") //OAuth 시작 엔드포인트 설정
+                        )
+                        .redirectionEndpoint(redirection -> redirection // OAuth 제공자가 로그인 후 redirect 해주는 콜백 URL
+                                .baseUri("/api/V1/auth/oauth/*/callback")
+                        )
+                        .defaultSuccessUrl("/loginSuccess", true)
+                        .failureUrl("/login?error")
+                        // OAuth 제공자로부터 받은 사용자 정보를 어떻게 처리할지 설정
+                        // 여기서 CustomOAuth2UserService가 실행
+                        .userInfoEndpoint(userInfo ->
+                                userInfo.userService(customOAuth2UserService)
+                        )
+                        .successHandler(oAuth2SuccessHandler)  // 주석 해제
+                        .failureHandler((request, response, exception) -> {
+                            response.setContentType("application/json");
+                            response.setCharacterEncoding("UTF-8");
+                            response.setStatus(401);
+                            response.getWriter().write("""
                                      {"resultCode": "401-1", "msg": "소셜 로그인에 실패했습니다."}
                                      """);
-                         })
-                 )
+                        })
+                )
 
                 // Spring 기본 로그인 필터 앞에 JWT 필터를 먼저 실행
                 // → 모든 요청에서 JWT 토큰 유효성을 먼저 검사
