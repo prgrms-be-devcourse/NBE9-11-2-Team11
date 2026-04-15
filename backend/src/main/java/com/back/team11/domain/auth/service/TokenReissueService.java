@@ -7,6 +7,7 @@ import com.back.team11.domain.global.exception.ErrorCode;
 import com.back.team11.domain.global.util.CookieUtil;
 import com.back.team11.domain.member.entity.Member;
 import com.back.team11.domain.member.repository.MemberRepository;
+
 import com.back.team11.domain.security.JwtTokenProvider;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -25,6 +26,7 @@ public class TokenReissueService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final CookieUtil cookieUtil;
     private final MemberRepository memberRepository; //추가
+
 
     @Transactional
     public void reissue(HttpServletRequest request, HttpServletResponse response) {
@@ -59,6 +61,7 @@ public class TokenReissueService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
         String role = member.getRole().name();
+
 
         String newAccessToken = jwtTokenProvider.generateAccessToken(memberId, role);
         String newRefreshToken = jwtTokenProvider.generateRefreshToken(memberId);

@@ -7,6 +7,8 @@ import com.back.team11.domain.review.dto.ReviewResponseDto;
 import com.back.team11.domain.review.service.ReviewService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -69,42 +71,44 @@ public class ReviewController {
     // JWT 없을 때 임시 코드  JWT 구현 시 삭제
 
     @PostMapping
-    public RsData<ReviewResponseDto> createReview(
+    public ResponseEntity<RsData<ReviewResponseDto>> createReview(
             @PathVariable Long cafeId,
             @Valid @RequestBody ReviewRequestDto requestDto,
             @RequestParam Long memberId  // 임시
     ) {
         ReviewResponseDto data = reviewService.createReview(cafeId, requestDto, memberId);
-        return new RsData<>("리뷰가 작성되었습니다.", "201", data);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(new RsData<>("리뷰가 작성되었습니다.", "201", data));
     }
 
     @GetMapping
-    public RsData<List<ReviewResponseDto>> getReviews(
+    public ResponseEntity<RsData<List<ReviewResponseDto>>> getReviews(
             @PathVariable Long cafeId
     ) {
         List<ReviewResponseDto> data = reviewService.getReviews(cafeId);
-        return new RsData<>("리뷰 목록 조회 성공", "200", data);
+        return ResponseEntity.ok(new RsData<>("리뷰 목록 조회 성공", "200", data));
     }
 
     @PutMapping("/{reviewId}")
-    public RsData<ReviewResponseDto> updateReview(
+    public ResponseEntity<RsData<ReviewResponseDto>> updateReview(
             @PathVariable Long cafeId,
             @PathVariable Long reviewId,
             @Valid @RequestBody ReviewRequestDto requestDto,
             @RequestParam Long memberId  // 임시
     ) {
         ReviewResponseDto data = reviewService.updateReview(cafeId, reviewId, requestDto, memberId);
-        return new RsData<>("리뷰가 수정되었습니다.", "200", data);
+        return ResponseEntity.ok(new RsData<>("리뷰가 수정되었습니다.", "200", data));
     }
 
     @DeleteMapping("/{reviewId}")
-    public RsData<Void> deleteReview(
+    public ResponseEntity<RsData<Void>> deleteReview(
             @PathVariable Long cafeId,
             @PathVariable Long reviewId,
             @RequestParam Long memberId  // 임시
     ) {
         reviewService.deleteReview(cafeId, reviewId, memberId);
-        return new RsData<>("리뷰가 삭제되었습니다.", "200");
+        return ResponseEntity.ok(new RsData<>("리뷰가 삭제되었습니다.", "200"));
     }
 
 }
