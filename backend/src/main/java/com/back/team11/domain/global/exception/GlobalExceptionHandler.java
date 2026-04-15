@@ -2,6 +2,7 @@ package com.back.team11.domain.global.exception;
 
 import com.back.team11.domain.global.rsData.RsData;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -28,6 +29,17 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .badRequest()
                 .body(new RsData<>(message, "400-1"));
+    }
+
+
+    // @Valid 이전 단계인 JSON 역직렬화 실패 처리
+    // ex) Enum에 없는 값, Boolean에 문자열 입력 등
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<RsData<Void>> handleHttpMessageNotReadableException(
+            HttpMessageNotReadableException e) {
+        return ResponseEntity
+                .badRequest()
+                .body(new RsData<>("잘못된 입력값입니다.", "400-1"));
     }
 
     @ExceptionHandler(Exception.class)
