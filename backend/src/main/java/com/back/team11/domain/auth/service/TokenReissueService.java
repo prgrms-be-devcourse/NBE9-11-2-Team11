@@ -53,7 +53,7 @@ public class TokenReissueService {
 
 
         // 재발급 대상 사용자 식별
-        Long memberId = refreshToken.getMember().getId();
+        Long memberId = refreshToken.getMemberId();
 
         //수정: MemberRepository에서 실제 role 조회
         Member member = memberRepository.findById(memberId)
