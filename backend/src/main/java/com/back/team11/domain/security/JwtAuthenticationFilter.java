@@ -5,6 +5,7 @@ import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.security.SignatureException;
 import java.io.IOException;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -88,16 +90,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     /**
-     1. Authorization 헤더에서 토큰 추출
-     2. "Bearer eyJhbGc..." → "eyJhbGc..." 만 잘라서 반환
-     3. 헤더 없거나 Bearer 형식 아니면 null 반환
+     1.쿠키에서 AccessToken 추출
+     2. 쿠키 없거나 accessToken 쿠키 없으면 null 반환
      */
     private String resolveToken(HttpServletRequest request) {
-        String bearerToken = request.getHeader("Authorization");
-        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7);
+        Cookie[] cookies = request.getCookies();
+
+        if (cookies == null) {
+            return null;
         }
-        return null;
+
+        return Arrays.stream(cookies)
+                .filter(cookie -> "accessToken".equals(cookie.getName()))
+                .findFirst()
+                .map(Cookie::getValue)
+                .orElse(null);
     }
 
     /**

@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 // Refresh Token 기반으로 Access Token을 재발급하는 엔드포인트
 // 실제 검증 및 재발급 로직은 Service 계층에서 처리
 
-//  // 쿠키 관련 처리는 CookieUtil, 재발급 로직은 Service에서 수행
+// 쿠키 관련 처리는 CookieUtil, 재발급 로직은 Service에서 수행
 
 @RestController
 @RequestMapping("/api/V1/auth")
