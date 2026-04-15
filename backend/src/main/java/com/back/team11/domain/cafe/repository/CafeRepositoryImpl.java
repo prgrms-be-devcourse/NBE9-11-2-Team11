@@ -1,9 +1,14 @@
 package com.back.team11.domain.cafe.repository;
 
+import com.back.team11.domain.cafe.dto.AdminCafeSearchCondition;
 import com.back.team11.domain.cafe.entity.*;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -81,4 +86,38 @@ public class CafeRepositoryImpl implements CafeRepositoryCustom{
     private BooleanExpression congestionEq(CongestionLevel congestionLevel) {
         return congestionLevel != null ? cafe.congestionLevel.eq(congestionLevel) : null;
     }
+
+
+    /// 관리자용 카페 검색 메서드 (페이징 + 최신순 정렬)
+    /// 기존에 있는 코드 재사용을 통한 유지보수성 향상
+    @Override
+    public Page<Cafe> searchAdminCafes(AdminCafeSearchCondition condition, Pageable pageable) {
+        // 1. 데이터 조회 쿼리 (페이징 + 최신순 정렬)
+        List<Cafe> content = queryFactory
+                .selectFrom(cafe)
+                .where(
+                        statusEq(condition.getStatus()) // AND status = ? (null이면 전체 조회)
+                )
+                .orderBy(cafe.createdAt.desc())         // 최신 등록일 기준 내림차순 정렬
+                .offset(pageable.getOffset())           // 페이지 시작점
+                .limit(pageable.getPageSize())          // 한 페이지에 보여줄 개수 (15개)
+                .fetch();
+
+        // 2. 전체 데이터 개수 카운트 쿼리 (페이징을 위해 필요)
+        JPAQuery<Long> countQuery = queryFactory
+                .select(cafe.count())
+                .from(cafe)
+                .where(
+                        statusEq(condition.getStatus())
+                );
+
+        // 3. Page 객체로 묶어서 반환 (PageableExecutionUtils를 쓰면 최적화된 카운트 쿼리 실행 가능)
+        return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
+    }
+
+    // 관리자용 상태 일치 여부 확인 메서드
+    private BooleanExpression statusEq(CafeStatus status) {
+        return status != null ? cafe.status.eq(status) : null;
+    }
+
 }

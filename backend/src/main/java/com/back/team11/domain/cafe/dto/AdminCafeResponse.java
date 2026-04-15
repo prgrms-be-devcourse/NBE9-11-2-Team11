@@ -5,7 +5,8 @@ import com.back.team11.domain.cafe.entity.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-public record CafeResponse(
+// 관리자용 응답 DTO - 사용자용 CafeResponse와 달리 status, createdAt 포함
+public record AdminCafeResponse(
         Long cafeId,
         String name,
         String address,
@@ -22,10 +23,11 @@ public record CafeResponse(
         Boolean hasSeparateSpace,
         CongestionLevel congestionLevel,
         String imageUrl,
-        LocalDateTime createdAt // 제보일을 기준으로 날짜를 표시
+        CafeStatus status,       // 관리자만 확인 필요
+        LocalDateTime createdAt  // 관리자만 확인 필요
 ) {
-    public static CafeResponse from(Cafe cafe){
-        return new CafeResponse(
+    public static AdminCafeResponse from(Cafe cafe) {
+        return new AdminCafeResponse(
                 cafe.getId(),
                 cafe.getName(),
                 cafe.getAddress(),
@@ -42,7 +44,8 @@ public record CafeResponse(
                 cafe.getHasSeparateSpace(),
                 cafe.getCongestionLevel(),
                 cafe.getImageUrl(),
-                cafe.getCreatedAt() // 제보일을 기준으로 날짜를 표시
+                cafe.getStatus(),
+                cafe.getCreatedAt()
         );
     }
 }
