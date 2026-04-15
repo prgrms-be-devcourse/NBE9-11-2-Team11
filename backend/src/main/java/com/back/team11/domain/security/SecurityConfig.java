@@ -47,6 +47,7 @@ public class SecurityConfig {
                         // [임시 추가] 테스트를 위해 관리자 카페 API 열어두기 위함
                         .requestMatchers(HttpMethod.POST, "/api/V1/admin/cafe/post").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/V1/admin/cafes").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/V1/admin/cafe/*").permitAll()
 
 
                         .requestMatchers(HttpMethod.GET,
