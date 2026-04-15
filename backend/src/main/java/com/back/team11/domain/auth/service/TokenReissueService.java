@@ -5,6 +5,8 @@ import com.back.team11.domain.auth.repository.RefreshTokenRepository;
 import com.back.team11.domain.global.exception.CustomException;
 import com.back.team11.domain.global.exception.ErrorCode;
 import com.back.team11.domain.global.util.CookieUtil;
+import com.back.team11.domain.member.entity.Member;
+import com.back.team11.domain.member.repository.MemberRepository;
 import com.back.team11.domain.security.JwtTokenProvider;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -22,6 +24,7 @@ public class TokenReissueService {
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenRepository refreshTokenRepository;
     private final CookieUtil cookieUtil;
+    private final MemberRepository memberRepository; //추가
 
     @Transactional
     public void reissue(HttpServletRequest request, HttpServletResponse response) {
@@ -52,8 +55,10 @@ public class TokenReissueService {
         // 재발급 대상 사용자 식별
         Long memberId = refreshToken.getMember().getId();
 
-        // 팀원 OAuth2 코드 머지 후 MemberRepository에서 실제 role 조회로 변경!!!!!
-        String role = "USER";
+        //수정: MemberRepository에서 실제 role 조회
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        String role = member.getRole().name();
 
         String newAccessToken = jwtTokenProvider.generateAccessToken(memberId, role);
         String newRefreshToken = jwtTokenProvider.generateRefreshToken(memberId);
