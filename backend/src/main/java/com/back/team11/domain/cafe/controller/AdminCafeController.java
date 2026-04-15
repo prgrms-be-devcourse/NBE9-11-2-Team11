@@ -1,7 +1,9 @@
 package com.back.team11.domain.cafe.controller;
 
 import com.back.team11.domain.cafe.dto.AdminCafeResponse;
+import com.back.team11.domain.cafe.dto.AdminCafeSearchCondition;
 import com.back.team11.domain.cafe.dto.CafeCreateRequest;
+import com.back.team11.domain.cafe.dto.PageResponse;
 import com.back.team11.domain.cafe.service.AdminCafeService;
 import com.back.team11.domain.global.rsData.RsData;
 import jakarta.validation.Valid;
@@ -11,7 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/V1/admin/cafe")
+@RequestMapping("/api/V1/admin")
 @RequiredArgsConstructor
 public class AdminCafeController {
 
@@ -20,7 +22,7 @@ public class AdminCafeController {
     /**
      관리자 - 카페 정보 생성 (POST /api/V1/admin/cafe/post)
      **/
-    @PostMapping("/post")
+    @PostMapping("/cafe/post")
     public ResponseEntity<RsData<AdminCafeResponse>> createCafe(
             @RequestBody @Valid CafeCreateRequest request
     ) {
@@ -29,5 +31,20 @@ public class AdminCafeController {
                 .status(HttpStatus.CREATED)
                 .body(new RsData<>("카페 등록 성공", "201", response));
     }
+
+    /**
+     관리자 - 카페 전체 정보 조회 (GET /api/V1/admin/cafes)
+     **/
+    @GetMapping("/cafes") // 클래스 레벨이 /api/V1/admin/cafe 이므로 's'를 붙여 /cafes 로 매핑
+    public ResponseEntity<RsData<PageResponse<AdminCafeResponse>>> getCafes(
+            @ModelAttribute AdminCafeSearchCondition condition,
+            @RequestParam(defaultValue = "1") int page
+    ) {
+        PageResponse<AdminCafeResponse> response = adminCafeService.getCafes(condition, page);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(new RsData<>("카페 목록 조회 성공", "200", response));
+    }
+
 
 }

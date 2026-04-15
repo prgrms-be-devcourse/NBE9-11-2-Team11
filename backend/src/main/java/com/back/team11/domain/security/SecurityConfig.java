@@ -4,15 +4,12 @@ import com.back.team11.domain.auth.oauth.CustomOAuth2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
-
-//직접 추가
-import org.springframework.http.HttpMethod;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
@@ -49,6 +46,8 @@ public class SecurityConfig {
 
                         // [임시 추가] 테스트를 위해 관리자 카페 API 열어두기 위함
                         .requestMatchers(HttpMethod.POST, "/api/V1/admin/cafe/post").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/V1/admin/cafes").permitAll()
+
 
                         .requestMatchers(HttpMethod.GET,
                                 "/api/*/cafe",
