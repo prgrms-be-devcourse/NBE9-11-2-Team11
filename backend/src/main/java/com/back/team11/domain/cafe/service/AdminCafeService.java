@@ -67,7 +67,7 @@ public class AdminCafeService {
 
 
     /**
-     관리자 - 카페 목록 조회 (페이 징 및 필터링)
+     관리자 - 카페 목록 조회 (페이징 및 필터링)
      **/
     @Transactional(readOnly = true)
     public PageResponse<AdminCafeResponse> getCafes(AdminCafeSearchCondition condition, int page) {

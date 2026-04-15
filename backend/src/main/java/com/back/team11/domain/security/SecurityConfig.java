@@ -1,6 +1,7 @@
 package com.back.team11.domain.security;
 
 import com.back.team11.domain.auth.oauth.CustomOAuth2UserService;
+import com.back.team11.domain.auth.oauth.OAuth2SuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,10 +21,10 @@ import java.util.List;
 public class SecurityConfig {
 
     // JWT 인증 필터
-    //private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter; //주석 해제
 
-    // 팀원 OAuth2 코드 완성 후 주석 해제
-    // private final OAuth2SuccessHandler oAuth2SuccessHandler;
+    // OAuth2 로그인 성공 후 JWT 발급 핸들러
+    private final OAuth2SuccessHandler oAuth2SuccessHandler; // 주석 해제
     private final CustomOAuth2UserService customOAuth2UserService;
 
     /**
@@ -73,7 +74,6 @@ public class SecurityConfig {
                 .formLogin(form -> form.disable())
                 .httpBasic(basic -> basic.disable())
 
-                // 팀원 OAuth2 코드 완성 후 주석 해제
                  .oauth2Login(oauth2 -> oauth2
                  .authorizationEndpoint(authorization -> authorization
                                                 .baseUri("/api/V1/auth/oauth") //OAuth 시작 엔드포인트 설정
@@ -88,7 +88,7 @@ public class SecurityConfig {
                          .userInfoEndpoint(userInfo ->
                                  userInfo.userService(customOAuth2UserService)
                          )
-                         //.successHandler(oAuth2SuccessHandler)
+                         .successHandler(oAuth2SuccessHandler)  // 주석 해제
                          .failureHandler((request, response, exception) -> {
                              response.setContentType("application/json");
                              response.setCharacterEncoding("UTF-8");
@@ -101,7 +101,7 @@ public class SecurityConfig {
 
                 // Spring 기본 로그인 필터 앞에 JWT 필터를 먼저 실행
                 // → 모든 요청에서 JWT 토큰 유효성을 먼저 검사
-                //.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)  // 주석 해제
 
                 // 인증/인가 실패 시 커스텀 에러 응답 설정
                 .exceptionHandling(exception -> exception
