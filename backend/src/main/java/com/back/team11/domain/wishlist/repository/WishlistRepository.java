@@ -18,4 +18,6 @@ public interface WishlistRepository extends JpaRepository<Wishlist, Long> {
     //Lazy 로딩으로 인한 N+1 문제를 해결하기 위한 Join fetch 도입
     @Query("SELECT w FROM Wishlist w JOIN FETCH w.cafe WHERE w.member.id = :memberId")
     List<Wishlist> findAllByMemberIdWithCafe(@Param("memberId") Long memberId);
+
+    long countByCafeId(Long cafeId);
 }
