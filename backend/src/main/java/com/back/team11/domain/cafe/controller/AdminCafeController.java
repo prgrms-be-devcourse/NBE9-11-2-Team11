@@ -81,4 +81,29 @@ public class AdminCafeController {
     }
 
 
+    /**
+     * 관리자 - 카페 승인 (PATCH /api/V1/admin/cafe/{cafeId}/approve)
+     */
+    @PatchMapping("/cafe/{cafeId}/approve")
+    public ResponseEntity<RsData<AdminCafeResponse>> approveCafe(
+            @PathVariable Long cafeId
+    ) {
+        AdminCafeResponse response = adminCafeService.approveCafe(cafeId);
+        return ResponseEntity
+                .ok(new RsData<>("카페 승인 성공", "200", response));
+    }
+
+    /**
+     * 관리자 - 카페 승인 거부 (PATCH /api/V1/admin/cafe/{cafeId}/reject)
+     */
+    @PatchMapping("/cafe/{cafeId}/reject")
+    public ResponseEntity<RsData<AdminCafeResponse>> rejectCafe(
+            @PathVariable Long cafeId
+    ) {
+        AdminCafeResponse response = adminCafeService.rejectCafe(cafeId);
+        return ResponseEntity
+                .ok(new RsData<>("카페 승인 거부 성공", "200", response));
+    }
+
+
 }
