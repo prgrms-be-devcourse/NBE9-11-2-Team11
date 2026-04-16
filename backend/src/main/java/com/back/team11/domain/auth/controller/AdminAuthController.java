@@ -2,8 +2,10 @@ package com.back.team11.domain.auth.controller;
 
 import com.back.team11.domain.auth.dto.LoginRequestDto;
 import com.back.team11.domain.auth.dto.TokenResponseDto;
-import com.back.team11.domain.global.rsData.RsData;
 import com.back.team11.domain.security.JwtTokenProvider;
+import com.back.team11.domain.member.entity.Member;
+import com.back.team11.domain.member.service.MemberService;
+import com.back.team11.domain.global.rsData.RsData;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,15 +20,18 @@ import jakarta.servlet.http.HttpServletResponse;
 public class AdminAuthController {
 
     private final JwtTokenProvider jwtTokenProvider;
+    private final MemberService memberService;
 
-    // 로그인 처리: 로그인 시 Access Token 및 Refresh Token 발급
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequestDto loginRequestDto, HttpServletResponse response) {
-        // 로그인 검증 (예시)
-        if ("admin".equals(loginRequestDto.getUsername()) && "adminpass".equals(loginRequestDto.getPassword())) {
+    public ResponseEntity<RsData<?>> login(@RequestBody LoginRequestDto loginRequestDto, HttpServletResponse response) {
+        // 이메일로 사용자 조회
+        Member member = memberService.findByEmail(loginRequestDto.getEmail());
+
+        // 비밀번호 검증
+        if (member != null && memberService.validatePassword(loginRequestDto.getPassword(), member.getPassword())) {
             // JWT 토큰 발급
-            String accessToken = jwtTokenProvider.generateAccessToken(1L, "ADMIN"); // 임의의 값
-            String refreshToken = jwtTokenProvider.generateRefreshToken(1L); // 임의의 값
+            String accessToken = jwtTokenProvider.generateAccessToken(member.getId(), member.getRole().toString());
+            String refreshToken = jwtTokenProvider.generateRefreshToken(member.getId());
 
             // Refresh Token을 쿠키에 저장
             Cookie refreshTokenCookie = new Cookie("accessToken", refreshToken);
@@ -37,31 +42,40 @@ public class AdminAuthController {
             // 응답에 쿠키 추가
             response.addCookie(refreshTokenCookie);
 
-            return ResponseEntity.ok(new TokenResponseDto(accessToken, refreshToken));
+            // RsData 응답 형식으로 반환
+            return ResponseEntity.ok(new RsData<>("로그인이 성공적으로 되었습니다.", "200-1", new TokenResponseDto(accessToken, refreshToken)));
         }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
+
+        // 로그인 실패
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(new RsData<>("Unauthorized", "401-1"));
     }
 
-    // 토큰 재발급
     @PostMapping("/refresh")
-    public ResponseEntity<?> refresh(@CookieValue("accessToken") String refreshToken) {
+    public ResponseEntity<RsData<?>> refresh(@CookieValue("accessToken") String refreshToken) {
         if (refreshToken != null) {
             Long memberId = jwtTokenProvider.getMemberId(refreshToken);
-            String newAccessToken = jwtTokenProvider.generateAccessToken(memberId, "ADMIN");
-            return ResponseEntity.ok(new TokenResponseDto(newAccessToken, refreshToken));
+            String newAccessToken = jwtTokenProvider.generateAccessToken(memberId, "ADMIN"); // "ADMIN"은 예시로 사용
+
+
+            return ResponseEntity.ok(new RsData<>("토큰 리프레쉬가 성공적으로 되었습니다.", "200-1", new TokenResponseDto(newAccessToken, refreshToken)));
         }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Refresh token is missing or invalid.");
+
+        // 리프레시 토큰이 없을 경우
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(new RsData<>("리프레쉬 토큰이 존재하지 않거나 유효하지 않습니다.", "401-1"));
     }
 
-    // 로그아웃
     @PostMapping("/logout")
-    public ResponseEntity<RsData<Void>> logout(HttpServletResponse response) {
+    public ResponseEntity<RsData<?>> logout(HttpServletResponse response) {
         Cookie cookie = new Cookie("accessToken", null);
         cookie.setHttpOnly(true);
         cookie.setMaxAge(0); // 쿠키 삭제
         cookie.setPath("/");
 
         response.addCookie(cookie);
-        return ResponseEntity.ok().build();
+
+        // 로그아웃 성공 시
+        return ResponseEntity.ok(new RsData<>("로그아웃이 성공적으로 되었습니다.", "200-1"));
     }
 }
