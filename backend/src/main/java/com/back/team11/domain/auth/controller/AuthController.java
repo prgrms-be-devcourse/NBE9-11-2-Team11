@@ -18,7 +18,7 @@ public class AuthController {
 
     private final AuthService authService;
 
-    @PostMapping("/api/v1/auth/logout")
+    @PostMapping("/logout")
     public ResponseEntity<RsData<Void>> logout(
             HttpServletRequest request,
             HttpServletResponse response

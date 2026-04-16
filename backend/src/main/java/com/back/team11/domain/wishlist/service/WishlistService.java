@@ -4,6 +4,7 @@ import com.back.team11.domain.cafe.entity.Cafe;
 import com.back.team11.domain.cafe.repository.CafeRepository;
 import com.back.team11.domain.global.exception.CustomException;
 import com.back.team11.domain.global.exception.ErrorCode;
+import com.back.team11.domain.global.util.AuthUtil;
 import com.back.team11.domain.member.entity.Member;
 import com.back.team11.domain.member.repository.MemberRepository;
 import com.back.team11.domain.wishlist.dto.WishlistResponse;
@@ -24,13 +25,14 @@ public class WishlistService {
     private final MemberRepository memberRepository;
     private final CafeRepository cafeRepository;
     private final WishlistRepository wishlistRepository;
+    private final AuthUtil authUtil;
 
 
     @Transactional
     public WishlistResponse addWishlist(Long cafeId) {
 
         // 멤버 임시 구현(JWT 도입 후 수정 예정)
-        Member member = memberRepository.findById(1L)
+        Member member = memberRepository.findById(authUtil.getCurrentMemberId())
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         // 카페 존재 여부 확인
@@ -52,7 +54,7 @@ public class WishlistService {
     @Transactional
     public void deleteWishlist(Long cafeId) {
         // 멤버 임시 구현(JWT 도입 후 수정 예정)
-        Member member = memberRepository.findById(1L)
+        Member member = memberRepository.findById(authUtil.getCurrentMemberId())
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         // 카페 존재 여부 확인
@@ -68,11 +70,8 @@ public class WishlistService {
     }
 
     public List<WishlistResponse> getWishlists() {
-        // 멤버 임시 구현(JWT 도입 후 수정 예정)
-        Member member = memberRepository.findById(1L)
-                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        List<Wishlist> wishlists = wishlistRepository.findAllByMemberIdWithCafe(member.getId());
+        List<Wishlist> wishlists = wishlistRepository.findAllByMemberIdWithCafe(authUtil.getCurrentMemberId());
 
         return wishlists.stream()
                 .map(WishlistResponse::from)
