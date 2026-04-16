@@ -64,7 +64,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
 
             } catch (ExpiredJwtException e) {
-                // Access Token 만료 → 프론트에서 재발급 API 호출해야 함
+                // AccessToken 만료 시 진입
+                // refresh API 요청은 토큰 재발급을 위해 예외적으로 허용
+                // 그 외 요청은 인증 실패 처리
+                if (request.getRequestURI().equals("/api/V1/auth/refresh")) {
+                    filterChain.doFilter(request, response);
+                    return;
+                }
+                // refresh API가 아닌 경우 → 만료된 토큰으로 접근 불가
                 sendErrorResponse(response, 401, "401-3", "만료된 토큰입니다.");
                 return;
 
