@@ -91,7 +91,7 @@ public class Cafe {
 
 
     // ─────────────────────────────────────────────
-    // 정적 팩토리 메서드 - new 대신 static 사용
+    // 정적 팩토리 메서드 - new 대신 static 사용 (필수 값 누락을 방지)
     // member 없이 생성 - 관리자가 직접 등록하기에 필요 X
     // ─────────────────────────────────────────────
     public static Cafe createByAdmin(
@@ -130,6 +130,46 @@ public class Cafe {
                 .status(CafeStatus.APPROVED) // status는 APPROVED 고정: 관리자 직접 등록 → 즉시 승인
                 .build();
     } // @Builder 사용으로 생성자 대신 정적 팩토리 메서드로 명시적 생성, 필드명 기반, 선택 필드 생략 가능
+
+
+    // ─────────────────────────────────────────────
+    // PATCH 수정 메서드 - null인 필드는 기존값 유지
+    // member, status, createdAt, updatedAt는 수정 대상 아님 (status = APPROVED 고정)
+    // ─────────────────────────────────────────────
+    public void update(
+            String name,
+            String address,
+            BigDecimal latitude,
+            BigDecimal longitude,
+            String phone,
+            String description,
+            CafeType type,
+            Franchise franchise,
+            Boolean hasToilet,
+            Boolean hasOutlet,
+            Boolean hasWifi,
+            FloorCount floorCount,
+            Boolean hasSeparateSpace,
+            CongestionLevel congestionLevel,
+            String imageUrl
+    ) {
+        if (name != null)              this.name = name;
+        if (address != null)           this.address = address;
+        if (latitude != null)          this.latitude = latitude;
+        if (longitude != null)         this.longitude = longitude;
+        if (phone != null)             this.phone = phone;
+        if (description != null)       this.description = description;
+        if (type != null)              this.type = type;
+        if (franchise != null)         this.franchise = franchise;
+        if (hasToilet != null)         this.hasToilet = hasToilet;
+        if (hasOutlet != null)         this.hasOutlet = hasOutlet;
+        if (hasWifi != null)           this.hasWifi = hasWifi;
+        if (floorCount != null)        this.floorCount = floorCount;
+        if (hasSeparateSpace != null)  this.hasSeparateSpace = hasSeparateSpace;
+        if (congestionLevel != null)   this.congestionLevel = congestionLevel;
+        if (imageUrl != null)          this.imageUrl = imageUrl;
+    }
+
 
     // 승인 처리
     public void approve() {

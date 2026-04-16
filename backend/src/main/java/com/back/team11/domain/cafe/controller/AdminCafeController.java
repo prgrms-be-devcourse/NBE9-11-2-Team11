@@ -1,9 +1,6 @@
 package com.back.team11.domain.cafe.controller;
 
-import com.back.team11.domain.cafe.dto.AdminCafeResponse;
-import com.back.team11.domain.cafe.dto.AdminCafeSearchCondition;
-import com.back.team11.domain.cafe.dto.CafeCreateRequest;
-import com.back.team11.domain.cafe.dto.PageResponse;
+import com.back.team11.domain.cafe.dto.*;
 import com.back.team11.domain.cafe.service.AdminCafeService;
 import com.back.team11.domain.global.rsData.RsData;
 import jakarta.validation.Valid;
@@ -55,6 +52,20 @@ public class AdminCafeController {
         AdminCafeResponse response = adminCafeService.getCafe(cafeId);
         return ResponseEntity
                 .ok(new RsData<>("카페 상세 조회 성공", "200", response));
+    }
+
+    /**
+     * 관리자 - 카페 정보 수정 (PATCH /api/V1/admin/cafe/{cafeId})
+     * 전송된 필드만 수정, null인 필드는 기존값 유지
+     */
+    @PatchMapping("/cafe/{cafeId}")
+    public ResponseEntity<RsData<AdminCafeResponse>> updateCafe(
+            @PathVariable Long cafeId,
+            @RequestBody CafeUpdateRequest request
+    ) {
+        AdminCafeResponse response = adminCafeService.updateCafe(cafeId, request);
+        return ResponseEntity
+                .ok(new RsData<>("카페 정보 수정 성공", "200", response));
     }
 
 

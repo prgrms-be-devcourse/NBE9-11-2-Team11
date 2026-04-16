@@ -1,9 +1,6 @@
 package com.back.team11.domain.cafe.service;
 
-import com.back.team11.domain.cafe.dto.AdminCafeResponse;
-import com.back.team11.domain.cafe.dto.AdminCafeSearchCondition;
-import com.back.team11.domain.cafe.dto.CafeCreateRequest;
-import com.back.team11.domain.cafe.dto.PageResponse;
+import com.back.team11.domain.cafe.dto.*;
 import com.back.team11.domain.cafe.entity.Cafe;
 import com.back.team11.domain.cafe.entity.CafeType;
 import com.back.team11.domain.cafe.entity.Franchise;
@@ -23,6 +20,9 @@ public class AdminCafeService {
 
     private final CafeRepository cafeRepository;
 
+    /**
+     관리자 - 카페 정보 생성 (POST /api/V1/admin/cafe/post)
+     **/
     @Transactional
     public AdminCafeResponse createCafe(CafeCreateRequest request) {
 
@@ -92,6 +92,45 @@ public class AdminCafeService {
         // cafeId로 카페 조회, 존재하지 않으면 예외 발생
         Cafe cafe = cafeRepository.findById(cafeId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CAFE_NOT_FOUND));
+
+        return AdminCafeResponse.from(cafe);
+    }
+
+    /**
+     * 관리자 - 카페 정보 수정 (PATCH /api/V1/admin/cafe/{cafeId})
+     * 전송된 필드만 수정, null인 필드는 기존값 유지
+     */
+    @Transactional
+    public AdminCafeResponse updateCafe(Long cafeId, CafeUpdateRequest request) {
+        // cafeId로 카페 조회, 존재하지 않으면 예외 발생
+        Cafe cafe = cafeRepository.findById(cafeId)
+                .orElseThrow(() -> new CustomException(ErrorCode.CAFE_NOT_FOUND));
+
+        // type, franchise 둘 다 전송된 경우에만 일관성 검증
+        if (request.getType() != null || request.getFranchise() != null) {
+            CafeType type = request.getType() != null ? request.getType() : cafe.getType();
+            Franchise franchise = request.getFranchise() != null ? request.getFranchise() : cafe.getFranchise();
+            validateFranchiseConsistency(type, franchise);
+        }
+
+        // 더티체킹으로 UPDATE 실행 (@Transactional 범위 안에서 필드 변경 시 자동 반영)
+        cafe.update(
+                request.getName(),
+                request.getAddress(),
+                request.getLatitude(),
+                request.getLongitude(),
+                request.getPhone(),
+                request.getDescription(),
+                request.getType(),
+                request.getFranchise(),
+                request.getHasToilet(),
+                request.getHasOutlet(),
+                request.getHasWifi(),
+                request.getFloorCount(),
+                request.getHasSeparateSpace(),
+                request.getCongestionLevel(),
+                request.getImageUrl()
+        );
 
         return AdminCafeResponse.from(cafe);
     }
