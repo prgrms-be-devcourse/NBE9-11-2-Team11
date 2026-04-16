@@ -23,7 +23,7 @@ public class AdminAuthController {
     private final MemberService memberService;
 
     @PostMapping("/login")
-    public ResponseEntity<RsData<?>> login(@RequestBody LoginRequestDto loginRequestDto, HttpServletResponse response) {
+    public ResponseEntity<RsData<TokenResponseDto>> login(@RequestBody LoginRequestDto loginRequestDto, HttpServletResponse response) {
         // 이메일로 사용자 조회
         Member member = memberService.findByEmail(loginRequestDto.getEmail());
 
@@ -42,32 +42,32 @@ public class AdminAuthController {
             // 응답에 쿠키 추가
             response.addCookie(refreshTokenCookie);
 
-            // RsData 응답 형식으로 반환
+            // RsData 응답 형식으로 반환 (TokenResponseDto 포함)
             return ResponseEntity.ok(new RsData<>("로그인이 성공적으로 되었습니다.", "200-1", new TokenResponseDto(accessToken, refreshToken)));
         }
 
         // 로그인 실패
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(new RsData<>("Unauthorized", "401-1"));
+                .body(new RsData<>("Unauthorized", "401-1", null)); // 로그인 실패 시 토큰이 없으므로 null
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<RsData<?>> refresh(@CookieValue("accessToken") String refreshToken) {
+    public ResponseEntity<RsData<TokenResponseDto>> refresh(@CookieValue("accessToken") String refreshToken) {
         if (refreshToken != null) {
             Long memberId = jwtTokenProvider.getMemberId(refreshToken);
             String newAccessToken = jwtTokenProvider.generateAccessToken(memberId, "ADMIN"); // "ADMIN"은 예시로 사용
 
-
+            // 리프레시 토큰과 새로운 액세스 토큰을 함께 반환
             return ResponseEntity.ok(new RsData<>("토큰 리프레쉬가 성공적으로 되었습니다.", "200-1", new TokenResponseDto(newAccessToken, refreshToken)));
         }
 
         // 리프레시 토큰이 없을 경우
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(new RsData<>("리프레쉬 토큰이 존재하지 않거나 유효하지 않습니다.", "401-1"));
+                .body(new RsData<>("리프레쉬 토큰이 존재하지 않거나 유효하지 않습니다.", "401-1", null)); // 실패 시에는 null
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<RsData<?>> logout(HttpServletResponse response) {
+    public ResponseEntity<RsData<Void>> logout(HttpServletResponse response) {
         Cookie cookie = new Cookie("accessToken", null);
         cookie.setHttpOnly(true);
         cookie.setMaxAge(0); // 쿠키 삭제
@@ -76,6 +76,6 @@ public class AdminAuthController {
         response.addCookie(cookie);
 
         // 로그아웃 성공 시
-        return ResponseEntity.ok(new RsData<>("로그아웃이 성공적으로 되었습니다.", "200-1"));
+        return ResponseEntity.ok(new RsData<>("로그아웃이 성공적으로 되었습니다.", "200-1", null)); // 로그아웃은 데이터가 필요하지 않으므로 null
     }
 }
