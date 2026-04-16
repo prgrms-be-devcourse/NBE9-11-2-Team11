@@ -5,6 +5,7 @@ import com.back.team11.domain.cafe.entity.Cafe;
 import com.back.team11.domain.cafe.repository.CafeRepository;
 import com.back.team11.domain.global.exception.CustomException;
 import com.back.team11.domain.global.exception.ErrorCode;
+import com.back.team11.domain.global.util.AuthUtil;
 import com.back.team11.domain.member.entity.Member;
 import com.back.team11.domain.member.repository.MemberRepository;
 import com.back.team11.domain.review.dto.ReviewRequestDto;
@@ -25,6 +26,7 @@ public class ReviewService {
     private final ReviewRepository reviewRepository;
     private final CafeRepository cafeRepository;
     private final MemberRepository memberRepository;
+    private final AuthUtil authUtil;
 
     // 리뷰 작성
     public ReviewResponseDto createReview(Long cafeId, ReviewRequestDto requestDto, Long memberId) {
@@ -74,7 +76,8 @@ public class ReviewService {
         Review review = reviewRepository.findByIdAndCafeId(reviewId, cafeId)
                 .orElseThrow(() -> new CustomException(ErrorCode.REVIEW_NOT_FOUND));
 
-        if (!review.getMember().getId().equals(memberId)) {
+        // 본인이 아니고, 관리자도 아니면 예외
+        if (!review.getMember().getId().equals(memberId) && !authUtil.isAdmin()) {
             throw new CustomException(ErrorCode.FORBIDDEN_REVIEW);
         }
 
