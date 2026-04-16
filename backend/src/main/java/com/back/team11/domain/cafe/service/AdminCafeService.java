@@ -83,4 +83,18 @@ public class AdminCafeService {
         return PageResponse.of(dtoPage);
     }
 
+
+    /**
+     * 관리자 - 카페 상세 조회
+     */
+    @Transactional(readOnly = true)
+    public AdminCafeResponse getCafe(Long cafeId) {
+        // cafeId로 카페 조회, 존재하지 않으면 예외 발생
+        Cafe cafe = cafeRepository.findById(cafeId)
+                .orElseThrow(() -> new CustomException(ErrorCode.CAFE_NOT_FOUND));
+
+        return AdminCafeResponse.from(cafe);
+    }
+
+
 }

@@ -46,5 +46,16 @@ public class AdminCafeController {
                 .body(new RsData<>("카페 목록 조회 성공", "200", response));
     }
 
+    // 관리자 - 카페 상세 조회
+    // GET /api/V1/admin/cafe/{cafeId}
+    @GetMapping("/cafe/{cafeId}")
+    public ResponseEntity<RsData<AdminCafeResponse>> getCafe(
+            @PathVariable Long cafeId
+    ) {
+        AdminCafeResponse response = adminCafeService.getCafe(cafeId);
+        return ResponseEntity
+                .ok(new RsData<>("카페 상세 조회 성공", "200", response));
+    }
+
 
 }
