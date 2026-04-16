@@ -68,5 +68,17 @@ public class AdminCafeController {
                 .ok(new RsData<>("카페 정보 수정 성공", "200", response));
     }
 
+    /**
+     * 관리자 - 카페 정보 삭제 (DELETE /api/V1/admin/cafe/{cafeId})
+     */
+    @DeleteMapping("/cafe/{cafeId}")
+    public ResponseEntity<RsData<Void>> deleteCafe(
+            @PathVariable Long cafeId
+    ) {
+        adminCafeService.deleteCafe(cafeId);
+        return ResponseEntity
+                .ok(new RsData<>("카페 삭제 성공", "200"));
+    }
+
 
 }

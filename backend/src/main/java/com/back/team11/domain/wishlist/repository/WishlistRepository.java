@@ -20,4 +20,8 @@ public interface WishlistRepository extends JpaRepository<Wishlist, Long> {
     List<Wishlist> findAllByMemberIdWithCafe(@Param("memberId") Long memberId);
 
     long countByCafeId(Long cafeId);
+
+    // 카페 삭제 시 연관된 찜 목록 일괄 삭제
+    void deleteByCafeId(Long cafeId);
+
 }

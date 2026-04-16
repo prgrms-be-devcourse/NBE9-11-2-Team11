@@ -51,6 +51,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/V1/admin/cafes").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/V1/admin/cafe/*").permitAll()
                         .requestMatchers(HttpMethod.PATCH, "/api/V1/admin/cafe/*").permitAll()
+                        .requestMatchers(HttpMethod.DELETE, "/api/V1/admin/cafe/*").permitAll()
+
 
 
                         .requestMatchers(HttpMethod.GET,

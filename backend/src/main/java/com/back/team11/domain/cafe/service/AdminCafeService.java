@@ -7,6 +7,8 @@ import com.back.team11.domain.cafe.entity.Franchise;
 import com.back.team11.domain.cafe.repository.CafeRepository;
 import com.back.team11.domain.global.exception.CustomException;
 import com.back.team11.domain.global.exception.ErrorCode;
+import com.back.team11.domain.review.repository.ReviewRepository;
+import com.back.team11.domain.wishlist.repository.WishlistRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -19,6 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class AdminCafeService {
 
     private final CafeRepository cafeRepository;
+    private final WishlistRepository wishlistRepository;
+    private final ReviewRepository reviewRepository;
 
     /**
      관리자 - 카페 정보 생성 (POST /api/V1/admin/cafe/post)
@@ -50,7 +54,47 @@ public class AdminCafeService {
         return AdminCafeResponse.from(cafeRepository.save(cafe));
     }
 
+    /**
+     * 관리자 - 카페 정보 수정 (PATCH /api/V1/admin/cafe/{cafeId})
+     * 전송된 필드만 수정, null인 필드는 기존값 유지
+     */
+    @Transactional
+    public AdminCafeResponse updateCafe(Long cafeId, CafeUpdateRequest request) {
+        // cafeId로 카페 조회, 존재하지 않으면 예외 발생
+        Cafe cafe = cafeRepository.findById(cafeId)
+                .orElseThrow(() -> new CustomException(ErrorCode.CAFE_NOT_FOUND));
+
+        // type, franchise 둘 다 전송된 경우에만 일관성 검증
+        if (request.getType() != null || request.getFranchise() != null) {
+            CafeType type = request.getType() != null ? request.getType() : cafe.getType();
+            Franchise franchise = request.getFranchise() != null ? request.getFranchise() : cafe.getFranchise();
+            validateFranchiseConsistency(type, franchise);
+        }
+
+        // 더티체킹으로 UPDATE 실행 (@Transactional 범위 안에서 필드 변경 시 자동 반영)
+        cafe.update(
+                request.getName(),
+                request.getAddress(),
+                request.getLatitude(),
+                request.getLongitude(),
+                request.getPhone(),
+                request.getDescription(),
+                request.getType(),
+                request.getFranchise(),
+                request.getHasToilet(),
+                request.getHasOutlet(),
+                request.getHasWifi(),
+                request.getFloorCount(),
+                request.getHasSeparateSpace(),
+                request.getCongestionLevel(),
+                request.getImageUrl()
+        );
+
+        return AdminCafeResponse.from(cafe);
+    }
+
     // INDIVIDUAL 타입 ↔ Franchise 브랜드 일관성 검증
+
     private void validateFranchiseConsistency(CafeType type, Franchise franchise) {
         boolean hasBrand = franchise != null && franchise != Franchise.NONE;
 
@@ -96,44 +140,28 @@ public class AdminCafeService {
         return AdminCafeResponse.from(cafe);
     }
 
+
     /**
-     * 관리자 - 카페 정보 수정 (PATCH /api/V1/admin/cafe/{cafeId})
-     * 전송된 필드만 수정, null인 필드는 기존값 유지
+     * 관리자 - 카페 정보 삭제 (DELETE /api/V1/admin/cafe/{cafeId})
+     * 외래키 제약 조건으로 인해 연관 데이터(찜, 리뷰)를 먼저 삭제 후 카페 삭제
      */
     @Transactional
-    public AdminCafeResponse updateCafe(Long cafeId, CafeUpdateRequest request) {
+    public void deleteCafe(Long cafeId) {
         // cafeId로 카페 조회, 존재하지 않으면 예외 발생
         Cafe cafe = cafeRepository.findById(cafeId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CAFE_NOT_FOUND));
 
-        // type, franchise 둘 다 전송된 경우에만 일관성 검증
-        if (request.getType() != null || request.getFranchise() != null) {
-            CafeType type = request.getType() != null ? request.getType() : cafe.getType();
-            Franchise franchise = request.getFranchise() != null ? request.getFranchise() : cafe.getFranchise();
-            validateFranchiseConsistency(type, franchise);
-        }
+        // 1. 연관된 찜 목록 먼저 삭제
+        wishlistRepository.deleteByCafeId(cafeId);
 
-        // 더티체킹으로 UPDATE 실행 (@Transactional 범위 안에서 필드 변경 시 자동 반영)
-        cafe.update(
-                request.getName(),
-                request.getAddress(),
-                request.getLatitude(),
-                request.getLongitude(),
-                request.getPhone(),
-                request.getDescription(),
-                request.getType(),
-                request.getFranchise(),
-                request.getHasToilet(),
-                request.getHasOutlet(),
-                request.getHasWifi(),
-                request.getFloorCount(),
-                request.getHasSeparateSpace(),
-                request.getCongestionLevel(),
-                request.getImageUrl()
-        );
+        // 2. 연관된 리뷰 먼저 삭제
+        reviewRepository.deleteByCafeId(cafeId);
 
-        return AdminCafeResponse.from(cafe);
+        // 3. 카페 삭제
+        cafeRepository.delete(cafe);
     }
+
+
 
 
 }
