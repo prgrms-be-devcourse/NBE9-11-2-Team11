@@ -69,10 +69,8 @@ public class SecurityConfig {
                         ).permitAll()
                         .requestMatchers("/api/*/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/*/**").authenticated()
+                        .requestMatchers("/api/v1/auth/logout").authenticated()
                         .anyRequest().authenticated()
-                )
-                .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .csrf(csrf -> csrf.disable())
                 .formLogin(form -> form.disable())

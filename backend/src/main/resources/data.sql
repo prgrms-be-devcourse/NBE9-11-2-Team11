@@ -4,7 +4,7 @@ VALUES ('admin@test.com', '1234', '관리자', 'ADMIN', 'LOCAL', NOW(), NOW());
 
 -- Member 데이터 (일반 유저)
 INSERT INTO member (email, password, nickname, role, provider, created_at, updated_at)
-VALUES ('user@test.com', '1234', '유저', 'USER', 'LOCAL', NOW(), NOW());
+VALUES ('user@test.com', '1234', '유저', 'USER', 'KAKAO', NOW(), NOW());
 
 -- Cafe 데이터
 INSERT INTO cafe (member_id, name, address, latitude, longitude, phone, description, type, franchise, has_toilet, has_outlet, has_wifi, floor_count, has_separate_space, congestion_level, image_url, status, created_at, updated_at)
@@ -24,10 +24,10 @@ VALUES (1, '승인대기 카페', '서울시 강남구 청담동 111', 37.5200, 
 
 -- Wishlist 데이터
 INSERT INTO wishlist (member_id, cafe_id, created_at, updated_at)
-VALUES (1, 1, NOW(), NOW());
+VALUES (2, 1, NOW(), NOW());
 
 INSERT INTO wishlist (member_id, cafe_id, created_at, updated_at)
-VALUES (1, 2, NOW(), NOW());
+VALUES (2, 2, NOW(), NOW());
 
 INSERT INTO wishlist (member_id, cafe_id, created_at, updated_at)
-VALUES (1, 3, NOW(), NOW());
+VALUES (2, 3, NOW(), NOW());
