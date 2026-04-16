@@ -1,3 +1,5 @@
+package com.back.team11.domain.auth.controller;
+
 import com.back.team11.domain.auth.service.TokenReissueService;
 import com.back.team11.domain.global.rsData.RsData;
 import com.back.team11.domain.global.util.CookieUtil;

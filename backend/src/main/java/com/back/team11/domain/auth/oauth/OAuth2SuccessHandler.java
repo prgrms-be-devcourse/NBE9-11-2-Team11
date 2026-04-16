@@ -2,6 +2,7 @@ package com.back.team11.domain.auth.oauth;
 
 import com.back.team11.domain.auth.entity.RefreshToken;
 import com.back.team11.domain.auth.repository.RefreshTokenRepository;
+import com.back.team11.domain.auth.service.TokenService;
 import com.back.team11.domain.global.util.CookieUtil;
 import com.back.team11.domain.security.JwtTokenProvider;
 import jakarta.servlet.http.HttpServletRequest;
@@ -11,6 +12,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -21,7 +23,7 @@ import java.time.LocalDateTime;
 public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     private final JwtTokenProvider jwtTokenProvider;
-    private final RefreshTokenRepository refreshTokenRepository;
+    private final TokenService tokenService;
     private final CookieUtil cookieUtil;
 
     @Override
@@ -43,25 +45,23 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         // Refresh Token DB 저장
         // 기존에 있으면 rotate(), 없으면 새로 저장
-        LocalDateTime expiresAt = LocalDateTime.now()
-                .plusSeconds(jwtTokenProvider.getRefreshTokenExpiration() / 1000);
-
-        refreshTokenRepository.findByMemberId(memberId)
-                .ifPresentOrElse(
-                        // 기존 토큰 있으면 새 토큰으로 교체
-                        existing -> existing.rotate(refreshToken, expiresAt),
-                        // 없으면 새로 저장
-                        () -> refreshTokenRepository.save(
-                                RefreshToken.builder()
-                                        .memberId(memberId)
-                                        .token(refreshToken)
-                                        .expiresAt(expiresAt)
-                                        .build()
-                        )
-                );
+        tokenService.saveOrUpdateRefreshToken(memberId, refreshToken);
 
         // 쿠키에 토큰 담기 (CookieUtil 사용)
         cookieUtil.addAccessTokenCookie(response, accessToken);
         cookieUtil.addRefreshTokenCookie(response, refreshToken);
+
+        //http://localhost:3000/login-success?status=success
+        String targetUrl = UriComponentsBuilder
+                .fromUriString("http://localhost:3000/login-success")
+                .queryParam("status", "success")
+                .build().toUriString();
+
+
+        // Spring Security 리다이렉트 전략 사용
+        // HTTP/HTTPS 자동 처리
+        // 상대경로/절대경로 자동 처리
+        // 더 안전한 방식
+        getRedirectStrategy().sendRedirect(request, response, targetUrl);
     }
 }
