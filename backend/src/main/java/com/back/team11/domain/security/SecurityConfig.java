@@ -6,9 +6,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -41,11 +45,6 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/swagger-ui.html"
                         ).permitAll()
-                        .requestMatchers(
-                                "/oauth2/authorization/**",
-                                "/login/oauth2/code/**"
-                        ).permitAll()
-
                         // [임시 추가] 테스트를 위해 관리자 카페 API 열어두기 위함
                         .requestMatchers(HttpMethod.POST, "/api/V1/admin/cafe/post").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/V1/admin/cafes").permitAll()
@@ -69,7 +68,8 @@ public class SecurityConfig {
                                 "/api/V1/auth/oauth/**",
                                 "/login/oauth2/**"
                         ).permitAll()
-                        .requestMatchers("/api/*/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/V1/admin/auth/login").permitAll() // 로그인 경로 허용
+                        .requestMatchers("/api/V1/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/*/**").authenticated()
                         .requestMatchers("/api/v1/auth/logout").authenticated()
                         .anyRequest().authenticated()
@@ -144,4 +144,12 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/api/**", configuration);
         return source;
     }
+
+    // PasswordEncoder를 Spring Security에 등록
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+
 }
