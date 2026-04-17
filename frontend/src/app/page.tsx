@@ -1,65 +1,153 @@
-import Image from "next/image";
+"use client";
+
+import dynamic from "next/dynamic";
+import { useState } from "react";
+import { CafeResponse } from "@/types/cafe";
+import CafeDetail from "@/components/cafe/CafeDetail";
+import Header from "@/components/common/Header";
+import SearchModal from "@/components/common/SearchModal";
+import WishlistPanel from "@/components/cafe/WishlistPanel";
+import FilterModal, { FilterState } from "@/components/common/FilterModal";
+import ReportModal from "@/components/cafe/ReportModal";
+import PopularCafeList from "@/components/cafe/PopularCafeList";
+import { Search, Heart, SlidersHorizontal, X } from "lucide-react";
+
+const KakaoMap = dynamic(() => import("@/components/map/Map"), { ssr: false });
+
+const initialFilters: FilterState = {
+  franchise: [],
+  hasWifi: null,
+  hasOutlet: null,
+  hasToilet: null,
+  hasSeparateSpace: null,
+  floorCount: [],
+  congestionLevel: [],
+};
 
 export default function Home() {
+  const [selectedCafe, setSelectedCafe] = useState<CafeResponse | null>(null);
+  const [showSearch, setShowSearch] = useState(false);
+  const [showWishlist, setShowWishlist] = useState(false);
+  const [showFilter, setShowFilter] = useState(false);
+  const [filters, setFilters] = useState<FilterState>(initialFilters);
+  const [mapCenter, setMapCenter] = useState<{ lat: number; lng: number } | null>(null);
+  const [showReport, setShowReport] = useState(false);
+
+  const handleSearchSelect = (lat: number, lng: number) => {
+    setMapCenter({ lat, lng });
+  };
+
+  const handleFilterApply = (newFilters: FilterState) => {
+    setFilters(newFilters);
+  };
+
+  // 적용된 필터 태그 목록
+  const activeFilterTags: { label: string; onRemove: () => void }[] = [
+    ...filters.franchise.map((v) => ({
+      label: v === "STARBUCKS" ? "스타벅스" : v === "MEGA_COFFEE" ? "메가커피" : "개인카페",
+      onRemove: () => setFilters((prev) => ({ ...prev, franchise: prev.franchise.filter((f) => f !== v) })),
+    })),
+    ...(filters.hasWifi ? [{ label: "와이파이", onRemove: () => setFilters((prev) => ({ ...prev, hasWifi: null })) }] : []),
+    ...(filters.hasOutlet ? [{ label: "콘센트", onRemove: () => setFilters((prev) => ({ ...prev, hasOutlet: null })) }] : []),
+    ...(filters.hasToilet ? [{ label: "화장실", onRemove: () => setFilters((prev) => ({ ...prev, hasToilet: null })) }] : []),
+    ...(filters.hasSeparateSpace ? [{ label: "분리된 공간", onRemove: () => setFilters((prev) => ({ ...prev, hasSeparateSpace: null })) }] : []),
+    ...filters.floorCount.map((v) => ({
+      label: v === "ONE" ? "1층" : v === "TWO" ? "2층" : "3층 이상",
+      onRemove: () => setFilters((prev) => ({ ...prev, floorCount: prev.floorCount.filter((f) => f !== v) })),
+    })),
+    ...filters.congestionLevel.map((v) => ({
+      label: v === "LOW" ? "한산" : v === "MEDIUM" ? "보통" : "혼잡",
+      onRemove: () => setFilters((prev) => ({ ...prev, congestionLevel: prev.congestionLevel.filter((f) => f !== v) })),
+    })),
+  ];
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <main className="relative flex-1">
+      <Header
+        onSearchClick={() => setShowSearch(true)}
+        onReportClick={() => setShowReport(true)}
+      />
+      <KakaoMap
+        onCafeSelect={setSelectedCafe}
+        center={mapCenter}
+      />
+
+      {/* 우측 아이콘 버튼 그룹 */}
+      <div className="fixed top-24 right-6 z-40 flex flex-col gap-2 items-end">
+        <button
+          onClick={() => setShowSearch(true)}
+          className="w-10 h-10 bg-white/80 backdrop-blur-sm border border-gray-100 rounded-2xl shadow-md flex items-center justify-center text-gray-600 hover:text-gray-900 hover:bg-white transition-colors"
+        >
+          <Search size={18} />
+        </button>
+        <button
+          onClick={() => setShowWishlist(!showWishlist)}
+          className={`w-10 h-10 bg-white/80 backdrop-blur-sm border border-gray-100 rounded-2xl shadow-md flex items-center justify-center transition-colors
+            ${showWishlist ? "text-red-500" : "text-gray-600 hover:text-gray-900 hover:bg-white"}`}
+        >
+          <Heart size={18} fill={showWishlist ? "#ef4444" : "none"} />
+        </button>
+        <button
+          onClick={() => setShowFilter(true)}
+          className={`w-10 h-10 bg-white/80 backdrop-blur-sm border border-gray-100 rounded-2xl shadow-md flex items-center justify-center transition-colors
+            ${activeFilterTags.length > 0 ? "text-gray-800" : "text-gray-600 hover:text-gray-900 hover:bg-white"}`}
+        >
+          <SlidersHorizontal size={18} />
+        </button>
+
+        {/* 적용된 필터 태그 */}
+        {activeFilterTags.map((tag, index) => (
+          <div
+            key={index}
+            className="flex items-center gap-1.5 bg-gray-800 text-white text-xs font-medium px-3 py-1.5 rounded-full shadow-md"
+          >
+            <span>{tag.label}</span>
+            <button
+              onClick={tag.onRemove}
+              className="text-gray-300 hover:text-white transition-colors"
+            >
+              <X size={12} />
+            </button>
+          </div>
+        ))}
+      </div>
+
+      {showWishlist && (
+        <WishlistPanel
+          onClose={() => setShowWishlist(false)}
+          onCafeSelect={setSelectedCafe}
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+      )}
+
+      {!selectedCafe && !showWishlist && (
+        <PopularCafeList onCafeSelect={setSelectedCafe} />
+      )}
+
+      {selectedCafe && (
+        <CafeDetail
+          cafe={selectedCafe}
+          onClose={() => setSelectedCafe(null)}
+        />
+      )}
+
+      {showSearch && (
+        <SearchModal
+          onClose={() => setShowSearch(false)}
+          onSelect={handleSearchSelect}
+        />
+      )}
+
+      {showFilter && (
+        <FilterModal
+          onClose={() => setShowFilter(false)}
+          onApply={handleFilterApply}
+          currentFilters={filters}
+        />
+      )}
+
+      {showReport && (
+        <ReportModal onClose={() => setShowReport(false)} />
+      )}
+    </main>
   );
 }
