@@ -61,11 +61,8 @@ export interface CafeCreateRequest {
 }
 
 
-// ==============================
 // 카페 수정할 때 백엔드로 보내는 데이터 형태
-// 백엔드 CafeUpdateRequest.java 기준
 // 수정은 바뀐 것만 보내도 돼서 전부 ? (선택)
-// ==============================
 export interface CafeUpdateRequest {
     name?: string;
     address?: string;
@@ -85,10 +82,7 @@ export interface CafeUpdateRequest {
 }
 
 
-// ==============================
-// 목록 조회할 때 백엔드가 페이지 형태로 데이터를 줘요
-// 백엔드 PageResponse.java 기준
-// ==============================
+// 목록 조회할 때 백엔드가 페이지 형태로 데이터를 줌
 export interface PageResponse<T> {
     content: T[];          // 실제 데이터 목록
     totalElements: number; // 전체 데이터 개수
