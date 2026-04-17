@@ -33,13 +33,19 @@ public class AdminAuthController {
             String accessToken = jwtTokenProvider.generateAccessToken(member.getId(), member.getRole().toString());
             String refreshToken = jwtTokenProvider.generateRefreshToken(member.getId());
 
+            Cookie accessTokenCookie = new Cookie("accessToken", accessToken);
+            accessTokenCookie.setHttpOnly(true);
+            accessTokenCookie.setMaxAge(60 * 30); //30분
+            accessTokenCookie.setPath("/");
+
             // Refresh Token을 쿠키에 저장
-            Cookie refreshTokenCookie = new Cookie("accessToken", refreshToken);
+            Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
             refreshTokenCookie.setHttpOnly(true);
             refreshTokenCookie.setMaxAge(60 * 60 * 24); // 1일
             refreshTokenCookie.setPath("/");
 
             // 응답에 쿠키 추가
+            response.addCookie(accessTokenCookie);
             response.addCookie(refreshTokenCookie);
 
             // RsData 응답 형식으로 반환 (TokenResponseDto 포함)
