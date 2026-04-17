@@ -2,17 +2,17 @@ package com.back.team11.domain.auth.controller;
 
 import com.back.team11.domain.auth.dto.LoginRequestDto;
 import com.back.team11.domain.auth.dto.TokenResponseDto;
-import com.back.team11.domain.security.JwtTokenProvider;
+import com.back.team11.domain.global.rsData.RsData;
+import com.back.team11.domain.global.util.CookieUtil;
 import com.back.team11.domain.member.entity.Member;
 import com.back.team11.domain.member.service.MemberService;
-import com.back.team11.domain.global.rsData.RsData;
+import com.back.team11.domain.security.JwtTokenProvider;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
 @RequestMapping("/api/V1/admin/auth")
@@ -21,40 +21,40 @@ public class AdminAuthController {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final MemberService memberService;
+    private final CookieUtil cookieUtil;
 
     @PostMapping("/login")
-    public ResponseEntity<RsData<TokenResponseDto>> login(@RequestBody LoginRequestDto loginRequestDto, HttpServletResponse response) {
-        // 이메일로 사용자 조회
+    public ResponseEntity<RsData<TokenResponseDto>> login(
+            @RequestBody LoginRequestDto loginRequestDto,
+            HttpServletResponse response
+    ) {
         Member member = memberService.findByEmail(loginRequestDto.getEmail());
 
-        // 비밀번호 검증
-        if (member != null && memberService.validatePassword(loginRequestDto.getPassword(), member.getPassword())) {
-            // JWT 토큰 발급
-            String accessToken = jwtTokenProvider.generateAccessToken(member.getId(), member.getRole().toString());
+        if (member != null &&
+                memberService.validatePassword(loginRequestDto.getPassword(), member.getPassword())) {
+
+            String accessToken = jwtTokenProvider.generateAccessToken(
+                    member.getId(),
+                    member.getRole().toString()
+            );
+
             String refreshToken = jwtTokenProvider.generateRefreshToken(member.getId());
 
-            Cookie accessTokenCookie = new Cookie("accessToken", accessToken);
-            accessTokenCookie.setHttpOnly(true);
-            accessTokenCookie.setMaxAge(60 * 30); //30분
-            accessTokenCookie.setPath("/");
+            // 여기 변경
+            cookieUtil.addAccessTokenCookie(response, accessToken);
+            cookieUtil.addRefreshTokenCookie(response, refreshToken);
 
-            // Refresh Token을 쿠키에 저장
-            Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
-            refreshTokenCookie.setHttpOnly(true);
-            refreshTokenCookie.setMaxAge(60 * 60 * 24); // 1일
-            refreshTokenCookie.setPath("/");
-
-            // 응답에 쿠키 추가
-            response.addCookie(accessTokenCookie);
-            response.addCookie(refreshTokenCookie);
-
-            // RsData 응답 형식으로 반환 (TokenResponseDto 포함)
-            return ResponseEntity.ok(new RsData<>("로그인이 성공적으로 되었습니다.", "200-1", new TokenResponseDto(accessToken, refreshToken)));
+            return ResponseEntity.ok(
+                    new RsData<>(
+                            "로그인이 성공적으로 되었습니다.",
+                            "200-1",
+                            new TokenResponseDto(accessToken, refreshToken)
+                    )
+            );
         }
 
-        // 로그인 실패
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(new RsData<>("Unauthorized", "401-1", null)); // 로그인 실패 시 토큰이 없으므로 null
+                .body(new RsData<>("Unauthorized", "401-1", null));
     }
 
     @PostMapping("/refresh")
