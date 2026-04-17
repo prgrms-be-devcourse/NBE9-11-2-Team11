@@ -73,7 +73,7 @@ public class AdminCafeService {
         }
 
         // 더티체킹으로 UPDATE 실행 (@Transactional 범위 안에서 필드 변경 시 자동 반영)
-        cafe.update(
+        cafe.updateByAdmin(
                 request.getName(),
                 request.getAddress(),
                 request.getLatitude(),
