@@ -1,12 +1,15 @@
 package com.back.team11.domain.cafe.service;
 
 import com.back.team11.domain.cafe.dto.CafeDetailResponse;
+import com.back.team11.domain.cafe.dto.CafeReportRequest;
 import com.back.team11.domain.cafe.dto.CafeResponse;
 import com.back.team11.domain.cafe.entity.Cafe;
 import com.back.team11.domain.cafe.repository.CafeRepository;
 import com.back.team11.domain.cafe.repository.CafeSearchCondition;
 import com.back.team11.domain.global.exception.CustomException;
 import com.back.team11.domain.global.exception.ErrorCode;
+import com.back.team11.domain.member.entity.Member;
+import com.back.team11.domain.member.repository.MemberRepository;
 import com.back.team11.domain.wishlist.repository.WishlistRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,6 +23,7 @@ import java.util.List;
 public class CafeService {
     private final CafeRepository cafeRepository;
     private final WishlistRepository wishlistRepository;
+    private final MemberRepository memberRepository;
 
     // 카페 목록 조회(지역 검색 + 필터링)
     public List<CafeResponse> searchCafes(CafeSearchCondition condition) {
@@ -37,4 +41,39 @@ public class CafeService {
 
         return CafeDetailResponse.from(cafe,wishlistCount);
     }
+
+
+    /**
+     * 사용자 - 카페 정보 생성 요청(제보) (POST /api/V1/cafe/report)
+     * 로그인한 사용자 정보를 member 필드에 연결, status는 PENDING으로 저장
+     */
+    @Transactional
+    public CafeResponse reportCafe(Long memberId, CafeReportRequest request) {
+        // 로그인한 사용자 조회
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        Cafe cafe = Cafe.createByUser(
+                member,
+                request.getName(),
+                request.getAddress(),
+                request.getLatitude(),
+                request.getLongitude(),
+                request.getPhone(),
+                request.getDescription(),
+                request.getType(),
+                request.getFranchise(),
+                request.getHasToilet(),
+                request.getHasOutlet(),
+                request.getHasWifi(),
+                request.getFloorCount(),
+                request.getHasSeparateSpace(),
+                request.getCongestionLevel(),
+                request.getImageUrl()
+        );
+
+        return CafeResponse.from(cafeRepository.save(cafe));
+    }
+
+
 }

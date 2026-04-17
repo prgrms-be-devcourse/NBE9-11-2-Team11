@@ -34,6 +34,7 @@ public enum ErrorCode {
     // Review
     REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "404-4", "존재하지 않는 리뷰입니다."),
     REVIEW_ALREADY_EXISTS(HttpStatus.CONFLICT, "409-3", "이미 리뷰를 작성한 카페입니다."),
+    CAFE_ALREADY_REJECTED(HttpStatus.CONFLICT, "409-7", "이미 거절된 카페입니다."),
 
     // Wishlist
     WISHLIST_NOT_FOUND(HttpStatus.NOT_FOUND, "404-5", "존재하지 않는 찜 내역입니다."),

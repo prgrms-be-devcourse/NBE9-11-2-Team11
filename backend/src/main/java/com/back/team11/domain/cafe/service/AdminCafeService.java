@@ -2,6 +2,7 @@ package com.back.team11.domain.cafe.service;
 
 import com.back.team11.domain.cafe.dto.*;
 import com.back.team11.domain.cafe.entity.Cafe;
+import com.back.team11.domain.cafe.entity.CafeStatus;
 import com.back.team11.domain.cafe.entity.CafeType;
 import com.back.team11.domain.cafe.entity.Franchise;
 import com.back.team11.domain.cafe.repository.CafeRepository;
@@ -72,7 +73,7 @@ public class AdminCafeService {
         }
 
         // 더티체킹으로 UPDATE 실행 (@Transactional 범위 안에서 필드 변경 시 자동 반영)
-        cafe.update(
+        cafe.updateByAdmin(
                 request.getName(),
                 request.getAddress(),
                 request.getLatitude(),
@@ -159,6 +160,50 @@ public class AdminCafeService {
 
         // 3. 카페 삭제
         cafeRepository.delete(cafe);
+    }
+
+    /**
+     * 관리자 - 사용자 카페 정보 등록 - 승인 (PATCH /api/V1/admin/cafe/{cafeId}/approve)
+     * 이미 승인된 카페 재승인 시 409 에러
+     */
+    @Transactional
+    public AdminCafeResponse approveCafe(Long cafeId) {
+        // cafeId로 카페 조회, 존재하지 않으면 예외 발생
+        Cafe cafe = cafeRepository.findById(cafeId)
+                .orElseThrow(() -> new CustomException(ErrorCode.CAFE_NOT_FOUND));
+
+        // 이미 승인된 카페 중복 처리 방지
+        if (cafe.getStatus() == CafeStatus.APPROVED) {
+            throw new CustomException(ErrorCode.CAFE_ALREADY_APPROVED);
+        }
+
+        // 더티체킹으로 UPDATE 실행
+        cafe.approve();
+
+        return AdminCafeResponse.from(cafe);
+    }
+
+
+
+    /**
+     * 관리자 - 사용자 카페 정보 등록 - 거부 (PATCH /api/V1/admin/cafe/{cafeId}/reject)
+     * 이미 거절된 카페 재거절 시 409 에러
+     */
+    @Transactional
+    public AdminCafeResponse rejectCafe(Long cafeId) {
+        // cafeId로 카페 조회, 존재하지 않으면 예외 발생
+        Cafe cafe = cafeRepository.findById(cafeId)
+                .orElseThrow(() -> new CustomException(ErrorCode.CAFE_NOT_FOUND));
+
+        // 이미 거절된 카페 중복 처리 방지
+        if (cafe.getStatus() == CafeStatus.REJECTED) {
+            throw new CustomException(ErrorCode.CAFE_ALREADY_REJECTED);
+        }
+
+        // 더티체킹으로 UPDATE 실행
+        cafe.reject();
+
+        return AdminCafeResponse.from(cafe);
     }
 
 
