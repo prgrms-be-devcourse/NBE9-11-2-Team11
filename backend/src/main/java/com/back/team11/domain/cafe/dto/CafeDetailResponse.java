@@ -3,6 +3,7 @@ package com.back.team11.domain.cafe.dto;
 import com.back.team11.domain.cafe.entity.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 public record CafeDetailResponse(
         Long cafeId,
@@ -22,7 +23,8 @@ public record CafeDetailResponse(
         CongestionLevel congestionLevel,
         String imageUrl,
         long wishlistCount,
-        boolean isWishlisted   // 추가
+        boolean isWishlisted,
+        LocalDateTime createdAt
 ) {
     public static CafeDetailResponse from(Cafe cafe, long wishlistCount, boolean isWishlisted) {
         return new CafeDetailResponse(
@@ -43,7 +45,8 @@ public record CafeDetailResponse(
                 cafe.getCongestionLevel(),
                 cafe.getImageUrl(),
                 wishlistCount,
-                isWishlisted   // 추가
+                isWishlisted,
+                cafe.getCreatedAt()
         );
     }
 }
