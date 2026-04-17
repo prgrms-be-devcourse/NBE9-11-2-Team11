@@ -1,8 +1,8 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useState } from "react";
-import { CafeResponse } from "@/types/cafe";
+import { useState, useCallback } from "react";
+import { CafeDetailResponse } from "@/types/cafe";
 import CafeDetail from "@/components/cafe/CafeDetail";
 import Header from "@/components/common/Header";
 import SearchModal from "@/components/common/SearchModal";
@@ -11,6 +11,7 @@ import FilterModal, { FilterState } from "@/components/common/FilterModal";
 import ReportModal from "@/components/cafe/ReportModal";
 import PopularCafeList from "@/components/cafe/PopularCafeList";
 import { Search, Heart, SlidersHorizontal, X } from "lucide-react";
+import { fetchCafeDetail } from "@/lib/api/cafe";
 
 const KakaoMap = dynamic(() => import("@/components/map/Map"), { ssr: false });
 
@@ -25,13 +26,19 @@ const initialFilters: FilterState = {
 };
 
 export default function Home() {
-  const [selectedCafe, setSelectedCafe] = useState<CafeResponse | null>(null);
+  const [selectedCafe, setSelectedCafe] = useState<CafeDetailResponse | null>(null);
   const [showSearch, setShowSearch] = useState(false);
   const [showWishlist, setShowWishlist] = useState(false);
   const [showFilter, setShowFilter] = useState(false);
   const [filters, setFilters] = useState<FilterState>(initialFilters);
   const [mapCenter, setMapCenter] = useState<{ lat: number; lng: number } | null>(null);
   const [showReport, setShowReport] = useState(false);
+  const [mapBounds, setMapBounds] = useState<{
+    swLat: number;
+    swLng: number;
+    neLat: number;
+    neLng: number;
+  } | null>(null);
 
   const handleSearchSelect = (lat: number, lng: number) => {
     setMapCenter({ lat, lng });
@@ -41,7 +48,24 @@ export default function Home() {
     setFilters(newFilters);
   };
 
-  // 적용된 필터 태그 목록
+  const handleBoundsChange = useCallback((bounds: {
+    swLat: number;
+    swLng: number;
+    neLat: number;
+    neLng: number;
+  }) => {
+    setMapBounds(bounds);
+  }, []);
+
+  const handleCafeSelect = async (cafeId: number) => {
+    try {
+      const cafe = await fetchCafeDetail(cafeId);
+      setSelectedCafe(cafe);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   const activeFilterTags: { label: string; onRemove: () => void }[] = [
     ...filters.franchise.map((v) => ({
       label: v === "STARBUCKS" ? "스타벅스" : v === "MEGA_COFFEE" ? "메가커피" : "개인카페",
@@ -68,8 +92,10 @@ export default function Home() {
         onReportClick={() => setShowReport(true)}
       />
       <KakaoMap
-        onCafeSelect={setSelectedCafe}
+        onCafeSelect={handleCafeSelect}
         center={mapCenter}
+        filters={filters}
+        onBoundsChange={handleBoundsChange}
       />
 
       {/* 우측 아이콘 버튼 그룹 */}
@@ -95,7 +121,6 @@ export default function Home() {
           <SlidersHorizontal size={18} />
         </button>
 
-        {/* 적용된 필터 태그 */}
         {activeFilterTags.map((tag, index) => (
           <div
             key={index}
@@ -115,12 +140,15 @@ export default function Home() {
       {showWishlist && (
         <WishlistPanel
           onClose={() => setShowWishlist(false)}
-          onCafeSelect={setSelectedCafe}
+          onCafeSelect={handleCafeSelect}
         />
       )}
 
       {!selectedCafe && !showWishlist && (
-        <PopularCafeList onCafeSelect={setSelectedCafe} />
+        <PopularCafeList
+          onCafeSelect={handleCafeSelect}
+          bounds={mapBounds}
+        />
       )}
 
       {selectedCafe && (
