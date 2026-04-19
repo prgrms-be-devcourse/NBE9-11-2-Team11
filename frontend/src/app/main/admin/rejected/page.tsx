@@ -1,14 +1,37 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AdminCafe } from '@/types/admin';
+import { fetchCafes } from '@/lib/api/admin';
 import RejectedList from '@/components/admin/RejectedList';
 
 export default function AdminRejectedPage() {
 
     // 승인 거절 카페 목록
     const [cafes, setCafes] = useState<AdminCafe[]>([]);
-    // 나중에 API 연결하면 status=REJECTED 로 불러올 예정!!!
+
+    // 로딩 상태
+    const [isLoading, setIsLoading] = useState(false);
+
+
+    // 승인 거절 목록 조회
+    const loadRejectedCafes = async () => {
+        setIsLoading(true);
+        try {
+            const data = await fetchCafes('REJECTED'); // status=REJECTED 로 필터링
+            setCafes(data.content);
+        } catch (error) {
+            console.log('승인 거절 목록 조회 실패:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+
+    // 페이지 처음 열릴 때 목록 자동으로 불러오기
+    useEffect(() => {
+        loadRejectedCafes();
+    }, []);
 
 
     return (
@@ -28,8 +51,12 @@ export default function AdminRejectedPage() {
                 {/* 헤더 */}
                 <h1 className="text-xl font-bold mb-6">승인 거절</h1>
 
-                {/* 승인 거절 목록 컴포넌트 */}
-                <RejectedList cafes={cafes} />
+                {/* 로딩 중일 때 표시 */}
+                {isLoading ? (
+                    <p className="text-gray-500">불러오는 중...</p>
+                ) : (
+                    <RejectedList cafes={cafes} />
+                )}
 
             </div>
 
