@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect} from 'react';
 import { AdminCafe, CafeCreateRequest, CafeUpdateRequest } from '@/types/admin';
+import { fetchCafes, createCafe, updateCafe, deleteCafe } from '@/lib/api/admin'; // API 함수 가져오기
 import CafeList from '@/components/admin/CafeList';
 import CafeCreateModal from '@/components/admin/CafeCreateModal';
 import CafeEditModal from '@/components/admin/CafeEditModal';
@@ -9,7 +10,7 @@ import CafeEditModal from '@/components/admin/CafeEditModal';
 export default function AdminCafePage() {
 
     // 상태 관리
-    // 카페 목록 데이터 (나중에 API 연결하면 실제 데이터로 교체!!!!)
+    // 카페 목록 데이터
     const [cafes, setCafes] = useState<AdminCafe[]>([]);
 
     // 등록 모달 열림/닫힘 여부 (true = 열림, false = 닫힘)
@@ -18,29 +19,69 @@ export default function AdminCafePage() {
     // 수정 모달에서 쓸 선택된 카페 (null = 선택 안 됨)
     const [selectedCafe, setSelectedCafe] = useState<AdminCafe | null>(null);
 
+    // 로딩 상태
+    const [isLoading, setIsLoading] = useState(false);
 
-    // 카페 등록 처리
-    const handleCreate = (data: CafeCreateRequest) => {
-        // TODO: 나중에 API 연결할 부분
-        console.log('카페 등록 데이터:', data);
-        setIsCreateModalOpen(false); // 등록 후 모달 닫기
+
+    // 카페 목록 조회
+    const loadCafes = async () => {
+        setIsLoading(true);
+        try {
+            const data = await fetchCafes();
+            setCafes(data.content);
+        } catch (error) {
+            console.log('카페 목록 조회 실패:', error);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
+    // 카페 등록 처리
+    const handleCreate = async (data: CafeCreateRequest) => {
+        try {
+            await createCafe(data); // API 호출
+            alert('카페 등록 성공');
+            setIsCreateModalOpen(false);
+            loadCafes(); // 목록 새로고침
+        } catch (error) {
+            console.log('카페 등록 실패:', error);
+            alert('카페 등록 실패');
+        }
+    };
 
     // 카페 수정 처리
-    const handleEdit = (cafeId: number, data: CafeUpdateRequest) => {
-        // TODO: 나중에 API 연결할 부분
-        console.log('카페 수정 데이터:', cafeId, data);
-        setSelectedCafe(null); // 수정 후 모달 닫기
+    const handleEdit = async (cafeId: number, data: CafeUpdateRequest) => {
+        try {
+            await updateCafe(cafeId, data); // API 호출
+            alert('카페 정보 수정 성공');
+            setSelectedCafe(null);
+            loadCafes(); // 목록 새로고침
+        } catch (error) {
+            console.log('카페 수정 실패:', error);
+            alert('카페 정보 수정 실패');
+        }
     };
 
 
     // 카페 삭제 처리
-    const handleDelete = (cafeId: number) => {
-        // TODO: 나중에 API 연결할 부분
-        if (!confirm('정말 삭제하시겠습니까?')) return;
-        console.log('카페 삭제 ID:', cafeId);
+    const handleDelete = async (cafeId: number) => {
+        if (!confirm('정말 삭제할까요?')) return;
+        try {
+            await deleteCafe(cafeId); // 추가! API 호출
+            alert('카페 삭제 성공');
+            loadCafes(); // 목록 새로고침
+        } catch (error) {
+            console.log('카페 삭제 실패:', error);
+            alert('카페 삭제 실패');
+        }
     };
+
+
+    // 페이지 처음 열릴 때 목록 자동으로 불러오기
+    useEffect(() => {
+        loadCafes();
+    }, []);
+
 
 
     return (
