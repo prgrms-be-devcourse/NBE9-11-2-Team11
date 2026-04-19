@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { loginAdmin } from "@/app/api/auth";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -11,26 +12,9 @@ export default function AdminLoginPage() {
 
   const handleLogin = async () => {
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/V1/admin/auth/login`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include", //쿠키 받기
-          body: JSON.stringify({
-            email,
-            password,
-          }),
-        }
-      );
+      await loginAdmin(email, password);
 
-      if (!res.ok) {
-        throw new Error("로그인 실패");
-      }
-
-      //로그인 성공 → 관리자 페이지 이동
+      // 로그인 성공 시 이동
       router.replace("/admin");
     } catch (error) {
       console.error(error);
@@ -41,13 +25,15 @@ export default function AdminLoginPage() {
   return (
     <div className="flex items-center justify-center h-screen bg-gray-100">
       <div className="bg-white p-10 rounded-lg shadow-md w-[400px]">
-        <h2 className="text-center text-lg font-bold mb-8">관리자 로그인</h2>
+        <h2 className="text-center text-lg font-bold mb-8">
+          관리자 로그인
+        </h2>
 
         <div className="space-y-6">
           {/* 이메일 */}
           <div>
             <label className="text-sm text-gray-600">
-              관리자 이메일 (Admin Email)
+              관리자 이메일
             </label>
             <input
               type="email"
@@ -61,7 +47,7 @@ export default function AdminLoginPage() {
           {/* 비밀번호 */}
           <div>
             <label className="text-sm text-gray-600">
-              비밀번호 (Password)
+              비밀번호
             </label>
             <input
               type="password"
@@ -79,7 +65,6 @@ export default function AdminLoginPage() {
           >
             로그인
           </button>
-
         </div>
       </div>
     </div>

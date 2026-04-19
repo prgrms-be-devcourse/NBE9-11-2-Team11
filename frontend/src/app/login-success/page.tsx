@@ -1,21 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 export default function LoginSuccessPage() {
   const router = useRouter();
-  const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    setReady(true);
-  }, []);
-
-  useEffect(() => {
-    if (ready) {
-      router.replace("/"); // push 대신 replace 추천
-    }
-  }, [ready, router]);
+    // 원하는 페이지로 변경 가능
+    router.replace("/");
+  }, [router]);
 
   return (
     <div className="flex items-center justify-center h-screen">
