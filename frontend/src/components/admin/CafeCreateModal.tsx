@@ -160,19 +160,22 @@ export default function CafeCreateModal({ onClose, onSubmit }: Props) {
                         </select>
                     </div>
 
-                    {/* 프랜차이즈 종류 - 필수 */}
-                    <div>
-                        <label className="text-sm font-medium">프랜차이즈 *</label>
-                        <select
-                            value={franchise}
-                            onChange={(e) => setFranchise(e.target.value as FranchiseType)}
-                            className="w-full mt-1 p-2 border rounded"
-                        >
-                            <option value="NONE">해당 없음</option>
-                            <option value="STARBUCKS">스타벅스</option>
-                            <option value="MEGA_COFFEE">메가커피</option>
-                        </select>
-                    </div>
+                    {/* 카페 종류가 FRANCHISE(프랜차이즈) 일 때만 보여줌 */}
+                    {type === 'FRANCHISE' && (
+                        <div>
+                            <label className="text-sm font-medium">프랜차이즈 *</label>
+                            <select
+                                value={franchise}
+                                //선택값이 바뀌면 franchise 상태 업데이트
+                                onChange={(e) => setFranchise(e.target.value as FranchiseType)}
+                                className="w-full mt-1 p-2 border rounded"
+                            >
+                                <option value="NONE">해당 없음</option>
+                                <option value="STARBUCKS">스타벅스</option>
+                                <option value="MEGA_COFFEE">메가커피</option>
+                            </select>
+                        </div>
+                    )}
 
                     {/* 층수 - 필수 */}
                     <div>
