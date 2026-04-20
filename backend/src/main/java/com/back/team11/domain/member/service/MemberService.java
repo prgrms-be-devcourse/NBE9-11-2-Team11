@@ -1,5 +1,8 @@
 package com.back.team11.domain.member.service;
 
+import com.back.team11.domain.global.exception.CustomException;
+import com.back.team11.domain.global.exception.ErrorCode;
+import com.back.team11.domain.member.dto.MemberResponseDto;
 import com.back.team11.domain.member.entity.Member;
 import com.back.team11.domain.member.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,5 +54,11 @@ public class MemberService {
             System.out.println("비밀번호 불일치: " + rawPassword + " / " + encodedPassword);
         }
         return isValid;
+    }
+
+    public MemberResponseDto getMe(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        return MemberResponseDto.from(member);
     }
 }

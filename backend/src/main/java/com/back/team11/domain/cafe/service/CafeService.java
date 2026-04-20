@@ -1,6 +1,7 @@
 package com.back.team11.domain.cafe.service;
 
 import com.back.team11.domain.cafe.dto.CafeDetailResponse;
+import com.back.team11.domain.cafe.dto.CafeListResponse;
 import com.back.team11.domain.cafe.dto.CafeReportRequest;
 import com.back.team11.domain.cafe.dto.CafeResponse;
 import com.back.team11.domain.cafe.entity.Cafe;
@@ -8,6 +9,7 @@ import com.back.team11.domain.cafe.repository.CafeRepository;
 import com.back.team11.domain.cafe.repository.CafeSearchCondition;
 import com.back.team11.domain.global.exception.CustomException;
 import com.back.team11.domain.global.exception.ErrorCode;
+import com.back.team11.domain.global.util.AuthUtil;
 import com.back.team11.domain.member.entity.Member;
 import com.back.team11.domain.member.repository.MemberRepository;
 import com.back.team11.domain.wishlist.repository.WishlistRepository;
@@ -24,22 +26,29 @@ public class CafeService {
     private final CafeRepository cafeRepository;
     private final WishlistRepository wishlistRepository;
     private final MemberRepository memberRepository;
+    private final AuthUtil authUtil;
 
     // 카페 목록 조회(지역 검색 + 필터링)
-    public List<CafeResponse> searchCafes(CafeSearchCondition condition) {
+    public List<CafeListResponse> searchCafes(CafeSearchCondition condition) {
         List<Cafe> cafes = cafeRepository.searchCafes(condition);
         return cafes.stream()
-                .map(CafeResponse::from)
+                .map(cafe -> {
+                    long wishlistCount = wishlistRepository.countByCafeId(cafe.getId());
+                    return CafeListResponse.from(cafe, wishlistCount);
+                })
                 .toList();
     }
 
     // 카페 상세보기
     public CafeDetailResponse getCafe(Long cafeId) {
         Cafe cafe = cafeRepository.findById(cafeId)
-                .orElseThrow(()-> new CustomException(ErrorCode.CAFE_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.CAFE_NOT_FOUND));
         long wishlistCount = wishlistRepository.countByCafeId(cafeId);
+        Long memberId = authUtil.getCurrentMemberIdOrNull();
+        boolean isWishlisted = memberId != null &&
+                wishlistRepository.existsByMemberIdAndCafeId(memberId, cafeId);
 
-        return CafeDetailResponse.from(cafe,wishlistCount);
+        return CafeDetailResponse.from(cafe, wishlistCount, isWishlisted);
     }
 
 
