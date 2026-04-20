@@ -1,78 +1,52 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { Heart } from "lucide-react";
-import { CafeResponse } from "@/types/cafe";
+import { CafeListResponse } from "@/types/cafe";
+import { fetchCafeList } from "@/lib/api/cafe";
 
 interface PopularCafeListProps {
-    onCafeSelect: (cafe: CafeResponse) => void;
+    onCafeSelect: (cafeId: number) => void;
+    bounds: {
+        swLat: number;
+        swLng: number;
+        neLat: number;
+        neLng: number;
+    } | null;
 }
 
-const dummyCafes: CafeResponse[] = [
-    {
-        cafeId: 1,
-        name: "스타벅스 강남점",
-        address: "서울시 강남구 강남대로 390",
-        latitude: 37.4979,
-        longitude: 127.0276,
-        phone: "02-1234-5678",
-        description: "조용하고 넓은 카페",
-        type: "FRANCHISE",
-        franchise: "STARBUCKS",
-        hasToilet: true,
-        hasOutlet: true,
-        hasWifi: true,
-        floorCount: "TWO",
-        hasSeparateSpace: false,
-        congestionLevel: "LOW",
-        imageUrl: null,
-        wishlistCount: 1240,
-        reviewCount: 342,
-    },
-    {
-        cafeId: 2,
-        name: "메가커피 역삼점",
-        address: "서울시 강남구 역삼동 123",
-        latitude: 37.4965,
-        longitude: 127.0283,
-        phone: "02-2345-6789",
-        description: "가성비 좋은 카페",
-        type: "FRANCHISE",
-        franchise: "MEGA_COFFEE",
-        hasToilet: true,
-        hasOutlet: true,
-        hasWifi: true,
-        floorCount: "ONE",
-        hasSeparateSpace: false,
-        congestionLevel: "MEDIUM",
-        imageUrl: null,
-        wishlistCount: 875,
-        reviewCount: 189,
-    },
-    {
-        cafeId: 3,
-        name: "카페 온도",
-        address: "서울시 강남구 논현동 456",
-        latitude: 37.5100,
-        longitude: 127.0400,
-        phone: "02-3456-7890",
-        description: "분위기 좋은 개인 카페",
-        type: "INDIVIDUAL",
-        franchise: "NONE",
-        hasToilet: true,
-        hasOutlet: true,
-        hasWifi: true,
-        floorCount: "ONE",
-        hasSeparateSpace: true,
-        congestionLevel: "LOW",
-        imageUrl: null,
-        wishlistCount: 452,
-        reviewCount: 98,
-    },
-];
+export default function PopularCafeList({ onCafeSelect, bounds }: PopularCafeListProps) {
+    const [cafes, setCafes] = useState<CafeListResponse[]>([]);
 
-const sortedCafes = [...dummyCafes].sort((a, b) => b.wishlistCount - a.wishlistCount).slice(0, 3);
+    useEffect(() => {
+        if (!bounds) return;
 
-export default function PopularCafeList({ onCafeSelect }: PopularCafeListProps) {
+        const loadPopularCafes = async () => {
+            try {
+                const data = await fetchCafeList({
+                    swLat: bounds.swLat,
+                    swLng: bounds.swLng,
+                    neLat: bounds.neLat,
+                    neLng: bounds.neLng,
+                });
+                const sorted = [...data]
+                    .sort((a, b) => {
+                        if (b.wishlistCount !== a.wishlistCount) {
+                            return b.wishlistCount - a.wishlistCount; // 찜수 내림차순
+                        }
+                        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(); // 찜수 같으면 최신순
+                    })
+                    .slice(0, 3);
+                setCafes(sorted);
+            } catch (e) {
+                console.error(e);
+            }
+        };
+        loadPopularCafes();
+    }, [bounds]);
+
+    if (cafes.length === 0) return null;
+
     return (
         <div className="fixed top-30 left-4 z-40 w-64 bg-white/50 backdrop-blur-sm rounded-3xl shadow-xl overflow-hidden border border-gray-100">
 
@@ -84,10 +58,10 @@ export default function PopularCafeList({ onCafeSelect }: PopularCafeListProps) 
 
             {/* 목록 */}
             <div className="p-3 space-y-2">
-                {sortedCafes.map((cafe, index) => (
+                {cafes.map((cafe, index) => (
                     <button
                         key={cafe.cafeId}
-                        onClick={() => onCafeSelect(cafe)}
+                        onClick={() => onCafeSelect(cafe.cafeId)}
                         className="w-full flex items-center gap-3 bg-white rounded-2xl p-3 shadow-sm hover:shadow-md transition-shadow text-left"
                     >
                         {/* 순위 */}

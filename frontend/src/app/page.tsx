@@ -1,8 +1,8 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useState } from "react";
-import { CafeResponse } from "@/types/cafe";
+import { useState, useCallback, useEffect, useRef } from "react";
+import { CafeDetailResponse } from "@/types/cafe";
 import CafeDetail from "@/components/cafe/CafeDetail";
 import Header from "@/components/common/Header";
 import SearchModal from "@/components/common/SearchModal";
@@ -11,6 +11,10 @@ import FilterModal, { FilterState } from "@/components/common/FilterModal";
 import ReportModal from "@/components/cafe/ReportModal";
 import PopularCafeList from "@/components/cafe/PopularCafeList";
 import { Search, Heart, SlidersHorizontal, X } from "lucide-react";
+import { fetchCafeDetail } from "@/lib/api/cafe";
+import { useAuthStore } from "@/store/authStore";
+import { fetchMe } from "@/lib/api/auth";
+import { useRouter } from "next/navigation";
 
 const KakaoMap = dynamic(() => import("@/components/map/Map"), { ssr: false });
 
@@ -25,13 +29,40 @@ const initialFilters: FilterState = {
 };
 
 export default function Home() {
-  const [selectedCafe, setSelectedCafe] = useState<CafeResponse | null>(null);
+  const [selectedCafe, setSelectedCafe] = useState<CafeDetailResponse | null>(null);
   const [showSearch, setShowSearch] = useState(false);
   const [showWishlist, setShowWishlist] = useState(false);
   const [showFilter, setShowFilter] = useState(false);
   const [filters, setFilters] = useState<FilterState>(initialFilters);
   const [mapCenter, setMapCenter] = useState<{ lat: number; lng: number } | null>(null);
   const [showReport, setShowReport] = useState(false);
+  const prevIsLoggedIn = useRef<boolean | null>(null);
+  const [mapBounds, setMapBounds] = useState<{
+    swLat: number;
+    swLng: number;
+    neLat: number;
+    neLng: number;
+  } | null>(null);
+
+  const { isLoggedIn, setMember } = useAuthStore();
+
+  const router = useRouter();
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const member = await fetchMe();
+      setMember(member);
+    };
+    checkAuth();
+  }, []);
+
+  useEffect(() => {
+    if (prevIsLoggedIn.current === true && !isLoggedIn) {
+      setSelectedCafe(null);
+      setShowWishlist(false);
+    }
+    prevIsLoggedIn.current = isLoggedIn;
+  }, [isLoggedIn]);
 
   const handleSearchSelect = (lat: number, lng: number) => {
     setMapCenter({ lat, lng });
@@ -41,7 +72,37 @@ export default function Home() {
     setFilters(newFilters);
   };
 
-  // 적용된 필터 태그 목록
+  const handleBoundsChange = useCallback((bounds: {
+    swLat: number;
+    swLng: number;
+    neLat: number;
+    neLng: number;
+  }) => {
+    setMapBounds(bounds);
+  }, []);
+
+  // 마커 클릭용 (지도 이동 없음)
+  const handleMarkerSelect = async (cafeId: number) => {
+    try {
+      const cafe = await fetchCafeDetail(cafeId);
+      setSelectedCafe(cafe);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  // 찜 목록, 인기 카페 클릭용 (지도 이동 있음)
+  const handleCafeSelect = async (cafeId: number) => {
+    try {
+      const cafe = await fetchCafeDetail(cafeId);
+      setSelectedCafe(cafe);
+      setShowWishlist(false);
+      setMapCenter({ lat: cafe.latitude, lng: cafe.longitude });
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   const activeFilterTags: { label: string; onRemove: () => void }[] = [
     ...filters.franchise.map((v) => ({
       label: v === "STARBUCKS" ? "스타벅스" : v === "MEGA_COFFEE" ? "메가커피" : "개인카페",
@@ -65,11 +126,19 @@ export default function Home() {
     <main className="relative flex-1">
       <Header
         onSearchClick={() => setShowSearch(true)}
-        onReportClick={() => setShowReport(true)}
+        onReportClick={() => {
+          if (!isLoggedIn) {
+            router.push("/login");
+            return;
+          }
+          setShowReport(true);
+        }}
       />
       <KakaoMap
-        onCafeSelect={setSelectedCafe}
+        onCafeSelect={handleMarkerSelect}
         center={mapCenter}
+        filters={filters}
+        onBoundsChange={handleBoundsChange}
       />
 
       {/* 우측 아이콘 버튼 그룹 */}
@@ -81,7 +150,10 @@ export default function Home() {
           <Search size={18} />
         </button>
         <button
-          onClick={() => setShowWishlist(!showWishlist)}
+          onClick={() => {
+            setShowWishlist(!showWishlist);
+            setSelectedCafe(null);
+          }}
           className={`w-10 h-10 bg-white/80 backdrop-blur-sm border border-gray-100 rounded-2xl shadow-md flex items-center justify-center transition-colors
             ${showWishlist ? "text-red-500" : "text-gray-600 hover:text-gray-900 hover:bg-white"}`}
         >
@@ -95,7 +167,6 @@ export default function Home() {
           <SlidersHorizontal size={18} />
         </button>
 
-        {/* 적용된 필터 태그 */}
         {activeFilterTags.map((tag, index) => (
           <div
             key={index}
@@ -115,12 +186,15 @@ export default function Home() {
       {showWishlist && (
         <WishlistPanel
           onClose={() => setShowWishlist(false)}
-          onCafeSelect={setSelectedCafe}
+          onCafeSelect={handleCafeSelect}
         />
       )}
 
       {!selectedCafe && !showWishlist && (
-        <PopularCafeList onCafeSelect={setSelectedCafe} />
+        <PopularCafeList
+          onCafeSelect={handleCafeSelect}
+          bounds={mapBounds}
+        />
       )}
 
       {selectedCafe && (
