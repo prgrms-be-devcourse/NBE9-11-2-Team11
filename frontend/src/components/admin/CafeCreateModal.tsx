@@ -13,6 +13,8 @@ export default function CafeCreateModal({ onClose, onSubmit }: Props) {
 
     const [name, setName] = useState('');           // 카페 이름
     const [address, setAddress] = useState('');     // 주소
+    const [latitude, setLatitude] = useState(0);   // 위도
+    const [longitude, setLongitude] = useState(0); // 경도
     const [phone, setPhone] = useState('');         // 전화번호
     const [description, setDescription] = useState(''); // 설명
     const [type, setType] = useState<CafeType>('INDIVIDUAL');           // 카페 종류
@@ -26,6 +28,25 @@ export default function CafeCreateModal({ onClose, onSubmit }: Props) {
     const [imageUrl, setImageUrl] = useState('');   // 이미지 주소
 
 
+    // 주소 검색 버튼 눌렀을 때 실행되는 함수
+    // ReportModal.tsx 참고
+    const handleAddressSearch = () => {
+        new window.daum.Postcode({
+            oncomplete: async (data: any) => {
+                const selectedAddress = data.roadAddress || data.jibunAddress;
+                // roadAddress = 도로명 주소, jibunAddress = 지번 주소
+
+                // /api/search 로 주소 → 위도/경도 변환
+                const res = await fetch(`/api/search?query=${encodeURIComponent(selectedAddress)}`);
+                const result = await res.json();
+                const doc = result.documents?.[0];
+
+                setAddress(selectedAddress);
+                setLatitude(doc ? parseFloat(doc.y) : 0);   // y = 위도
+                setLongitude(doc ? parseFloat(doc.x) : 0);  // x = 경도
+            },
+        }).open();
+    };
 
     // 등록하기 버튼 눌렀을 때 실행되는 함수
     const handleSubmit = () => {
@@ -50,8 +71,8 @@ export default function CafeCreateModal({ onClose, onSubmit }: Props) {
             floorCount,
             congestionLevel,
             imageUrl: imageUrl || undefined,
-            latitude: 0,   // 추후 카카오맵 연동 시 수정 예정
-            longitude: 0,  // 추후 카카오맵 연동 시 수정 예정
+            latitude,
+            longitude,
         });
     };
 
