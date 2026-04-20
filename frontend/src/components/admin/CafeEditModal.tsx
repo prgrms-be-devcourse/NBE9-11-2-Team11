@@ -14,6 +14,8 @@ export default function CafeEditModal({ cafe, onClose, onSubmit }: Props) {
     // 입력값 상태 관리
     const [name, setName] = useState(cafe.name);
     const [address, setAddress] = useState(cafe.address);
+    const [latitude, setLatitude] = useState(cafe.latitude);   // 위도
+    const [longitude, setLongitude] = useState(cafe.longitude); // 경도
     const [phone, setPhone] = useState(cafe.phone ?? '');
     // ?? '' 는 null 이면 빈 문자열로 대체한다는 것
     const [description, setDescription] = useState(cafe.description ?? '');
@@ -27,11 +29,32 @@ export default function CafeEditModal({ cafe, onClose, onSubmit }: Props) {
     const [congestionLevel, setCongestionLevel] = useState<CongestionLevel>(cafe.congestionLevel);
     const [imageUrl, setImageUrl] = useState(cafe.imageUrl ?? '');
 
+    // 주소 검색 버튼 눌렀을 때 실행
+    // 주소 선택 시 위도/경도 자동으로 채워줌
+    const handleAddressSearch = () => {
+        new window.daum.Postcode({
+            oncomplete: async (data: any) => {
+                const selectedAddress = data.roadAddress || data.jibunAddress;
+                // roadAddress = 도로명 주소, jibunAddress = 지번 주소
+
+                // /api/search 로 주소 → 위도/경도 변환
+                const res = await fetch(`/api/search?query=${encodeURIComponent(selectedAddress)}`);
+                const result = await res.json();
+                const doc = result.documents?.[0];
+
+                setAddress(selectedAddress);
+                setLatitude(doc ? parseFloat(doc.y) : 0);   // y = 위도
+                setLongitude(doc ? parseFloat(doc.x) : 0);  // x = 경도
+            },
+        }).open();
+    };
+
+
 
     // 수정하기 버튼 눌렀을 때 실행되는 함수
     const handleSubmit = () => {
         if (!name || !address) {
-            alert('카페 이름과 주소는 필수입니다!');
+            alert('카페 이름, 주소, 전화번호는 필수입니다!');
             return;
         }
 
@@ -39,6 +62,8 @@ export default function CafeEditModal({ cafe, onClose, onSubmit }: Props) {
         onSubmit(cafe.cafeId, {
             name,
             address,
+            latitude,
+            longitude,
             phone: phone || undefined,
             description: description || undefined,
             type,
@@ -78,16 +103,25 @@ export default function CafeEditModal({ cafe, onClose, onSubmit }: Props) {
 
                     <div>
                         <label className="text-sm font-medium">주소 *</label>
-                        <input
-                            type="text"
-                            value={address}
-                            onChange={(e) => setAddress(e.target.value)}
-                            className="w-full mt-1 p-2 border rounded"
-                        />
+                        <div className="flex gap-2 mt-1">
+                            <input
+                                type="text"
+                                value={address}
+                                readOnly
+                                placeholder="주소를 검색하세요"
+                                className="flex-1 p-2 border rounded bg-gray-50"
+                            />
+                            <button
+                                onClick={handleAddressSearch}
+                                className="px-3 py-2 bg-gray-800 text-white text-sm rounded hover:bg-gray-900"
+                            >
+                                검색
+                            </button>
+                        </div>
                     </div>
 
                     <div>
-                        <label className="text-sm font-medium">전화번호</label>
+                        <label className="text-sm font-medium">전화번호 *</label>
                         <input
                             type="text"
                             value={phone}
