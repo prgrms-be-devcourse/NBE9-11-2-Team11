@@ -52,10 +52,10 @@ export default function AdminCafePage() {
     // 카페 수정 처리
     const handleEdit = async (cafeId: number, data: CafeUpdateRequest) => {
         try {
-            await updateCafe(cafeId, data); // API 호출
+            await updateCafe(cafeId, data);
             alert('카페 정보 수정 성공');
             setSelectedCafe(null);
-            loadCafes(); // 목록 새로고침
+            loadCafes();
         } catch (error) {
             console.log('카페 수정 실패:', error);
             alert('카페 정보 수정 실패');
@@ -67,9 +67,9 @@ export default function AdminCafePage() {
     const handleDelete = async (cafeId: number) => {
         if (!confirm('정말 삭제할까요?')) return;
         try {
-            await deleteCafe(cafeId); // 추가! API 호출
+            await deleteCafe(cafeId);
             alert('카페 삭제 성공');
-            loadCafes(); // 목록 새로고침
+            loadCafes();
         } catch (error) {
             console.log('카페 삭제 실패:', error);
             alert('카페 삭제 실패');
