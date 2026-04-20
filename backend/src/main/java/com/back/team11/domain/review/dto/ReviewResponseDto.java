@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 public record ReviewResponseDto(
         Long id,
         Long cafeId,
+        Long memberId,
         String nickname,
         String content,
         LocalDateTime createdAt
@@ -15,8 +16,9 @@ public record ReviewResponseDto(
         return new ReviewResponseDto(
                 review.getId(),
                 review.getCafe().getId(),
-                review.getMember().getNickname(),
+                review.getMember().getId(),
                 review.getContent(),
+                review.getMember().getNickname(),
                 review.getCreatedAt()
         );
     }

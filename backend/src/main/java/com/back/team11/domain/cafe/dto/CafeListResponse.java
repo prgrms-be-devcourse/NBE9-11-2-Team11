@@ -5,7 +5,7 @@ import com.back.team11.domain.cafe.entity.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-public record CafeDetailResponse(
+public record CafeListResponse(
         Long cafeId,
         String name,
         String address,
@@ -23,11 +23,10 @@ public record CafeDetailResponse(
         CongestionLevel congestionLevel,
         String imageUrl,
         long wishlistCount,
-        boolean isWishlisted,
-        LocalDateTime createdAt
+        LocalDateTime createdAt   // 추가
 ) {
-    public static CafeDetailResponse from(Cafe cafe, long wishlistCount, boolean isWishlisted) {
-        return new CafeDetailResponse(
+    public static CafeListResponse from(Cafe cafe, long wishlistCount) {
+        return new CafeListResponse(
                 cafe.getId(),
                 cafe.getName(),
                 cafe.getAddress(),
@@ -45,8 +44,7 @@ public record CafeDetailResponse(
                 cafe.getCongestionLevel(),
                 cafe.getImageUrl(),
                 wishlistCount,
-                isWishlisted,
-                cafe.getCreatedAt()
+                cafe.getCreatedAt()   // 추가
         );
     }
 }

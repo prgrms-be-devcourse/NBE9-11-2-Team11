@@ -26,7 +26,7 @@ public class CookieUtil {
         cookie.setPath("/");
         cookie.setHttpOnly(true);
         cookie.setMaxAge(ACCESS_TOKEN_MAX_AGE);
-        cookie.setAttribute("SameSite", "Strict");
+        //cookie.setAttribute("SameSite", "Strict");
         response.addCookie(cookie);
     }
 
@@ -36,7 +36,7 @@ public class CookieUtil {
         cookie.setPath("/");
         cookie.setHttpOnly(true);
         cookie.setMaxAge(REFRESH_TOKEN_MAX_AGE);
-        cookie.setAttribute("SameSite", "Strict");
+        //cookie.setAttribute("SameSite", "Strict");
         response.addCookie(cookie);
     }
 
