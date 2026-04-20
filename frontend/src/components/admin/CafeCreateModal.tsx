@@ -106,13 +106,21 @@ export default function CafeCreateModal({ onClose, onSubmit }: Props) {
                     {/* 주소 - 필수 */}
                     <div>
                         <label className="text-sm font-medium">주소 *</label>
-                        <input
-                            type="text"
-                            value={address}
-                            onChange={(e) => setAddress(e.target.value)}
-                            placeholder="서울특별시"
-                            className="w-full mt-1 p-2 border rounded"
-                        />
+                        <div className="flex gap-2 mt-1">
+                            <input
+                                type="text"
+                                value={address}
+                                readOnly
+                                placeholder="주소를 검색하세요"
+                                className="flex-1 p-2 border rounded bg-gray-50"
+                            />
+                            <button
+                                onClick={handleAddressSearch}
+                                className="px-3 py-2 bg-gray-800 text-white text-sm rounded hover:bg-gray-900"
+                            >
+                                검색
+                            </button>
+                        </div>
                     </div>
 
                     {/* 전화번호 - 필수 */}
