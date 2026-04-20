@@ -15,7 +15,7 @@ export default function AdminLoginPage() {
       await loginAdmin(email, password);
 
       // 로그인 성공 시 이동
-      router.replace("/admin");
+      router.replace("/main/admin/cafe");
     } catch (error) {
       console.error(error);
       alert("이메일 또는 비밀번호가 올바르지 않습니다.");
