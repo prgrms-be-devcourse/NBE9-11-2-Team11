@@ -22,6 +22,9 @@ export default function AdminCafePage() {
     // 로딩 상태
     const [isLoading, setIsLoading] = useState(false);
 
+    // 상세 보기에서 쓸 선택된 카페 (null = 선택 안 됨)
+    const [detailCafe, setDetailCafe] = useState<AdminCafe | null>(null);
+
 
     // 카페 목록 조회
     const loadCafes = async () => {
@@ -115,8 +118,8 @@ export default function AdminCafePage() {
                 <CafeList
                     cafes={cafes}
                     onEdit={(cafe) => setSelectedCafe(cafe)}
-                    // 수정 버튼 누르면 selectedCafe 에 카페 데이터 저장 → 수정 모달 열림
                     onDelete={handleDelete}
+                    onDetail={(cafe) => setDetailCafe(cafe)}
                 />
 
             </div>
@@ -129,6 +132,83 @@ export default function AdminCafePage() {
                 />
             )}
 
+            {/* 상세 모달 - detailCafe 가 있을 때만 보임 */}
+            {detailCafe && (
+                <div className="fixed inset-0 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto border-2 border-gray-300 shadow-xl">
+
+                        {/* 헤더 */}
+                        <div className="flex items-center justify-between mb-4">
+                            <h2 className="text-lg font-bold">카페 상세 정보</h2>
+                            <button onClick={() => setDetailCafe(null)} className="text-gray-500 hover:text-black">✕</button>
+                        </div>
+
+                        {/* 이미지 */}
+                        {detailCafe.imageUrl && (
+                            <img src={detailCafe.imageUrl} alt="카페 이미지" className="w-full rounded mb-4" />
+                        )}
+
+                        {/* 상세 정보 */}
+                        <div className="flex flex-col gap-3 text-sm">
+
+                            <div className="flex justify-between border-b pb-2">
+                                <span className="text-gray-500">카페 이름</span>
+                                <span className="font-medium">{detailCafe.name}</span>
+                            </div>
+                            <div className="flex justify-between border-b pb-2">
+                                <span className="text-gray-500">주소</span>
+                                <span className="text-right">{detailCafe.address}</span>
+                            </div>
+                            <div className="flex justify-between border-b pb-2">
+                                <span className="text-gray-500">전화번호</span>
+                                <span>{detailCafe.phone ?? '-'}</span>
+                            </div>
+                            <div className="flex justify-between border-b pb-2">
+                                <span className="text-gray-500">설명</span>
+                                <span>{detailCafe.description ?? '-'}</span>
+                            </div>
+                            <div className="flex justify-between border-b pb-2">
+                                <span className="text-gray-500">카페 종류</span>
+                                <span>{detailCafe.type === 'FRANCHISE' ? '프랜차이즈' : '개인 카페'}</span>
+                            </div>
+                            {detailCafe.type === 'FRANCHISE' && (
+                                <div className="flex justify-between border-b pb-2">
+                                    <span className="text-gray-500">프랜차이즈</span>
+                                    <span>
+                            {detailCafe.franchise === 'STARBUCKS' ? '스타벅스' :
+                                detailCafe.franchise === 'MEGA_COFFEE' ? '메가커피' : '-'}
+                        </span>
+                                </div>
+                            )}
+                            <div className="flex justify-between border-b pb-2">
+                                <span className="text-gray-500">층수</span>
+                                <span>
+                        {detailCafe.floorCount === 'ONE' ? '1층' :
+                            detailCafe.floorCount === 'TWO' ? '2층' : '3층 이상'}
+                    </span>
+                            </div>
+                            <div className="flex justify-between border-b pb-2">
+                                <span className="text-gray-500">혼잡도</span>
+                                <span>
+                        {detailCafe.congestionLevel === 'LOW' ? '여유' :
+                            detailCafe.congestionLevel === 'MEDIUM' ? '보통' : '혼잡'}
+                    </span>
+                            </div>
+
+                            {/* 편의시설 */}
+                            <div className="mt-1">
+                                <p className="text-gray-500 mb-2">편의시설</p>
+                                <div className="flex gap-2 flex-wrap">
+                                    {detailCafe.hasToilet && <span className="px-2 py-1 bg-gray-100 rounded">🚻 화장실</span>}
+                                    {detailCafe.hasOutlet && <span className="px-2 py-1 bg-gray-100 rounded">🔌 콘센트</span>}
+                                    {detailCafe.hasWifi && <span className="px-2 py-1 bg-gray-100 rounded">📶 와이파이</span>}
+                                    {detailCafe.hasSeparateSpace && <span className="px-2 py-1 bg-gray-100 rounded">📚 공부 공간</span>}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
             {/* 수정 모달 - selectedCafe 가 있을 때만 보임 */}
             {selectedCafe && (
                 <CafeEditModal
