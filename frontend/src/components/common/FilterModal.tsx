@@ -190,7 +190,7 @@ export default function FilterModal({ onClose, onApply, currentFilters }: Filter
                         {[
                             { label: "🟢 여유", value: "LOW" },
                             { label: "🟡 보통", value: "MEDIUM" },
-                            { label: "🟣 붐빔", value: "HIGH" },
+                            { label: "🟣 혼잡", value: "HIGH" },
                         ].map((item) => (
                             <button
                                 key={item.value}
