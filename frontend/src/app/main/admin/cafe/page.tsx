@@ -30,12 +30,15 @@ export default function AdminCafePage() {
     // 전체 페이지 수
     const [totalPages, setTotalPages] = useState(0);
 
+    // 검색어 상태
+    const [searchName, setSearchName] = useState('');
+
 
     // 카페 목록 조회
-    const loadCafes = async (page: number = 0) => {
+    const loadCafes = async (page: number = 1, name: string = '') => {
         setIsLoading(true);
         try {
-            const data = await fetchCafes(undefined, page);
+            const data = await fetchCafes(undefined, page, name);
             setCafes(data.content);
             setTotalPages(data.totalPages); // 전체 페이지 수 저장
         } catch (error) {
@@ -88,9 +91,8 @@ export default function AdminCafePage() {
 
     // 페이지 처음 열릴 때 목록 자동으로 불러오기 + 페이징
     useEffect(() => {
-        loadCafes(currentPage);
+        loadCafes(currentPage, searchName);
     }, [currentPage]);
-
 
 
     return (
@@ -117,6 +119,26 @@ export default function AdminCafePage() {
                         className="px-4 py-2 bg-black text-white rounded hover:bg-gray-800"
                     >
                         등록하기
+                    </button>
+                </div>
+
+                {/* 검색창 */}
+                <div className="flex gap-2 mb-4">
+                    <input
+                        type="text"
+                        value={searchName}
+                        onChange={(e) => setSearchName(e.target.value)}
+                        placeholder="카페 이름 검색"
+                        className="flex-1 p-2 border rounded"
+                    />
+                    <button
+                        onClick={() => {
+                            setCurrentPage(1);
+                            loadCafes(1, searchName);
+                        }}
+                        className="px-4 py-2 bg-black text-white rounded hover:bg-gray-800"
+                    >
+                        검색
                     </button>
                 </div>
 
