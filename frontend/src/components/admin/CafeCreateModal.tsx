@@ -30,8 +30,8 @@ export default function CafeCreateModal({ onClose, onSubmit }: Props) {
     // 등록하기 버튼 눌렀을 때 실행되는 함수
     const handleSubmit = () => {
         // 필수값 체크 (백엔드 @NotBlank, @NotNull 에 해당)
-        if (!name || !address) {
-            alert('카페 이름과 주소는 필수입니다!');
+        if (!name || !address || !phone) {
+            alert('카페 이름과,주소, 전화번호는 필수입니다!');
             return;
         }
 
@@ -94,9 +94,9 @@ export default function CafeCreateModal({ onClose, onSubmit }: Props) {
                         />
                     </div>
 
-                    {/* 전화번호 - 선택 */}
+                    {/* 전화번호 - 필수 */}
                     <div>
-                        <label className="text-sm font-medium">전화번호</label>
+                        <label className="text-sm font-medium">전화번호 *</label>
                         <input
                             type="text"
                             value={phone}
