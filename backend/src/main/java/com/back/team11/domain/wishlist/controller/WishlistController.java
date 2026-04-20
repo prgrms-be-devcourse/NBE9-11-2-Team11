@@ -1,5 +1,6 @@
 package com.back.team11.domain.wishlist.controller;
 
+import com.back.team11.domain.global.dto.PageResponse;
 import com.back.team11.domain.global.rsData.RsData;
 import com.back.team11.domain.wishlist.dto.WishlistResponse;
 import com.back.team11.domain.wishlist.service.WishlistService;
@@ -8,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -41,12 +43,10 @@ public class WishlistController {
 
     // 내 찜 목록 조회, 필요시 페이지 기능 추가
     @GetMapping("/member/me/wishlist")
-    public ResponseEntity<RsData<Page<WishlistResponse>>> getWishlists(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+    public ResponseEntity<RsData<PageResponse<WishlistResponse>>> getWishlists(
+            @PageableDefault(size = 10) Pageable pageable
     ) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        Page<WishlistResponse> wishlists = wishlistService.getWishlists(pageable);
+        PageResponse<WishlistResponse> wishlists = wishlistService.getWishlists(pageable);
         return ResponseEntity.ok(new RsData<>("찜 목록 조회 성공", "200", wishlists));
     }
 }
