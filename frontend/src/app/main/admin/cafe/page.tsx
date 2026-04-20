@@ -134,8 +134,8 @@ export default function AdminCafePage() {
 
             {/* 상세 모달 - detailCafe 가 있을 때만 보임 */}
             {detailCafe && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+                <div className="fixed inset-0 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto border-2 border-gray-300 shadow-xl">
 
                         {/* 헤더 */}
                         <div className="flex items-center justify-between mb-4">
@@ -205,10 +205,17 @@ export default function AdminCafePage() {
                                     {detailCafe.hasSeparateSpace && <span className="px-2 py-1 bg-gray-100 rounded">📚 공부 공간</span>}
                                 </div>
                             </div>
-
                         </div>
                     </div>
                 </div>
+            )}
+            {/* 수정 모달 - selectedCafe 가 있을 때만 보임 */}
+            {selectedCafe && (
+                <CafeEditModal
+                    cafe={selectedCafe}
+                    onClose={() => setSelectedCafe(null)}
+                    onSubmit={handleEdit}
+                />
             )}
 
         </div>

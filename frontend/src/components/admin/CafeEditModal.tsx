@@ -49,38 +49,35 @@ export default function CafeEditModal({ cafe, onClose, onSubmit }: Props) {
         }).open();
     };
 
-
-    // 수정하기 버튼 눌렀을 때 실행되는 함수
     const handleSubmit = () => {
-            if (!name || !address || !phone) {
-                alert('카페 이름, 주소, 전화번호는 필수입니다!');
-                return;
-            }
+        if (!name || !address || !phone) {
+            alert('카페 이름, 주소, 전화번호는 필수입니다!');
+            return;
+        }
 
+        // 부모한테 cafeId 랑 수정된 데이터 전달
+        onSubmit(cafe.cafeId, {
+            name,
+            address,
+            latitude,
+            longitude,
+            phone: phone || undefined,
+            description: description || undefined,
+            type,
+            franchise,
+            hasToilet,
+            hasOutlet,
+            hasWifi,
+            hasSeparateSpace,
+            floorCount,
+            congestionLevel,
+            imageUrl: imageUrl || undefined,
+        });
+    };
 
-            // 부모한테 cafeId 랑 수정된 데이터 전달
-            onSubmit(cafe.cafeId, {
-                name,
-                address,
-                latitude,
-                longitude,
-                phone: phone || undefined,
-                description: description || undefined,
-                type,
-                franchise,
-                hasToilet,
-                hasOutlet,
-                hasWifi,
-                hasSeparateSpace,
-                floorCount,
-                congestionLevel,
-                imageUrl: imageUrl || undefined,
-            });
-        };
-
-        return (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+    return (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto border-2 border-gray-300 shadow-xl">
 
                     {/* 모달 헤더 */}
                     <div className="flex items-center justify-between mb-4">
