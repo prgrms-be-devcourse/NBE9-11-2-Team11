@@ -77,6 +77,7 @@ export interface CafeDetailResponse {
 export interface ReviewResponse {
     id: number;
     cafeId: number;
+    memberId: number;  // 추가
     nickname: string;
     content: string;
     createdAt: string;
@@ -88,4 +89,23 @@ export interface WishlistResponse {
     cafeId: number;
     cafeName: string;
     createAt: string;
+}
+
+//제보용
+export interface CafeReportRequest {
+    name: string;
+    address: string;
+    latitude: number;
+    longitude: number;
+    phone?: string;
+    description?: string;
+    type: string;
+    franchise: string;
+    hasToilet: boolean;
+    hasOutlet: boolean;
+    hasWifi: boolean;
+    floorCount: string;
+    hasSeparateSpace: boolean;
+    congestionLevel: string;
+    imageUrl?: string;
 }

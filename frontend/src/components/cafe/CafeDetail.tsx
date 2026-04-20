@@ -3,9 +3,9 @@
 import { useState, useEffect } from "react";
 import { CafeDetailResponse, ReviewResponse } from "@/types/cafe";
 import { X, MapPin, Phone, Heart, MessageCircle } from "lucide-react";
-import { addWishlist, removeWishlist, fetchCafeReviews, createReview } from "@/lib/api/cafe";
+import { addWishlist, removeWishlist, fetchCafeReviews, createReview, deleteReview } from "@/lib/api/cafe";
 import { useRouter } from "next/navigation";
-import Cookies from "js-cookie";
+import { useAuthStore } from "@/store/authStore";
 
 interface CafeDetailProps {
     cafe: CafeDetailResponse;
@@ -18,7 +18,7 @@ export default function CafeDetail({ cafe, onClose }: CafeDetailProps) {
     const [reviews, setReviews] = useState<ReviewResponse[]>([]);
     const [reviewLoading, setReviewLoading] = useState(true);
     const [reviewContent, setReviewContent] = useState("");
-    const isLoggedIn = !!Cookies.get("accessToken");
+    const { isLoggedIn, member } = useAuthStore();
     const router = useRouter();
 
     // 리뷰 목록 불러오기
@@ -64,6 +64,16 @@ export default function CafeDetail({ cafe, onClose }: CafeDetailProps) {
         try {
             await createReview(cafe.cafeId, reviewContent);
             setReviewContent("");
+            const data = await fetchCafeReviews(cafe.cafeId);
+            setReviews(data);
+        } catch (e) {
+            console.error(e);
+        }
+    };
+
+    const handleReviewDelete = async (reviewId: number) => {
+        try {
+            await deleteReview(cafe.cafeId, reviewId);
             const data = await fetchCafeReviews(cafe.cafeId);
             setReviews(data);
         } catch (e) {
@@ -254,7 +264,18 @@ export default function CafeDetail({ cafe, onClose }: CafeDetailProps) {
                                 <div key={review.id} className="bg-gray-50 rounded-2xl px-4 py-3">
                                     <div className="flex items-center justify-between mb-1">
                                         <span className="text-sm font-semibold text-gray-800">{review.nickname}</span>
-                                        <span className="text-xs text-gray-400">{review.createdAt.slice(0, 10)}</span>
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-xs text-gray-400">{review.createdAt.slice(0, 10)}</span>
+                                            {/* 본인 리뷰 또는 관리자면 삭제 버튼 표시 */}
+                                            {(review.memberId === member?.memberId || member?.role === "ADMIN") && (
+                                                <button
+                                                    onClick={() => handleReviewDelete(review.id)}
+                                                    className="text-xs text-red-400 hover:text-red-600 transition-colors"
+                                                >
+                                                    삭제
+                                                </button>
+                                            )}
+                                        </div>
                                     </div>
                                     <p className="text-sm text-gray-600">{review.content}</p>
                                 </div>

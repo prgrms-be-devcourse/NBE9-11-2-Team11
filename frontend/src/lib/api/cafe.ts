@@ -1,4 +1,4 @@
-import { CafeListResponse, CafeDetailResponse, ReviewResponse, WishlistResponse } from "@/types/cafe";
+import { CafeListResponse, CafeDetailResponse, ReviewResponse, WishlistResponse, CafeReportRequest } from "@/types/cafe";
 
 interface RsData<T> {
     msg: string;
@@ -68,9 +68,19 @@ export const fetchCafeReviews = async (cafeId: number): Promise<ReviewResponse[]
     return data.data;
 };
 
+// 리뷰 삭제
+export const deleteReview = async (cafeId: number, reviewId: number): Promise<RsData<null>> => {
+    const res = await fetch(`${BASE_URL}/api/V1/cafe/${cafeId}/reviews/${reviewId}`, {
+        method: "DELETE",
+        credentials: "include",
+    });
+    const data: RsData<null> = await res.json();
+    return data;
+};
+
 // 찜 추가
 export const addWishlist = async (cafeId: number): Promise<RsData<null>> => {
-    const res = await fetch(`${BASE_URL}/api/V1/wishlist/${cafeId}`, {
+    const res = await fetch(`${BASE_URL}/api/V1/cafe/${cafeId}/wishlist`, {
         method: "POST",
         credentials: "include",
     });
@@ -80,7 +90,7 @@ export const addWishlist = async (cafeId: number): Promise<RsData<null>> => {
 
 // 찜 취소
 export const removeWishlist = async (cafeId: number): Promise<RsData<null>> => {
-    const res = await fetch(`${BASE_URL}/api/V1/wishlist/${cafeId}`, {
+    const res = await fetch(`${BASE_URL}/api/V1/cafe/${cafeId}/wishlist`, {
         method: "DELETE",
         credentials: "include",
     });
@@ -95,4 +105,19 @@ export const fetchWishlist = async (): Promise<WishlistResponse[]> => {
     });
     const data: RsData<WishlistResponse[]> = await res.json();
     return data.data;
+};
+
+// 제보용
+
+export const reportCafe = async (form: CafeReportRequest): Promise<RsData<null>> => {
+    const res = await fetch(`${BASE_URL}/api/V1/cafe/report`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(form),
+    });
+    const data: RsData<null> = await res.json();
+    return data;
 };
