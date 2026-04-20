@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { CafeDetailResponse, ReviewResponse } from "@/types/cafe";
-import { X, MapPin, Phone, Heart, MessageCircle } from "lucide-react";
-import { addWishlist, removeWishlist, fetchCafeReviews, createReview, deleteReview } from "@/lib/api/cafe";
+import { CafeDetailResponse, PageResponse, ReviewResponse } from "@/types/cafe";
+import { X, MapPin, Phone, Heart, MessageCircle, ChevronRight, ChevronLeft } from "lucide-react";
+import { addWishlist, removeWishlist, fetchCafeReviewsPage, createReview, deleteReview } from "@/lib/api/cafe";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/authStore";
 
@@ -15,9 +15,10 @@ interface CafeDetailProps {
 export default function CafeDetail({ cafe, onClose }: CafeDetailProps) {
     const [isWishlisted, setIsWishlisted] = useState(cafe.isWishlisted);
     const [wishlistCount, setWishlistCount] = useState(cafe.wishlistCount);
-    const [reviews, setReviews] = useState<ReviewResponse[]>([]);
-    const [reviewLoading, setReviewLoading] = useState(true);
     const [reviewContent, setReviewContent] = useState("");
+    const [reviewPage, setReviewPage] = useState<PageResponse<ReviewResponse> | null>(null);
+    const [reviewCurrentPage, setReviewCurrentPage] = useState(0);
+    const [reviewLoading, setReviewLoading] = useState(true);
     const { isLoggedIn, member } = useAuthStore();
     const router = useRouter();
 
@@ -25,8 +26,8 @@ export default function CafeDetail({ cafe, onClose }: CafeDetailProps) {
     useEffect(() => {
         const loadReviews = async () => {
             try {
-                const data = await fetchCafeReviews(cafe.cafeId);
-                setReviews(data);
+                const data = await fetchCafeReviewsPage(cafe.cafeId, reviewCurrentPage, 10);
+                setReviewPage(data);
             } catch (e) {
                 console.error(e);
             } finally {
@@ -34,7 +35,8 @@ export default function CafeDetail({ cafe, onClose }: CafeDetailProps) {
             }
         };
         loadReviews();
-    }, [cafe.cafeId]);
+    }, [cafe.cafeId, reviewCurrentPage]);
+
 
     useEffect(() => {
         setIsWishlisted(cafe.isWishlisted);
@@ -69,8 +71,8 @@ export default function CafeDetail({ cafe, onClose }: CafeDetailProps) {
         try {
             await createReview(cafe.cafeId, reviewContent);
             setReviewContent("");
-            const data = await fetchCafeReviews(cafe.cafeId);
-            setReviews(data);
+            const data = await fetchCafeReviewsPage(cafe.cafeId, reviewCurrentPage, 10);
+            setReviewPage(data);
         } catch (e) {
             console.error(e);
         }
@@ -79,8 +81,8 @@ export default function CafeDetail({ cafe, onClose }: CafeDetailProps) {
     const handleReviewDelete = async (reviewId: number) => {
         try {
             await deleteReview(cafe.cafeId, reviewId);
-            const data = await fetchCafeReviews(cafe.cafeId);
-            setReviews(data);
+            const data = await fetchCafeReviewsPage(cafe.cafeId, reviewCurrentPage, 10);
+            setReviewPage(data);
         } catch (e) {
             console.error(e);
         }
@@ -224,7 +226,7 @@ export default function CafeDetail({ cafe, onClose }: CafeDetailProps) {
                     <div className="flex items-center gap-2 mb-3">
                         <MessageCircle size={16} className="text-gray-700" />
                         <h3 className="text-sm font-semibold text-gray-700">리뷰</h3>
-                        <span className="text-sm font-bold text-gray-900">{reviews.length}</span>
+                        <span className="text-sm font-bold text-gray-900">{reviewPage?.totalElements ?? 0}</span>
                     </div>
 
                     {/* 리뷰 작성 */}
@@ -233,12 +235,18 @@ export default function CafeDetail({ cafe, onClose }: CafeDetailProps) {
                             <textarea
                                 value={reviewContent}
                                 onChange={(e) => setReviewContent(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === "Enter" && !e.shiftKey) {
+                                        e.preventDefault();
+                                        handleReviewSubmit();
+                                    }
+                                }}
                                 placeholder="리뷰를 작성해주세요"
                                 rows={3}
                                 className="w-full px-4 py-3 rounded-2xl border border-gray-200 text-sm text-gray-900 placeholder-gray-400 outline-none focus:border-gray-400 transition-colors resize-none bg-white/80"
                             />
                             <button
-                                onClick={handleReviewSubmit}
+                                onClick={() => handleReviewSubmit()}
                                 disabled={!reviewContent.trim()}
                                 className="w-full mt-2 py-2.5 rounded-2xl bg-gray-800 text-white text-sm font-medium hover:bg-gray-900 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                             >
@@ -259,19 +267,18 @@ export default function CafeDetail({ cafe, onClose }: CafeDetailProps) {
 
                     {reviewLoading ? (
                         <div className="text-sm text-gray-400 text-center py-3">로딩 중...</div>
-                    ) : reviews.length === 0 ? (
+                    ) : (reviewPage?.content ?? []).length === 0 ? (
                         <div className="bg-gray-50 rounded-2xl px-4 py-3 text-sm text-gray-500 text-center italic">
                             아직 리뷰가 없어요. 첫 번째 리뷰를 남겨보세요!
                         </div>
                     ) : (
                         <div className="space-y-3">
-                            {reviews.map((review) => (
+                            {(reviewPage?.content ?? []).map((review) => (
                                 <div key={review.id} className="bg-gray-50 rounded-2xl px-4 py-3">
                                     <div className="flex items-center justify-between mb-1">
                                         <span className="text-sm font-semibold text-gray-800">{review.nickname}</span>
                                         <div className="flex items-center gap-2">
                                             <span className="text-xs text-gray-400">{review.createdAt.slice(0, 10)}</span>
-                                            {/* 본인 리뷰 또는 관리자면 삭제 버튼 표시 */}
                                             {(review.memberId === member?.memberId || member?.role === "ADMIN") && (
                                                 <button
                                                     onClick={() => handleReviewDelete(review.id)}
@@ -285,6 +292,40 @@ export default function CafeDetail({ cafe, onClose }: CafeDetailProps) {
                                     <p className="text-sm text-gray-600">{review.content}</p>
                                 </div>
                             ))}
+                        </div>
+                    )}
+
+                    {/* 리뷰 페이지 버튼 */}
+                    {(reviewPage?.totalPages ?? 0) > 1 && (
+                        <div className="flex items-center justify-center gap-1 mt-3">
+                            <button
+                                onClick={() => setReviewCurrentPage(prev => prev - 1)}
+                                disabled={reviewPage?.page === 1}
+                                className="w-7 h-7 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                            >
+                                <ChevronLeft size={14} />
+                            </button>
+
+                            {Array.from({ length: reviewPage?.totalPages ?? 0 }, (_, i) => (
+                                <button
+                                    key={i}
+                                    onClick={() => setReviewCurrentPage(i)}
+                                    className={`w-7 h-7 flex items-center justify-center rounded-lg text-xs font-medium transition-colors
+                                        ${reviewPage?.page === i + 1
+                                            ? "bg-gray-800 text-white"
+                                            : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"}`}
+                                >
+                                    {i + 1}
+                                </button>
+                            ))}
+
+                            <button
+                                onClick={() => setReviewCurrentPage(prev => prev + 1)}
+                                disabled={!reviewPage?.hasNext}
+                                className="w-7 h-7 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                            >
+                                <ChevronRight size={14} />
+                            </button>
                         </div>
                     )}
                 </div>

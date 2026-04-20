@@ -6,12 +6,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -78,6 +75,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/V1/cafe").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/V1/cafe/*").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/V1/cafe/*/reviews").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/V1/cafe/*/reviews/page").permitAll()
 
                         .requestMatchers( // 홈, 에러, oauth 관련 경로 허용
                                 "/",
