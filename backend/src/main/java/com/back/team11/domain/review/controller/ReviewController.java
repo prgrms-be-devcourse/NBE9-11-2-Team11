@@ -10,6 +10,7 @@ import com.back.team11.domain.review.service.ReviewService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -50,6 +51,7 @@ public class ReviewController {
     @GetMapping("/page")
     public ResponseEntity<RsData<PageResponse<ReviewResponseDto>>> getReviewsPage(
             @PathVariable Long cafeId,
+            @PageableDefault(size = 10)
             Pageable pageable
     ) {
         PageResponse<ReviewResponseDto> data = reviewService.getReviewsPage(cafeId, pageable);
