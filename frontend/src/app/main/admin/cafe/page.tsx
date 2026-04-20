@@ -132,7 +132,7 @@ export default function AdminCafePage() {
                     {/* 이전 버튼 */}
                     <button
                         onClick={() => setCurrentPage(currentPage - 1)}
-                        disabled={currentPage === 0}
+                        disabled={currentPage === 1}
                         // disabled = 첫 페이지면 버튼 비활성화
                         className="px-3 py-1 border rounded disabled:opacity-30 hover:bg-gray-100"
                     >
@@ -154,7 +154,7 @@ export default function AdminCafePage() {
                     {/* 다음 버튼 */}
                     <button
                         onClick={() => setCurrentPage(currentPage + 1)}
-                        disabled={currentPage + 1 >= totalPages}
+                        disabled={currentPage >= totalPages}
                         // disabled = 마지막 페이지면 버튼 비활성화
                         className="px-3 py-1 border rounded disabled:opacity-30 hover:bg-gray-100"
                     >
