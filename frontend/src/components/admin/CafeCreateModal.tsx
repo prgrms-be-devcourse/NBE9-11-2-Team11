@@ -39,8 +39,8 @@ export default function CafeCreateModal({ onClose, onSubmit }: Props) {
         onSubmit({
             name,
             address,
-            phone: phone || undefined,        // 빈 문자열이면 undefined 로 보내기 (선택값이라)
-            description: description || undefined,
+            phone: phone,
+            description: description || undefined,   // 빈 문자열이면 undefined 로 보내기 (선택값이라)
             type,
             franchise,
             hasToilet,
