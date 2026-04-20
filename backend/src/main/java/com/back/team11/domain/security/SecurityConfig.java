@@ -10,6 +10,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -39,12 +40,24 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
                                 "/swagger-ui.html"
                         ).permitAll()
+                        // 카페 목록/상세 조회 먼저 허용
+                        .requestMatchers(HttpMethod.GET, "/api/v1/cafes/**").permitAll()
+
+                        // HttpOnly 처리용 설정
+                        .requestMatchers(HttpMethod.GET, "/api/V1/auth/me").authenticated()
+                        //로그아웃
+                        .requestMatchers(HttpMethod.POST, "/api/V1/auth/logout").authenticated()
+
                         // [임시 추가] 테스트를 위해 관리자 카페 API 열어두기 위함
                         .requestMatchers(HttpMethod.POST, "/api/V1/admin/cafe/post").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/V1/admin/cafes").permitAll()
@@ -56,11 +69,16 @@ public class SecurityConfig {
 
 
 
-                        .requestMatchers(HttpMethod.GET,
-                                "/api/*/cafe",
-                                "/api/*/cafe/{id:\\d+}",
-                                "/api/*/cafe/*/reviews"   //리뷰 조회 누구나 가능하게
-                        ).permitAll()
+                        //.requestMatchers(HttpMethod.GET,
+                        //        "/api/*/cafe",
+                        //        "/api/*/cafe/{id:\\d+}",
+                        //        "/api/*/cafe/*/reviews"   //리뷰 조회 누구나 가능하게
+                        //).permitAll()
+
+                        .requestMatchers(HttpMethod.GET, "/api/V1/cafe").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/V1/cafe/*").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/V1/cafe/*/reviews").permitAll()
+
                         .requestMatchers( // 홈, 에러, oauth 관련 경로 허용
                                 "/",
                                 "/login",
