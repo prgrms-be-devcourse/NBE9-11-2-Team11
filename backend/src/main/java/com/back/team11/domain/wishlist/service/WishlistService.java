@@ -11,6 +11,8 @@ import com.back.team11.domain.wishlist.dto.WishlistResponse;
 import com.back.team11.domain.wishlist.entity.Wishlist;
 import com.back.team11.domain.wishlist.repository.WishlistRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -69,12 +71,10 @@ public class WishlistService {
         wishlistRepository.deleteByMemberIdAndCafeId(member.getId(), cafe.getId());
     }
 
-    public List<WishlistResponse> getWishlists() {
+    public Page<WishlistResponse> getWishlists(Pageable pageable) {
 
-        List<Wishlist> wishlists = wishlistRepository.findAllByMemberIdWithCafe(authUtil.getCurrentMemberId());
+        Page<Wishlist> wishlists = wishlistRepository.findAllByMemberIdWithCafe(authUtil.getCurrentMemberId(), pageable);
 
-        return wishlists.stream()
-                .map(WishlistResponse::from)
-                .toList();
+        return wishlists.map(WishlistResponse::from);
     }
 }

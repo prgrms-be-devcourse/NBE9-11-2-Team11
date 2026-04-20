@@ -54,9 +54,6 @@ export default function CafeEditModal({ cafe, onClose, onSubmit }: Props) {
     // 수정하기 버튼 눌렀을 때 실행되는 함수
     const handleSubmit = () => {
         if (!name || !address || !phone) {
-            alert('카페 이름, 주소, 전화번호는 필수입니다!');
-            return;
-        }
 
         // 부모한테 cafeId 랑 수정된 데이터 전달
         onSubmit(cafe.cafeId, {

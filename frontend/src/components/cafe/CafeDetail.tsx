@@ -36,6 +36,11 @@ export default function CafeDetail({ cafe, onClose }: CafeDetailProps) {
         loadReviews();
     }, [cafe.cafeId]);
 
+    useEffect(() => {
+        setIsWishlisted(cafe.isWishlisted);
+        setWishlistCount(cafe.wishlistCount);
+    }, [cafe.cafeId]);
+
     // 찜 버튼 클릭 (낙관적 업데이트)
     const handleWishlist = async () => {
         if (!isLoggedIn) {
