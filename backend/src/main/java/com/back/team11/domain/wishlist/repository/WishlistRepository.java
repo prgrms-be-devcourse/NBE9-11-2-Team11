@@ -1,6 +1,8 @@
 package com.back.team11.domain.wishlist.repository;
 
 import com.back.team11.domain.wishlist.entity.Wishlist;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -17,7 +19,7 @@ public interface WishlistRepository extends JpaRepository<Wishlist, Long> {
 
     //Lazy 로딩으로 인한 N+1 문제를 해결하기 위한 Join fetch 도입
     @Query("SELECT w FROM Wishlist w JOIN FETCH w.cafe WHERE w.member.id = :memberId")
-    List<Wishlist> findAllByMemberIdWithCafe(@Param("memberId") Long memberId);
+    Page<Wishlist> findAllByMemberIdWithCafe(@Param("memberId") Long memberId,  Pageable pageable);
 
     long countByCafeId(Long cafeId);
 
