@@ -235,6 +235,7 @@ export default function CafeEditModal({ cafe, onClose, onSubmit }: Props) {
                         />
                     </div>
 
+                    {/* 이미지 주소 - 선택 */}
                     <div>
                         <label className="text-sm font-medium">이미지 주소</label>
                         <input
@@ -243,6 +244,18 @@ export default function CafeEditModal({ cafe, onClose, onSubmit }: Props) {
                             onChange={(e) => setImageUrl(e.target.value)}
                             className="w-full mt-1 p-2 border rounded"
                         />
+                        // imageUrl 이 있을 때만 미리보기 이미지 보여줌
+                        {imageUrl && (
+                            <img
+                                src={imageUrl}
+                                alt="이미지 미리보기"
+                                className="mt-2 w-full rounded border"
+                                // 잘못된 URL 입력 시 깨진 이미지 숨기기
+                                onError={(e) => {
+                                    e.currentTarget.style.display = 'none';
+                                }}
+                            />
+                        )}
                     </div>
 
                 </div>
