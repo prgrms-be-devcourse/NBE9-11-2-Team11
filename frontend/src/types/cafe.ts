@@ -109,3 +109,14 @@ export interface CafeReportRequest {
     congestionLevel: string;
     imageUrl?: string;
 }
+
+
+export interface PageResponse<T> {
+    content: T[];
+    totalPages: number;
+    totalElements: number;
+    number: number;
+    size: number;
+    first: boolean;
+    last: boolean;
+}
