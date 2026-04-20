@@ -1,6 +1,7 @@
 package com.back.team11.domain.review.controller;
 
 
+import com.back.team11.domain.global.dto.PageResponse;
 import com.back.team11.domain.global.rsData.RsData;
 import com.back.team11.domain.global.util.AuthUtil;
 import com.back.team11.domain.review.dto.ReviewRequestDto;
@@ -8,6 +9,7 @@ import com.back.team11.domain.review.dto.ReviewResponseDto;
 import com.back.team11.domain.review.service.ReviewService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -42,6 +44,16 @@ public class ReviewController {
     ) {
         List<ReviewResponseDto> data = reviewService.getReviews(cafeId);
         return ResponseEntity.ok(new RsData<>("리뷰 목록 조회 성공", "200", data));
+    }
+
+    //페이징 리뷰조회
+    @GetMapping("/page")
+    public ResponseEntity<RsData<PageResponse<ReviewResponseDto>>> getReviewsPage(
+            @PathVariable Long cafeId,
+            Pageable pageable
+    ) {
+        PageResponse<ReviewResponseDto> data = reviewService.getReviewsPage(cafeId, pageable);
+        return ResponseEntity.ok(new RsData<>("리뷰 페이징 조회 성공", "200", data));
     }
 
     //리뷰수정

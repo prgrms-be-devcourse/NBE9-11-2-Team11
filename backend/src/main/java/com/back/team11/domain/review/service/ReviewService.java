@@ -3,6 +3,7 @@ package com.back.team11.domain.review.service;
 
 import com.back.team11.domain.cafe.entity.Cafe;
 import com.back.team11.domain.cafe.repository.CafeRepository;
+import com.back.team11.domain.global.dto.PageResponse;
 import com.back.team11.domain.global.exception.CustomException;
 import com.back.team11.domain.global.exception.ErrorCode;
 import com.back.team11.domain.global.util.AuthUtil;
@@ -13,6 +14,8 @@ import com.back.team11.domain.review.dto.ReviewResponseDto;
 import com.back.team11.domain.review.entity.Review;
 import com.back.team11.domain.review.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -55,6 +58,19 @@ public class ReviewService {
         return reviewRepository.findAllByCafeId(cafeId).stream()
                 .map(ReviewResponseDto::from)
                 .collect(Collectors.toList());
+    }
+
+    //페이징 리뷰 조회
+    @Transactional(readOnly = true)
+    public PageResponse<ReviewResponseDto> getReviewsPage(Long cafeId, Pageable pageable) {
+        cafeRepository.findById(cafeId)
+                .orElseThrow(() -> new CustomException(ErrorCode.CAFE_NOT_FOUND));
+
+        Page<ReviewResponseDto> page = reviewRepository
+                .findAllByCafeId(cafeId, pageable)
+                .map(ReviewResponseDto::from);
+
+        return PageResponse.from(page);
     }
 
     //리뷰 수정
