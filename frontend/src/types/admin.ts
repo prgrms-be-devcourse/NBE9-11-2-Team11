@@ -55,7 +55,7 @@ export interface CafeCreateRequest {
     floorCount: FloorCount;
     hasSeparateSpace: boolean;
     congestionLevel: CongestionLevel;
-    phone?: string;                   // 선택
+    phone: string;
     description?: string;             // 선택
     imageUrl?: string;                // 선택
 }
