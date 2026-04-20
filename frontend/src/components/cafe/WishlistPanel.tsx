@@ -1,58 +1,43 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { Heart, X } from "lucide-react";
-import { CafeResponse } from "@/types/cafe";
+import { WishlistResponse } from "@/types/cafe";
+import { fetchWishlist } from "@/lib/api/cafe";
+import { useAuthStore } from "@/store/authStore";
+import { useRouter } from "next/navigation";
 
 interface WishlistPanelProps {
     onClose: () => void;
-    onCafeSelect: (cafe: CafeResponse) => void;
+    onCafeSelect: (cafeId: number) => void;
 }
 
-// 더미 찜 목록
-const dummyWishlist: CafeResponse[] = [
-    {
-        cafeId: 1,
-        name: "스타벅스 강남점",
-        address: "서울시 강남구 강남대로 390",
-        latitude: 37.4979,
-        longitude: 127.0276,
-        phone: "02-1234-5678",
-        description: "조용하고 넓은 카페",
-        type: "FRANCHISE",
-        franchise: "STARBUCKS",
-        hasToilet: true,
-        hasOutlet: true,
-        hasWifi: true,
-        floorCount: "TWO",
-        hasSeparateSpace: false,
-        congestionLevel: "LOW",
-        imageUrl: null,
-        wishlistCount: 1240,
-        reviewCount: 342,
-    },
-    {
-        cafeId: 3,
-        name: "카페 온도",
-        address: "서울시 강남구 논현동 456",
-        latitude: 37.5100,
-        longitude: 127.0400,
-        phone: "02-3456-7890",
-        description: "분위기 좋은 개인 카페",
-        type: "INDIVIDUAL",
-        franchise: "NONE",
-        hasToilet: true,
-        hasOutlet: true,
-        hasWifi: true,
-        floorCount: "ONE",
-        hasSeparateSpace: true,
-        congestionLevel: "LOW",
-        imageUrl: null,
-        wishlistCount: 452,
-        reviewCount: 98,
-    },
-];
-
 export default function WishlistPanel({ onClose, onCafeSelect }: WishlistPanelProps) {
+    const [wishlists, setWishlists] = useState<WishlistResponse[]>([]);
+    const [loading, setLoading] = useState(true);
+    const { isLoggedIn } = useAuthStore();
+    const router = useRouter();
+
+    useEffect(() => {
+        if (!isLoggedIn) {
+            setLoading(false);
+            return;
+        }
+
+        const loadWishlist = async () => {
+            try {
+                const data = await fetchWishlist();
+                setWishlists(data ?? []);
+            } catch (e) {
+                console.error(e);
+                setWishlists([]);
+            } finally {
+                setLoading(false);
+            }
+        };
+        loadWishlist();
+    }, [isLoggedIn]);
+
     return (
         <div className="fixed top-[20%] left-4 bottom-4 z-50 w-[25%] bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl overflow-hidden flex flex-col border border-gray-100">
 
@@ -61,7 +46,9 @@ export default function WishlistPanel({ onClose, onCafeSelect }: WishlistPanelPr
                 <div className="flex items-center gap-2">
                     <Heart className="text-red-500" size={18} fill="#ef4444" />
                     <h2 className="font-semibold text-gray-900">찜 목록</h2>
-                    <span className="text-sm text-gray-400">({dummyWishlist.length})</span>
+                    {isLoggedIn && (
+                        <span className="text-sm text-gray-400">({wishlists.length})</span>
+                    )}
                 </div>
                 <button
                     onClick={onClose}
@@ -73,34 +60,44 @@ export default function WishlistPanel({ onClose, onCafeSelect }: WishlistPanelPr
 
             {/* 목록 */}
             <div className="flex-1 overflow-y-auto scrollbar-hide p-4 space-y-3">
-                {dummyWishlist.length === 0 ? (
+                {!isLoggedIn ? (
+                    <div className="flex flex-col items-center justify-center h-full gap-3 text-center">
+                        <Heart size={40} className="text-gray-200" />
+                        <p className="text-sm text-gray-500">로그인 후 찜 목록을 확인할 수 있어요</p>
+                        <button
+                            onClick={() => router.push("/login")}
+                            className="px-4 py-2 rounded-xl bg-gray-800 text-white text-sm font-medium hover:bg-gray-900 transition-colors"
+                        >
+                            로그인하기
+                        </button>
+                    </div>
+                ) : loading ? (
+                    <div className="flex items-center justify-center h-full">
+                        <p className="text-sm text-gray-400">로딩 중...</p>
+                    </div>
+                ) : wishlists.length === 0 ? (
                     <div className="flex flex-col items-center justify-center h-full gap-3 text-center">
                         <Heart size={40} className="text-gray-200" />
                         <p className="text-sm text-gray-400">찜한 카페가 없습니다</p>
                     </div>
                 ) : (
-                    dummyWishlist.map((cafe) => (
+                    wishlists.map((wishlist) => (
                         <button
-                            key={cafe.cafeId}
+                            key={wishlist.wishlistId}
                             onClick={() => {
-                                onCafeSelect(cafe);
+                                onCafeSelect(wishlist.cafeId);
                                 onClose();
                             }}
                             className="w-full flex items-center gap-3 bg-white rounded-2xl p-3 shadow-sm hover:shadow-md transition-shadow text-left"
                         >
-                            {/* 이미지 */}
                             <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-amber-50 to-orange-50 flex items-center justify-center flex-shrink-0">
                                 <span className="text-2xl">☕</span>
                             </div>
-
-                            {/* 정보 */}
                             <div className="flex-1 min-w-0">
-                                <p className="font-semibold text-gray-900 text-sm truncate">{cafe.name}</p>
-                                <p className="text-xs text-gray-500 truncate mt-0.5">{cafe.address}</p>
-                                <div className="flex items-center gap-1 mt-1">
-                                    <Heart size={10} className="text-red-400" fill="#f87171" />
-                                    <span className="text-xs text-gray-400">{cafe.wishlistCount.toLocaleString()}</span>
-                                </div>
+                                <p className="font-semibold text-gray-900 text-sm truncate">{wishlist.cafeName}</p>
+                                <p className="text-xs text-gray-500 truncate mt-0.5">
+                                    {new Date(wishlist.createAt).toLocaleDateString()}
+                                </p>
                             </div>
                         </button>
                     ))

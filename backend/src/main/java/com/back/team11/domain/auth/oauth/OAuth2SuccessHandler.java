@@ -31,6 +31,8 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                                         HttpServletResponse response,
                                         Authentication authentication) throws IOException {
 
+        request.getSession().invalidate();
+
         // 로그인 성공한 사용자 정보 가져오기
         // CustomOAuth2UserService에서 customAttributes에 담아둔 memberId, role 꺼냄
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
@@ -53,8 +55,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         //http://localhost:3000/login-success?status=success
         String targetUrl = UriComponentsBuilder
-                .fromUriString("http://localhost:3000/login-success")
-                .queryParam("status", "success")
+                .fromUriString("http://localhost:3000")
                 .build().toUriString();
 
 

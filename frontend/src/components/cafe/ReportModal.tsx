@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { X } from "lucide-react";
+import { reportCafe } from "@/lib/api/cafe";
+import { CafeReportRequest } from "@/types/cafe";
 
 interface ReportModalProps {
     onClose: () => void;
@@ -11,6 +13,8 @@ export default function ReportModal({ onClose }: ReportModalProps) {
     const [form, setForm] = useState({
         name: "",
         address: "",
+        latitude: 0,
+        longitude: 0,
         type: "",
         franchise: "NONE",
         hasWifi: false,
@@ -25,19 +29,55 @@ export default function ReportModal({ onClose }: ReportModalProps) {
 
     const handleAddressSearch = () => {
         new window.daum.Postcode({
-            oncomplete: (data: any) => {
-                setForm({ ...form, address: data.roadAddress || data.jibunAddress });
+            oncomplete: async (data: any) => {
+                const address = data.roadAddress || data.jibunAddress;
+
+                // 주소로 정확한 좌표 변환
+                const res = await fetch(`/api/search?query=${encodeURIComponent(address)}`);
+                const result = await res.json();
+                const doc = result.documents?.[0];
+
+                setForm({
+                    ...form,
+                    address,
+                    latitude: doc ? parseFloat(doc.y) : 0,
+                    longitude: doc ? parseFloat(doc.x) : 0,
+                });
             },
         }).open();
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         if (!form.name || !form.address || !form.type || !form.floorCount || !form.congestionLevel) {
             alert("필수 항목을 모두 입력해주세요.");
             return;
         }
-        console.log("제보 데이터:", form);
-        onClose();
+
+        const request: CafeReportRequest = {
+            name: form.name,
+            address: form.address,
+            latitude: form.latitude,
+            longitude: form.longitude,
+            phone: form.phone || undefined,
+            description: form.description || undefined,
+            type: form.type,
+            franchise: form.franchise,
+            hasToilet: form.hasToilet,
+            hasOutlet: form.hasOutlet,
+            hasWifi: form.hasWifi,
+            floorCount: form.floorCount,
+            hasSeparateSpace: form.hasSeparateSpace,
+            congestionLevel: form.congestionLevel,
+        };
+
+        try {
+            await reportCafe(request);
+            alert("제보가 완료되었습니다!");
+            onClose();
+        } catch (e) {
+            alert("제보 중 오류가 발생했습니다.");
+            console.error(e);
+        }
     };
 
     const chipClass = (selected: boolean) =>
@@ -251,7 +291,7 @@ export default function ReportModal({ onClose }: ReportModalProps) {
                 {/* 하단 버튼 */}
                 <div className="px-6 py-4 border-t flex-shrink-0">
                     <button
-                        onClick={handleSubmit}
+                        onClick={() => handleSubmit()}
                         className="w-full py-3.5 rounded-2xl bg-gray-800 text-white text-sm font-medium hover:bg-gray-900 transition-colors"
                     >
                         제보하기

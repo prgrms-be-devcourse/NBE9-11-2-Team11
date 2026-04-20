@@ -20,6 +20,18 @@ public class AuthUtil {
         return (Long) authentication.getPrincipal();
     }
 
+    public Long getCurrentMemberIdOrNull() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null
+                || !authentication.isAuthenticated()
+                || authentication.getPrincipal().equals("anonymousUser")) {
+            return null;
+        }
+
+        return (Long) authentication.getPrincipal();
+    }
+
     public boolean isAdmin() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return authentication.getAuthorities()
