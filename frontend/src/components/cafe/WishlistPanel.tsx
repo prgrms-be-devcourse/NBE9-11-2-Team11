@@ -116,7 +116,7 @@ export default function WishlistPanel({ onClose, onCafeSelect }: WishlistPanelPr
                     <div className="flex items-center justify-center gap-1 py-2">
                         <button
                             onClick={() => setCurrentPage(prev => prev - 1)}
-                            disabled={currentPage === 0}
+                            disabled={wishlistPage?.page === 1}
                             className="w-7 h-7 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                         >
                             <ChevronLeft size={14} />
@@ -127,7 +127,7 @@ export default function WishlistPanel({ onClose, onCafeSelect }: WishlistPanelPr
                                 key={i}
                                 onClick={() => setCurrentPage(i)}
                                 className={`w-7 h-7 flex items-center justify-center rounded-lg text-xs font-medium transition-colors
-                                    ${currentPage === i
+                                    ${wishlistPage?.page === i + 1
                                         ? "bg-gray-800 text-white"
                                         : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"}`}
                             >
@@ -137,7 +137,7 @@ export default function WishlistPanel({ onClose, onCafeSelect }: WishlistPanelPr
 
                         <button
                             onClick={() => setCurrentPage(prev => prev + 1)}
-                            disabled={currentPage === totalPages - 1}
+                            disabled={!wishlistPage?.hasNext}
                             className="w-7 h-7 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                         >
                             <ChevronRight size={14} />

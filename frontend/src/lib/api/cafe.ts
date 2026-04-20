@@ -59,12 +59,12 @@ export const createReview = async (cafeId: number, content: string): Promise<RsD
     return data;
 };
 
-// 리뷰 목록 조회
-export const fetchCafeReviews = async (cafeId: number): Promise<ReviewResponse[]> => {
-    const res = await fetch(`${BASE_URL}/api/V1/cafe/${cafeId}/reviews`, {
+// 리뷰 페이징 조회
+export const fetchCafeReviewsPage = async (cafeId: number, page = 0, size = 10): Promise<PageResponse<ReviewResponse>> => {
+    const res = await fetch(`${BASE_URL}/api/V1/cafe/${cafeId}/reviews/page?page=${page}&size=${size}`, {
         credentials: "include",
     });
-    const data: RsData<ReviewResponse[]> = await res.json();
+    const data: RsData<PageResponse<ReviewResponse>> = await res.json();
     return data.data;
 };
 
