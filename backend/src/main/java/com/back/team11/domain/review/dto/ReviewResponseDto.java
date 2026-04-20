@@ -17,8 +17,8 @@ public record ReviewResponseDto(
                 review.getId(),
                 review.getCafe().getId(),
                 review.getMember().getId(),
-                review.getContent(),
                 review.getMember().getNickname(),
+                review.getContent(),
                 review.getCreatedAt()
         );
     }
