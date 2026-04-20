@@ -25,13 +25,19 @@ export default function AdminCafePage() {
     // 상세 보기에서 쓸 선택된 카페 (null = 선택 안 됨)
     const [detailCafe, setDetailCafe] = useState<AdminCafe | null>(null);
 
+    // 현재 페이지 번호 (1부터 시작)
+    const [currentPage, setCurrentPage] = useState(1);
+    // 전체 페이지 수
+    const [totalPages, setTotalPages] = useState(0);
+
 
     // 카페 목록 조회
-    const loadCafes = async () => {
+    const loadCafes = async (page: number = 0) => {
         setIsLoading(true);
         try {
-            const data = await fetchCafes();
+            const data = await fetchCafes(undefined, page);
             setCafes(data.content);
+            setTotalPages(data.totalPages); // 전체 페이지 수 저장
         } catch (error) {
             console.log('카페 목록 조회 실패:', error);
         } finally {
@@ -80,10 +86,10 @@ export default function AdminCafePage() {
     };
 
 
-    // 페이지 처음 열릴 때 목록 자동으로 불러오기
+    // 페이지 처음 열릴 때 목록 자동으로 불러오기 + 페이징
     useEffect(() => {
-        loadCafes();
-    }, []);
+        loadCafes(currentPage);
+    }, [currentPage]);
 
 
 
@@ -121,6 +127,40 @@ export default function AdminCafePage() {
                     onDelete={handleDelete}
                     onDetail={(cafe) => setDetailCafe(cafe)}
                 />
+                {/* 페이징 버튼 */}
+                <div className="flex items-center justify-center gap-2 mt-6">
+                    {/* 이전 버튼 */}
+                    <button
+                        onClick={() => setCurrentPage(currentPage - 1)}
+                        disabled={currentPage === 0}
+                        // disabled = 첫 페이지면 버튼 비활성화
+                        className="px-3 py-1 border rounded disabled:opacity-30 hover:bg-gray-100"
+                    >
+                        이전
+                    </button>
+
+                    {/* 페이지 번호들 */}
+                    {Array.from({ length: totalPages }, (_, i) => (
+                        <button
+                            key={i}
+                            onClick={() => setCurrentPage(i)}
+                            className={`px-3 py-1 border rounded hover:bg-gray-100 ${currentPage === i ? 'bg-black text-white' : ''}`}
+                            // 현재 페이지면 검은색으로 표시
+                        >
+                            {i + 1}
+                        </button>
+                    ))}
+
+                    {/* 다음 버튼 */}
+                    <button
+                        onClick={() => setCurrentPage(currentPage + 1)}
+                        disabled={currentPage + 1 >= totalPages}
+                        // disabled = 마지막 페이지면 버튼 비활성화
+                        className="px-3 py-1 border rounded disabled:opacity-30 hover:bg-gray-100"
+                    >
+                        다음
+                    </button>
+                </div>
 
             </div>
 
