@@ -12,7 +12,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     boolean existsByMemberIdAndCafeId(Long memberId, Long cafeId);  //리뷰를 생성한지 안한지 체크
     // 전체 조회
-    List<Review> findAllByCafeId(Long cafeId);
+    List<Review> findAllByCafeIdOrderByCreatedAtDesc(Long cafeId);
     // 페이징 조회
     Page<Review> findAllByCafeId(Long cafeId, Pageable pageable);
 

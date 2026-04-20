@@ -15,7 +15,9 @@ import com.back.team11.domain.review.entity.Review;
 import com.back.team11.domain.review.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -55,7 +57,7 @@ public class ReviewService {
         cafeRepository.findById(cafeId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CAFE_NOT_FOUND));
 
-        return reviewRepository.findAllByCafeId(cafeId).stream()
+        return reviewRepository.findAllByCafeIdOrderByCreatedAtDesc(cafeId).stream()
                 .map(ReviewResponseDto::from)
                 .collect(Collectors.toList());
     }
@@ -66,8 +68,16 @@ public class ReviewService {
         cafeRepository.findById(cafeId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CAFE_NOT_FOUND));
 
+        //정렬 (createdAt desc)
+        Pageable sortedPageable = PageRequest.of(
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                Sort.by(Sort.Direction.DESC, "createdAt")
+        );
+
+
         Page<ReviewResponseDto> page = reviewRepository
-                .findAllByCafeId(cafeId, pageable)
+                .findAllByCafeId(cafeId, sortedPageable)
                 .map(ReviewResponseDto::from);
 
         return PageResponse.from(page);
