@@ -257,22 +257,21 @@ export default function CafeCreateModal({ onClose, onSubmit }: Props) {
                             type="text"
                             value={imageUrl}
                             onChange={(e) => setImageUrl(e.target.value)}
-                            placeholder="https://..."
                             className="w-full mt-1 p-2 border rounded"
                         />
-                        //imageUrl 이 있을 때만 미리보기 이미지 보여줌
+                        {/* imageUrl 이 있을 때만 미리보기 이미지 보여줌 */}
                         {imageUrl && (
                             <img
                                 src={imageUrl}
                                 alt="이미지 미리보기"
                                 className="mt-2 w-full rounded border"
-                                //이미지 로딩 실패 시 에러 문구 표시
                                 onError={(e) => {
                                     e.currentTarget.style.display = 'none';
                                 }}
                             />
                         )}
                     </div>
+
 
                 </div>
 
