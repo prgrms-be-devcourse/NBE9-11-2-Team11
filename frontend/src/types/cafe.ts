@@ -113,10 +113,9 @@ export interface CafeReportRequest {
 
 export interface PageResponse<T> {
     content: T[];
-    totalPages: number;
-    totalElements: number;
-    number: number;
+    page: number;
     size: number;
-    first: boolean;
-    last: boolean;
+    totalElements: number;
+    totalPages: number;
+    hasNext: boolean;
 }
