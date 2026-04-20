@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useCallback } from "react";
-import { CafeResponse } from "@/types/cafe";
+import { CafeListResponse } from "@/types/cafe";
+import { fetchCafeList } from "@/lib/api/cafe";
 
 declare global {
     interface Window {
@@ -10,99 +11,109 @@ declare global {
 }
 
 interface KakaoMapProps {
-    onCafeSelect: (cafe: CafeResponse) => void;
+    onCafeSelect: (cafeId: number) => void;
     center: { lat: number; lng: number } | null;
+    filters: {
+        franchise: string[];
+        hasWifi: boolean | null;
+        hasOutlet: boolean | null;
+        hasToilet: boolean | null;
+        hasSeparateSpace: boolean | null;
+        floorCount: string[];
+        congestionLevel: string[];
+    };
+    onBoundsChange: (bounds: { swLat: number; swLng: number; neLat: number; neLng: number }) => void;
 }
 
-const dummyCafes: CafeResponse[] = [
-    {
-        cafeId: 1,
-        name: "스타벅스 강남점",
-        address: "서울시 강남구 강남대로 390",
-        latitude: 37.4979,
-        longitude: 127.0276,
-        phone: "02-1234-5678",
-        description: "조용하고 넓은 카페",
-        type: "FRANCHISE",
-        franchise: "STARBUCKS",
-        hasToilet: true,
-        hasOutlet: true,
-        hasWifi: true,
-        floorCount: "TWO",
-        hasSeparateSpace: false,
-        congestionLevel: "LOW",
-        imageUrl: null,
-        wishlistCount: 1240,
-        reviewCount: 342,
-    },
-    {
-        cafeId: 2,
-        name: "메가커피 역삼점",
-        address: "서울시 강남구 역삼동 123",
-        latitude: 37.4965,
-        longitude: 127.0283,
-        phone: "02-2345-6789",
-        description: "가성비 좋은 카페",
-        type: "FRANCHISE",
-        franchise: "MEGA_COFFEE",
-        hasToilet: true,
-        hasOutlet: true,
-        hasWifi: true,
-        floorCount: "ONE",
-        hasSeparateSpace: false,
-        congestionLevel: "MEDIUM",
-        imageUrl: null,
-        wishlistCount: 875,
-        reviewCount: 189,
-    },
-    {
-        cafeId: 3,
-        name: "카페 온도",
-        address: "서울시 강남구 논현동 456",
-        latitude: 37.5100,
-        longitude: 127.0400,
-        phone: "02-3456-7890",
-        description: "분위기 좋은 개인 카페",
-        type: "INDIVIDUAL",
-        franchise: "NONE",
-        hasToilet: true,
-        hasOutlet: true,
-        hasWifi: true,
-        floorCount: "ONE",
-        hasSeparateSpace: true,
-        congestionLevel: "LOW",
-        imageUrl: null,
-        wishlistCount: 452,
-        reviewCount: 98,
-    },
-];
-
-export default function KakaoMap({ onCafeSelect, center }: KakaoMapProps) {
+export default function KakaoMap({ onCafeSelect, center, filters, onBoundsChange }: KakaoMapProps) {
 
     const mapRef = useRef<HTMLDivElement>(null);
     const mapInstance = useRef<any>(null);
+    const clustererInstance = useRef<any>(null);
+    const fetchAndUpdateMarkersRef = useRef<() => void>(() => { });
 
-    const addMarkers = useCallback((map: any, cafes: CafeResponse[]) => {
-        const clusterer = new window.kakao.maps.MarkerClusterer({
-            map,
-            averageCenter: true,
-            minLevel: 6,
-            gridSize: 60,
+    const getOffsetByZoom = (level: number) => {
+        if (level === 1) return 0.0022;
+        if (level === 2) return 0.0045;
+        if (level === 3) return 0.009;
+        if (level === 4) return 0.018;
+        if (level === 5) return 0.027;
+        if (level === 6) return 0.036;
+        if (level === 7) return 0.054;
+        if (level === 8) return 0.09;
+        if (level === 9) return 0.18;
+        if (level === 10) return 0.27;
+        if (level === 11) return 0.45;
+        if (level === 12) return 0.9;
+        if (level === 13) return 1.8;
+        return 3.6;
+    };
+
+    const fetchAndUpdateMarkers = useCallback(async () => {
+        if (!mapInstance.current) return;
+
+        const bounds = mapInstance.current.getBounds();
+        const sw = bounds.getSouthWest();
+        const ne = bounds.getNorthEast();
+
+        const centerLat = (sw.getLat() + ne.getLat()) / 2;
+        const centerLng = (sw.getLng() + ne.getLng()) / 2;
+
+        const level = mapInstance.current.getLevel();
+        const offset = getOffsetByZoom(level);
+
+        onBoundsChange({
+            swLat: centerLat - offset,
+            swLng: centerLng - offset,
+            neLat: centerLat + offset,
+            neLng: centerLng + offset,
         });
+
+        try {
+            const cafes = await fetchCafeList({
+                swLat: centerLat - offset,
+                swLng: centerLng - offset,
+                neLat: centerLat + offset,
+                neLng: centerLng + offset,
+                hasWifi: filters.hasWifi ?? undefined,
+                hasOutlet: filters.hasOutlet ?? undefined,
+                hasToilet: filters.hasToilet ?? undefined,
+                hasSeparateSpace: filters.hasSeparateSpace ?? undefined,
+                floorCount: filters.floorCount[0] ?? undefined,
+                congestionLevel: filters.congestionLevel[0] ?? undefined,
+                franchise: filters.franchise[0] ?? undefined,
+            });
+
+            if (!cafes || !Array.isArray(cafes)) return;
+            updateMarkers(cafes);
+        } catch (e) {
+            console.error(e);
+        }
+    }, [filters, onBoundsChange]);
+
+    // fetchAndUpdateMarkers 최신 버전을 ref에 저장
+    useEffect(() => {
+        fetchAndUpdateMarkersRef.current = fetchAndUpdateMarkers;
+    }, [fetchAndUpdateMarkers]);
+
+    const updateMarkers = (cafes: CafeListResponse[]) => {
+        if (clustererInstance.current) {
+            clustererInstance.current.clear();
+        }
 
         const markers = cafes.map((cafe) => {
             const position = new window.kakao.maps.LatLng(cafe.latitude, cafe.longitude);
             const marker = new window.kakao.maps.Marker({ position, title: cafe.name });
 
             window.kakao.maps.event.addListener(marker, "click", () => {
-                onCafeSelect(cafe);
+                onCafeSelect(cafe.cafeId);
             });
 
             return marker;
         });
 
-        clusterer.addMarkers(markers);
-    }, [onCafeSelect]);
+        clustererInstance.current.addMarkers(markers);
+    };
 
     const initMap = useCallback(() => {
         if (!mapRef.current || !window.kakao?.maps || mapInstance.current) return;
@@ -113,17 +124,32 @@ export default function KakaoMap({ onCafeSelect, center }: KakaoMapProps) {
         };
 
         mapInstance.current = new window.kakao.maps.Map(mapRef.current, options);
-        addMarkers(mapInstance.current, dummyCafes);
-    }, [addMarkers]);
 
-    // 검색으로 선택된 위치로 지도 이동
+        clustererInstance.current = new window.kakao.maps.MarkerClusterer({
+            map: mapInstance.current,
+            averageCenter: true,
+            minLevel: 6,
+            gridSize: 60,
+        });
+
+        window.kakao.maps.event.addListener(mapInstance.current, "dragend", () => fetchAndUpdateMarkersRef.current());
+        window.kakao.maps.event.addListener(mapInstance.current, "zoom_changed", () => fetchAndUpdateMarkersRef.current());
+
+        fetchAndUpdateMarkersRef.current();
+    }, []);
+
     useEffect(() => {
         if (!center || !mapInstance.current) return;
-
         const moveLatLng = new window.kakao.maps.LatLng(center.lat, center.lng);
         mapInstance.current.setCenter(moveLatLng);
         mapInstance.current.setLevel(3);
+        fetchAndUpdateMarkersRef.current();
     }, [center]);
+
+    useEffect(() => {
+        if (!mapInstance.current) return;
+        fetchAndUpdateMarkers();
+    }, [filters, fetchAndUpdateMarkers]);
 
     useEffect(() => {
         if (window.kakao?.maps) {
@@ -172,7 +198,7 @@ export default function KakaoMap({ onCafeSelect, center }: KakaoMapProps) {
         <div
             ref={mapRef}
             style={{ width: "100%", height: "100vh" }}
-            className="bg-gray-100"
+            className="bg-[#f2f0eb]"  // 여기만 변경
         />
     );
 }
