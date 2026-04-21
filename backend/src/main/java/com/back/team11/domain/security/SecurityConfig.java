@@ -6,12 +6,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -45,51 +42,38 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
+                        // Swagger UI — 개발/문서화 도구, 인증 없이 접근 허용
                         .requestMatchers(
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
                                 "/swagger-ui.html"
                         ).permitAll()
-                        // 카페 목록/상세 조회 먼저 허용
-                        .requestMatchers(HttpMethod.GET, "/api/v1/cafes/**").permitAll()
 
-                        // HttpOnly 처리용 설정
+                        // 현재 로그인한 사용자 정보 조회 — JWT 쿠키 기반 인증 필요
                         .requestMatchers(HttpMethod.GET, "/api/V1/auth/me").authenticated()
-                        //로그아웃
+                        // 카카오 OAuth 로그아웃 — 인증된 사용자만 로그아웃 가능
                         .requestMatchers(HttpMethod.POST, "/api/V1/auth/logout").authenticated()
 
-                        // [임시 추가] 테스트를 위해 관리자 카페 API 열어두기 위함
-                        .requestMatchers(HttpMethod.POST, "/api/V1/admin/cafe/post").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/V1/admin/cafes").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/V1/admin/cafe/*").permitAll()
-                        .requestMatchers(HttpMethod.PATCH, "/api/V1/admin/cafe/*").permitAll()
-                        .requestMatchers(HttpMethod.DELETE, "/api/V1/admin/cafe/*").permitAll()
-                        .requestMatchers(HttpMethod.PATCH, "/api/V1/admin/cafe/*/approve").permitAll()
-                        .requestMatchers(HttpMethod.PATCH, "/api/V1/admin/cafe/*/reject").permitAll()
-
-
-
-                        //.requestMatchers(HttpMethod.GET,
-                        //        "/api/*/cafe",
-                        //        "/api/*/cafe/{id:\\d+}",
-                        //        "/api/*/cafe/*/reviews"   //리뷰 조회 누구나 가능하게
-                        //).permitAll()
-
+                        // 카페 목록/상세/리뷰 조회 — 비로그인 사용자도 열람 가능
                         .requestMatchers(HttpMethod.GET, "/api/V1/cafe").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/V1/cafe/*").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/V1/cafe/*/reviews").permitAll()
 
-                        .requestMatchers( // 홈, 에러, oauth 관련 경로 허용
+                        // 홈, 에러, Kakao OAuth 인증 흐름 관련 경로 — 인증 전에 접근되는 경로
+                        .requestMatchers(
                                 "/",
                                 "/login",
                                 "/error",
                                 "/api/V1/auth/oauth/**",
                                 "/login/oauth2/**"
                         ).permitAll()
-                        .requestMatchers("/api/V1/admin/auth/login").permitAll() // 로그인 경로 허용
+
+                        // 관리자 로그인 — username/password 방식이므로 인증 전 접근 허용
+                        .requestMatchers("/api/V1/admin/auth/login").permitAll()
+                        // 관리자 전용 API — ROLE_ADMIN 권한 필요 (카페 등록/수정/삭제/승인/거부 포함)
                         .requestMatchers("/api/V1/admin/**").hasRole("ADMIN")
+                        // 그 외 모든 /api/** 경로 — 로그인한 사용자만 접근 가능
                         .requestMatchers("/api/*/**").authenticated()
-                        .requestMatchers("/api/v1/auth/logout").authenticated()
                         .anyRequest().authenticated()
                 )
                 .csrf(csrf -> csrf.disable())
