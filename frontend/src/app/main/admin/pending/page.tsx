@@ -87,6 +87,7 @@ export default function AdminPendingPage() {
                         cafes={cafes}
                         onApprove={handleApprove}
                         onReject={handleReject}
+                        onDetail={() => {}}
                     />
                 )}
 

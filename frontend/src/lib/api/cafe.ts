@@ -1,4 +1,4 @@
-import { CafeListResponse, CafeDetailResponse, ReviewResponse, WishlistResponse, CafeReportRequest } from "@/types/cafe";
+import { CafeListResponse, CafeDetailResponse, ReviewResponse, WishlistResponse, CafeReportRequest, PageResponse } from "@/types/cafe";
 
 interface RsData<T> {
     msg: string;
@@ -59,12 +59,12 @@ export const createReview = async (cafeId: number, content: string): Promise<RsD
     return data;
 };
 
-// 리뷰 목록 조회
-export const fetchCafeReviews = async (cafeId: number): Promise<ReviewResponse[]> => {
-    const res = await fetch(`${BASE_URL}/api/V1/cafe/${cafeId}/reviews`, {
+// 리뷰 페이징 조회
+export const fetchCafeReviewsPage = async (cafeId: number, page = 0, size = 10): Promise<PageResponse<ReviewResponse>> => {
+    const res = await fetch(`${BASE_URL}/api/V1/cafe/${cafeId}/reviews/page?page=${page}&size=${size}`, {
         credentials: "include",
     });
-    const data: RsData<ReviewResponse[]> = await res.json();
+    const data: RsData<PageResponse<ReviewResponse>> = await res.json();
     return data.data;
 };
 
@@ -99,11 +99,11 @@ export const removeWishlist = async (cafeId: number): Promise<RsData<null>> => {
 };
 
 // 찜 목록 조회
-export const fetchWishlist = async (): Promise<WishlistResponse[]> => {
-    const res = await fetch(`${BASE_URL}/api/V1/member/me/wishlist`, {
+export const fetchWishlist = async (page = 0, size = 10): Promise<PageResponse<WishlistResponse>> => {
+    const res = await fetch(`${BASE_URL}/api/V1/member/me/wishlist?page=${page}&size=${size}`, {
         credentials: "include",
     });
-    const data: RsData<WishlistResponse[]> = await res.json();
+    const data: RsData<PageResponse<WishlistResponse>> = await res.json();
     return data.data;
 };
 

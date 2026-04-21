@@ -2,6 +2,7 @@ package com.back.team11.domain.wishlist.service;
 
 import com.back.team11.domain.cafe.entity.Cafe;
 import com.back.team11.domain.cafe.repository.CafeRepository;
+import com.back.team11.domain.global.dto.PageResponse;
 import com.back.team11.domain.global.exception.CustomException;
 import com.back.team11.domain.global.exception.ErrorCode;
 import com.back.team11.domain.global.util.AuthUtil;
@@ -11,6 +12,10 @@ import com.back.team11.domain.wishlist.dto.WishlistResponse;
 import com.back.team11.domain.wishlist.entity.Wishlist;
 import com.back.team11.domain.wishlist.repository.WishlistRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -69,12 +74,18 @@ public class WishlistService {
         wishlistRepository.deleteByMemberIdAndCafeId(member.getId(), cafe.getId());
     }
 
-    public List<WishlistResponse> getWishlists() {
+    public PageResponse<WishlistResponse> getWishlists(Pageable pageable) {
 
-        List<Wishlist> wishlists = wishlistRepository.findAllByMemberIdWithCafe(authUtil.getCurrentMemberId());
+        Pageable sortedPageable = PageRequest.of(
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                Sort.by(Sort.Direction.DESC, "createdAt")
+        );
 
-        return wishlists.stream()
-                .map(WishlistResponse::from)
-                .toList();
+        Page<Wishlist> wishlists = wishlistRepository.findAllByMemberIdWithCafe(
+                authUtil.getCurrentMemberId(), sortedPageable
+        );
+
+        return PageResponse.from(wishlists.map(WishlistResponse::from));
     }
 }

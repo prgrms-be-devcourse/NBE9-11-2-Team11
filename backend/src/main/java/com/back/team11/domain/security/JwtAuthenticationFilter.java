@@ -1,5 +1,6 @@
 package com.back.team11.domain.security;
 
+import com.back.team11.domain.global.exception.ErrorCode;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
@@ -72,22 +73,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     return;
                 }
                 // refresh API가 아닌 경우 → 만료된 토큰으로 접근 불가
-                sendErrorResponse(response, 401, "401-3", "만료된 토큰입니다.");
+                sendErrorResponse(response, ErrorCode.EXPIRED_TOKEN);
                 return;
 
             } catch (SignatureException | MalformedJwtException e) {
                 // 서명 불일치 or 토큰 형식 오류
-                sendErrorResponse(response, 401, "401-2", "유효하지 않은 토큰입니다.");
+                sendErrorResponse(response, ErrorCode.INVALID_TOKEN);
                 return;
 
             } catch (UnsupportedJwtException e) {
                 // 지원하지 않는 JWT 형식
-                sendErrorResponse(response, 401, "401-2", "유효하지 않은 토큰입니다.");
+                sendErrorResponse(response, ErrorCode.INVALID_TOKEN);
                 return;
 
             } catch (Exception e) {
                 // 그 외 모든 예외
-                sendErrorResponse(response, 401, "401-2", "유효하지 않은 토큰입니다.");
+                sendErrorResponse(response, ErrorCode.INVALID_TOKEN);
                 return;
             }
         }
@@ -119,15 +120,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
      2. 필터에서는 @ExceptionHandler가 동작 안 해서 직접 response에 작성해야 함
      */
     private void sendErrorResponse(HttpServletResponse response,
-                                   int status,
-                                   String resultCode,
-                                   String message) throws IOException {
+                                   ErrorCode errorCode) throws IOException {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-        response.setStatus(status);
+        response.setStatus(errorCode.getHttpStatus().value());
+
         response.getWriter().write(
                 objectMapper.writeValueAsString(
-                        Map.of("resultCode", resultCode, "msg", message)
+                        Map.of(
+                                "resultCode", errorCode.getCode(),
+                                "msg", errorCode.getMessage()
+                        )
                 )
         );
     }

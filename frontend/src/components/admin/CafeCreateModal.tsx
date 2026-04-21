@@ -78,9 +78,9 @@ export default function CafeCreateModal({ onClose, onSubmit }: Props) {
 
     return (
         // 모달 배경 (클릭하면 닫힘)
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 flex items-center justify-center z-50">
             {/* 모달 본체 */}
-            <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+            <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto border-2 border-gray-300 shadow-xl">
 
                 {/* 모달 헤더 */}
                 <div className="flex items-center justify-between mb-4">
@@ -160,19 +160,22 @@ export default function CafeCreateModal({ onClose, onSubmit }: Props) {
                         </select>
                     </div>
 
-                    {/* 프랜차이즈 종류 - 필수 */}
-                    <div>
-                        <label className="text-sm font-medium">프랜차이즈 *</label>
-                        <select
-                            value={franchise}
-                            onChange={(e) => setFranchise(e.target.value as FranchiseType)}
-                            className="w-full mt-1 p-2 border rounded"
-                        >
-                            <option value="NONE">해당 없음</option>
-                            <option value="STARBUCKS">스타벅스</option>
-                            <option value="MEGA_COFFEE">메가커피</option>
-                        </select>
-                    </div>
+                    {/* 카페 종류가 FRANCHISE(프랜차이즈) 일 때만 보여줌 */}
+                    {type === 'FRANCHISE' && (
+                        <div>
+                            <label className="text-sm font-medium">프랜차이즈 *</label>
+                            <select
+                                value={franchise}
+                                //선택값이 바뀌면 franchise 상태 업데이트
+                                onChange={(e) => setFranchise(e.target.value as FranchiseType)}
+                                className="w-full mt-1 p-2 border rounded"
+                            >
+                                <option value="NONE">해당 없음</option>
+                                <option value="STARBUCKS">스타벅스</option>
+                                <option value="MEGA_COFFEE">메가커피</option>
+                            </select>
+                        </div>
+                    )}
 
                     {/* 층수 - 필수 */}
                     <div>
@@ -254,10 +257,21 @@ export default function CafeCreateModal({ onClose, onSubmit }: Props) {
                             type="text"
                             value={imageUrl}
                             onChange={(e) => setImageUrl(e.target.value)}
-                            placeholder="https://..."
                             className="w-full mt-1 p-2 border rounded"
                         />
+                        {/* imageUrl 이 있을 때만 미리보기 이미지 보여줌 */}
+                        {imageUrl && (
+                            <img
+                                src={imageUrl}
+                                alt="이미지 미리보기"
+                                className="mt-2 w-full rounded border"
+                                onError={(e) => {
+                                    e.currentTarget.style.display = 'none';
+                                }}
+                            />
+                        )}
                     </div>
+
 
                 </div>
 

@@ -58,6 +58,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/V1/cafe").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/V1/cafe/*").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/V1/cafe/*/reviews").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/V1/cafe/*/reviews/page").permitAll()
 
                         // 홈, 에러, Kakao OAuth 인증 흐름 관련 경로 — 인증 전에 접근되는 경로
                         .requestMatchers(
