@@ -164,8 +164,8 @@ export default function AdminCafePage() {
                     {/* 페이지 번호들 */}
                     {Array.from({ length: totalPages }, (_, i) => (
                         <button
-                            key={i}
-                            onClick={() => setCurrentPage(i)}
+                            key={i+1}
+                            onClick={() => setCurrentPage(i+1)}
                             className={`px-3 py-1 border rounded hover:bg-gray-100 ${currentPage === i ? 'bg-black text-white' : ''}`}
                             // 현재 페이지면 검은색으로 표시
                         >
