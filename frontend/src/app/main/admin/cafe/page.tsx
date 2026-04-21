@@ -6,6 +6,7 @@ import { fetchCafes, createCafe, updateCafe, deleteCafe } from '@/lib/api/admin'
 import CafeList from '@/components/admin/CafeList';
 import CafeCreateModal from '@/components/admin/CafeCreateModal';
 import CafeEditModal from '@/components/admin/CafeEditModal';
+import CafeDetailModal from '@/components/admin/CafeDetailModal';
 
 export default function AdminCafePage() {
 
@@ -142,19 +143,13 @@ export default function AdminCafePage() {
                     </button>
                 </div>
 
-                {/* 카페 목록  컴포넌트 및 로딩 중일 때 표시 */}
-                {isLoading ? (
-                    <div className="flex items-center justify-center mt-10">
-                        <p className="text-gray-500">불러오는 중...</p>
-                    </div>
-                ) : (
-                    <CafeList
-                        cafes={cafes}
-                        onEdit={(cafe) => setSelectedCafe(cafe)}
-                        onDelete={handleDelete}
-                        onDetail={(cafe) => setDetailCafe(cafe)}
-                    />
-                )}
+                {/* 카페 목록 컴포넌트 */}
+                <CafeList
+                    cafes={cafes}
+                    onEdit={(cafe) => setSelectedCafe(cafe)}
+                    onDelete={handleDelete}
+                    onDetail={(cafe) => setDetailCafe(cafe)}
+                />
                 {/* 페이징 버튼 */}
                 <div className="flex items-center justify-center gap-2 mt-6">
                     {/* 이전 버튼 */}
@@ -170,9 +165,9 @@ export default function AdminCafePage() {
                     {/* 페이지 번호들 */}
                     {Array.from({ length: totalPages }, (_, i) => (
                         <button
-                            key={i+1}
-                            onClick={() => setCurrentPage(i+1)}
-                            className={`px-3 py-1 border rounded hover:bg-gray-100 ${currentPage === i ? 'bg-black text-white' : ''}`}
+                            key={i + 1}
+                            onClick={() => setCurrentPage(i + 1)}
+                            className={`px-3 py-1 border rounded hover:bg-gray-100 ${currentPage === i + 1 ? 'bg-black text-white' : ''}`}
                             // 현재 페이지면 검은색으로 표시
                         >
                             {i + 1}
@@ -202,81 +197,12 @@ export default function AdminCafePage() {
 
             {/* 상세 모달 - detailCafe 가 있을 때만 보임 */}
             {detailCafe && (
-                <div className="fixed inset-0 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto border-2 border-gray-300 shadow-xl">
-
-                        {/* 헤더 */}
-                        <div className="flex items-center justify-between mb-4">
-                            <h2 className="text-lg font-bold">카페 상세 정보</h2>
-                            <button onClick={() => setDetailCafe(null)} className="text-gray-500 hover:text-black">✕</button>
-                        </div>
-
-                        {/* 이미지 */}
-                        {detailCafe.imageUrl && (
-                            <img src={detailCafe.imageUrl} alt="카페 이미지" className="w-full rounded mb-4" />
-                        )}
-
-                        {/* 상세 정보 */}
-                        <div className="flex flex-col gap-3 text-sm">
-
-                            <div className="flex justify-between border-b pb-2">
-                                <span className="text-gray-500">카페 이름</span>
-                                <span className="font-medium">{detailCafe.name}</span>
-                            </div>
-                            <div className="flex justify-between border-b pb-2">
-                                <span className="text-gray-500">주소</span>
-                                <span className="text-right">{detailCafe.address}</span>
-                            </div>
-                            <div className="flex justify-between border-b pb-2">
-                                <span className="text-gray-500">전화번호</span>
-                                <span>{detailCafe.phone ?? '-'}</span>
-                            </div>
-                            <div className="flex justify-between border-b pb-2">
-                                <span className="text-gray-500">설명</span>
-                                <span>{detailCafe.description ?? '-'}</span>
-                            </div>
-                            <div className="flex justify-between border-b pb-2">
-                                <span className="text-gray-500">카페 종류</span>
-                                <span>{detailCafe.type === 'FRANCHISE' ? '프랜차이즈' : '개인 카페'}</span>
-                            </div>
-                            {detailCafe.type === 'FRANCHISE' && (
-                                <div className="flex justify-between border-b pb-2">
-                                    <span className="text-gray-500">프랜차이즈</span>
-                                    <span>
-                            {detailCafe.franchise === 'STARBUCKS' ? '스타벅스' :
-                                detailCafe.franchise === 'MEGA_COFFEE' ? '메가커피' : '-'}
-                        </span>
-                                </div>
-                            )}
-                            <div className="flex justify-between border-b pb-2">
-                                <span className="text-gray-500">층수</span>
-                                <span>
-                        {detailCafe.floorCount === 'ONE' ? '1층' :
-                            detailCafe.floorCount === 'TWO' ? '2층' : '3층 이상'}
-                    </span>
-                            </div>
-                            <div className="flex justify-between border-b pb-2">
-                                <span className="text-gray-500">혼잡도</span>
-                                <span>
-                        {detailCafe.congestionLevel === 'LOW' ? '여유' :
-                            detailCafe.congestionLevel === 'MEDIUM' ? '보통' : '혼잡'}
-                    </span>
-                            </div>
-
-                            {/* 편의시설 */}
-                            <div className="mt-1">
-                                <p className="text-gray-500 mb-2">편의시설</p>
-                                <div className="flex gap-2 flex-wrap">
-                                    {detailCafe.hasToilet && <span className="px-2 py-1 bg-gray-100 rounded">🚻 화장실</span>}
-                                    {detailCafe.hasOutlet && <span className="px-2 py-1 bg-gray-100 rounded">🔌 콘센트</span>}
-                                    {detailCafe.hasWifi && <span className="px-2 py-1 bg-gray-100 rounded">📶 와이파이</span>}
-                                    {detailCafe.hasSeparateSpace && <span className="px-2 py-1 bg-gray-100 rounded">📚 공부 공간</span>}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <CafeDetailModal
+                    cafe={detailCafe}
+                    onClose={() => setDetailCafe(null)}
+                />
             )}
+
             {/* 수정 모달 - selectedCafe 가 있을 때만 보임 */}
             {selectedCafe && (
                 <CafeEditModal
