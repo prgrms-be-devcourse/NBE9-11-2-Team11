@@ -96,7 +96,8 @@ public class CafeRepositoryImpl implements CafeRepositoryCustom{
         List<Cafe> content = queryFactory
                 .selectFrom(cafe)
                 .where(
-                        statusEq(condition.getStatus()) // AND status = ? (null이면 전체 조회)
+                        statusEq(condition.getStatus()), // AND status = ? (null이면 전체 조회)
+                        nameContains(condition.getName())
                 )
                 .orderBy(cafe.createdAt.desc())         // 최신 등록일 기준 내림차순 정렬
                 .offset(pageable.getOffset())           // 페이지 시작점
@@ -108,7 +109,8 @@ public class CafeRepositoryImpl implements CafeRepositoryCustom{
                 .select(cafe.count())
                 .from(cafe)
                 .where(
-                        statusEq(condition.getStatus())
+                        statusEq(condition.getStatus()),
+                        nameContains(condition.getName())
                 );
 
         // 3. Page 객체로 묶어서 반환 (PageableExecutionUtils를 쓰면 최적화된 카운트 쿼리 실행 가능)
@@ -119,5 +121,10 @@ public class CafeRepositoryImpl implements CafeRepositoryCustom{
     private BooleanExpression statusEq(CafeStatus status) {
         return status != null ? cafe.status.eq(status) : null;
     }
-
+    // 카페 이름 포함 여부 확인 (null이면 전체 조회)
+    private BooleanExpression nameContains(String name) {
+        return name != null && !name.isEmpty() ? cafe.name.contains(name) : null;
+    }
 }
+
+
