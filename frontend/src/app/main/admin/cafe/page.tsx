@@ -142,13 +142,19 @@ export default function AdminCafePage() {
                     </button>
                 </div>
 
-                {/* 카페 목록 컴포넌트 */}
-                <CafeList
-                    cafes={cafes}
-                    onEdit={(cafe) => setSelectedCafe(cafe)}
-                    onDelete={handleDelete}
-                    onDetail={(cafe) => setDetailCafe(cafe)}
-                />
+                {/* 카페 목록  컴포넌트 및 로딩 중일 때 표시 */}
+                {isLoading ? (
+                    <div className="flex items-center justify-center mt-10">
+                        <p className="text-gray-500">불러오는 중...</p>
+                    </div>
+                ) : (
+                    <CafeList
+                        cafes={cafes}
+                        onEdit={(cafe) => setSelectedCafe(cafe)}
+                        onDelete={handleDelete}
+                        onDetail={(cafe) => setDetailCafe(cafe)}
+                    />
+                )}
                 {/* 페이징 버튼 */}
                 <div className="flex items-center justify-center gap-2 mt-6">
                     {/* 이전 버튼 */}
