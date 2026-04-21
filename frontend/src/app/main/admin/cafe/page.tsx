@@ -7,6 +7,7 @@ import CafeList from '@/components/admin/CafeList';
 import CafeCreateModal from '@/components/admin/CafeCreateModal';
 import CafeEditModal from '@/components/admin/CafeEditModal';
 import CafeDetailModal from '@/components/admin/CafeDetailModal';
+import LogoutButton from '@/components/admin/Logoutbutton';
 
 export default function AdminCafePage() {
 
@@ -39,7 +40,7 @@ export default function AdminCafePage() {
     const loadCafes = async (page: number = 1, name: string = '') => {
         setIsLoading(true);
         try {
-            const data = await fetchCafes(undefined, page, name);
+            const data = await fetchCafes('APPROVED', page, name);
             setCafes(data.content);
             setTotalPages(data.totalPages); // 전체 페이지 수 저장
         } catch (error) {
