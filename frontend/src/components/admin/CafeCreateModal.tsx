@@ -13,6 +13,8 @@ export default function CafeCreateModal({ onClose, onSubmit }: Props) {
 
     const [name, setName] = useState('');           // 카페 이름
     const [address, setAddress] = useState('');     // 주소
+    const [latitude, setLatitude] = useState(0);   // 위도
+    const [longitude, setLongitude] = useState(0); // 경도
     const [phone, setPhone] = useState('');         // 전화번호
     const [description, setDescription] = useState(''); // 설명
     const [type, setType] = useState<CafeType>('INDIVIDUAL');           // 카페 종류
@@ -26,12 +28,31 @@ export default function CafeCreateModal({ onClose, onSubmit }: Props) {
     const [imageUrl, setImageUrl] = useState('');   // 이미지 주소
 
 
+    // 주소 검색 버튼 눌렀을 때 실행되는 함수
+    // ReportModal.tsx 참고
+    const handleAddressSearch = () => {
+        new window.daum.Postcode({
+            oncomplete: async (data: any) => {
+                const selectedAddress = data.roadAddress || data.jibunAddress;
+                // roadAddress = 도로명 주소, jibunAddress = 지번 주소
+
+                // /api/search 로 주소 → 위도/경도 변환
+                const res = await fetch(`/api/search?query=${encodeURIComponent(selectedAddress)}`);
+                const result = await res.json();
+                const doc = result.documents?.[0];
+
+                setAddress(selectedAddress);
+                setLatitude(doc ? parseFloat(doc.y) : 0);   // y = 위도
+                setLongitude(doc ? parseFloat(doc.x) : 0);  // x = 경도
+            },
+        }).open();
+    };
 
     // 등록하기 버튼 눌렀을 때 실행되는 함수
     const handleSubmit = () => {
         // 필수값 체크 (백엔드 @NotBlank, @NotNull 에 해당)
-        if (!name || !address) {
-            alert('카페 이름과 주소는 필수입니다!');
+        if (!name || !address || !phone) {
+            alert('카페 이름과,주소, 전화번호는 필수입니다!');
             return;
         }
 
@@ -39,8 +60,8 @@ export default function CafeCreateModal({ onClose, onSubmit }: Props) {
         onSubmit({
             name,
             address,
-            phone: phone || undefined,        // 빈 문자열이면 undefined 로 보내기 (선택값이라)
-            description: description || undefined,
+            phone: phone,
+            description: description || undefined,   // 빈 문자열이면 undefined 로 보내기 (선택값이라)
             type,
             franchise,
             hasToilet,
@@ -50,16 +71,16 @@ export default function CafeCreateModal({ onClose, onSubmit }: Props) {
             floorCount,
             congestionLevel,
             imageUrl: imageUrl || undefined,
-            latitude: 0,   // 추후 카카오맵 연동 시 수정 예정
-            longitude: 0,  // 추후 카카오맵 연동 시 수정 예정
+            latitude,
+            longitude,
         });
     };
 
     return (
         // 모달 배경 (클릭하면 닫힘)
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 flex items-center justify-center z-50">
             {/* 모달 본체 */}
-            <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+            <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto border-2 border-gray-300 shadow-xl">
 
                 {/* 모달 헤더 */}
                 <div className="flex items-center justify-between mb-4">
@@ -85,18 +106,26 @@ export default function CafeCreateModal({ onClose, onSubmit }: Props) {
                     {/* 주소 - 필수 */}
                     <div>
                         <label className="text-sm font-medium">주소 *</label>
-                        <input
-                            type="text"
-                            value={address}
-                            onChange={(e) => setAddress(e.target.value)}
-                            placeholder="서울특별시"
-                            className="w-full mt-1 p-2 border rounded"
-                        />
+                        <div className="flex gap-2 mt-1">
+                            <input
+                                type="text"
+                                value={address}
+                                readOnly
+                                placeholder="주소를 검색하세요"
+                                className="flex-1 p-2 border rounded bg-gray-50"
+                            />
+                            <button
+                                onClick={handleAddressSearch}
+                                className="px-3 py-2 bg-gray-800 text-white text-sm rounded hover:bg-gray-900"
+                            >
+                                검색
+                            </button>
+                        </div>
                     </div>
 
-                    {/* 전화번호 - 선택 */}
+                    {/* 전화번호 - 필수 */}
                     <div>
-                        <label className="text-sm font-medium">전화번호</label>
+                        <label className="text-sm font-medium">전화번호 *</label>
                         <input
                             type="text"
                             value={phone}
@@ -131,19 +160,22 @@ export default function CafeCreateModal({ onClose, onSubmit }: Props) {
                         </select>
                     </div>
 
-                    {/* 프랜차이즈 종류 - 필수 */}
-                    <div>
-                        <label className="text-sm font-medium">프랜차이즈 *</label>
-                        <select
-                            value={franchise}
-                            onChange={(e) => setFranchise(e.target.value as FranchiseType)}
-                            className="w-full mt-1 p-2 border rounded"
-                        >
-                            <option value="NONE">해당 없음</option>
-                            <option value="STARBUCKS">스타벅스</option>
-                            <option value="MEGA_COFFEE">메가커피</option>
-                        </select>
-                    </div>
+                    {/* 카페 종류가 FRANCHISE(프랜차이즈) 일 때만 보여줌 */}
+                    {type === 'FRANCHISE' && (
+                        <div>
+                            <label className="text-sm font-medium">프랜차이즈 *</label>
+                            <select
+                                value={franchise}
+                                //선택값이 바뀌면 franchise 상태 업데이트
+                                onChange={(e) => setFranchise(e.target.value as FranchiseType)}
+                                className="w-full mt-1 p-2 border rounded"
+                            >
+                                <option value="NONE">해당 없음</option>
+                                <option value="STARBUCKS">스타벅스</option>
+                                <option value="MEGA_COFFEE">메가커피</option>
+                            </select>
+                        </div>
+                    )}
 
                     {/* 층수 - 필수 */}
                     <div>
@@ -225,10 +257,21 @@ export default function CafeCreateModal({ onClose, onSubmit }: Props) {
                             type="text"
                             value={imageUrl}
                             onChange={(e) => setImageUrl(e.target.value)}
-                            placeholder="https://..."
                             className="w-full mt-1 p-2 border rounded"
                         />
+                        {/* imageUrl 이 있을 때만 미리보기 이미지 보여줌 */}
+                        {imageUrl && (
+                            <img
+                                src={imageUrl}
+                                alt="이미지 미리보기"
+                                className="mt-2 w-full rounded border"
+                                onError={(e) => {
+                                    e.currentTarget.style.display = 'none';
+                                }}
+                            />
+                        )}
                     </div>
+
 
                 </div>
 

@@ -8,9 +8,10 @@ interface Props {
     cafes: AdminCafe[];           // 카페 목록 배열
     onEdit: (cafe: AdminCafe) => void;    // 수정 버튼 눌렀을 때 실행할 함수
     onDelete: (cafeId: number) => void;   // 삭제 버튼 눌렀을 때 실행할 함수
+    onDetail: (cafe: AdminCafe) => void;  // 카페 클릭 시 상세 보기
 }
 
-export default function CafeList({ cafes, onEdit, onDelete }: Props) {
+export default function CafeList({ cafes, onEdit, onDelete, onDetail }: Props) {
     return (
         <div className="w-full">
 
@@ -28,7 +29,12 @@ export default function CafeList({ cafes, onEdit, onDelete }: Props) {
                         className="flex items-center justify-between p-4 border rounded-lg"
                     >
                         {/* 카페 이름 */}
-                        <span className="font-medium">{cafe.name}</span>
+                        <span
+                            className="font-medium cursor-pointer hover:underline"
+                            onClick={() => onDetail(cafe)}
+                        >
+                            {cafe.name}
+                        </span>
 
                         {/* 수정 / 삭제 버튼 */}
                         <div className="flex gap-2">

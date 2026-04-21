@@ -6,6 +6,7 @@ import { fetchCafes, createCafe, updateCafe, deleteCafe } from '@/lib/api/admin'
 import CafeList from '@/components/admin/CafeList';
 import CafeCreateModal from '@/components/admin/CafeCreateModal';
 import CafeEditModal from '@/components/admin/CafeEditModal';
+import CafeDetailModal from '@/components/admin/CafeDetailModal';
 
 export default function AdminCafePage() {
 
@@ -22,13 +23,25 @@ export default function AdminCafePage() {
     // 로딩 상태
     const [isLoading, setIsLoading] = useState(false);
 
+    // 상세 보기에서 쓸 선택된 카페 (null = 선택 안 됨)
+    const [detailCafe, setDetailCafe] = useState<AdminCafe | null>(null);
+
+    // 현재 페이지 번호 (1부터 시작)
+    const [currentPage, setCurrentPage] = useState(1);
+    // 전체 페이지 수
+    const [totalPages, setTotalPages] = useState(0);
+
+    // 검색어 상태
+    const [searchName, setSearchName] = useState('');
+
 
     // 카페 목록 조회
-    const loadCafes = async () => {
+    const loadCafes = async (page: number = 1, name: string = '') => {
         setIsLoading(true);
         try {
-            const data = await fetchCafes();
+            const data = await fetchCafes(undefined, page, name);
             setCafes(data.content);
+            setTotalPages(data.totalPages); // 전체 페이지 수 저장
         } catch (error) {
             console.log('카페 목록 조회 실패:', error);
         } finally {
@@ -77,11 +90,10 @@ export default function AdminCafePage() {
     };
 
 
-    // 페이지 처음 열릴 때 목록 자동으로 불러오기
+    // 페이지 처음 열릴 때 목록 자동으로 불러오기 + 페이징
     useEffect(() => {
-        loadCafes();
-    }, []);
-
+        loadCafes(currentPage, searchName);
+    }, [currentPage]);
 
 
     return (
@@ -111,13 +123,67 @@ export default function AdminCafePage() {
                     </button>
                 </div>
 
+                {/* 검색창 */}
+                <div className="flex gap-2 mb-4">
+                    <input
+                        type="text"
+                        value={searchName}
+                        onChange={(e) => setSearchName(e.target.value)}
+                        placeholder="카페 이름 검색"
+                        className="flex-1 p-2 border rounded"
+                    />
+                    <button
+                        onClick={() => {
+                            setCurrentPage(1);
+                            loadCafes(1, searchName);
+                        }}
+                        className="px-4 py-2 bg-black text-white rounded hover:bg-gray-800"
+                    >
+                        검색
+                    </button>
+                </div>
+
                 {/* 카페 목록 컴포넌트 */}
                 <CafeList
                     cafes={cafes}
                     onEdit={(cafe) => setSelectedCafe(cafe)}
-                    // 수정 버튼 누르면 selectedCafe 에 카페 데이터 저장 → 수정 모달 열림
                     onDelete={handleDelete}
+                    onDetail={(cafe) => setDetailCafe(cafe)}
                 />
+                {/* 페이징 버튼 */}
+                <div className="flex items-center justify-center gap-2 mt-6">
+                    {/* 이전 버튼 */}
+                    <button
+                        onClick={() => setCurrentPage(currentPage - 1)}
+                        disabled={currentPage === 1}
+                        // disabled = 첫 페이지면 버튼 비활성화
+                        className="px-3 py-1 border rounded disabled:opacity-30 hover:bg-gray-100"
+                    >
+                        이전
+                    </button>
+
+                    {/* 페이지 번호들 */}
+                    {Array.from({ length: totalPages }, (_, i) => (
+                        <button
+                            key={i + 1}
+                            onClick={() => setCurrentPage(i + 1)}
+                            className={`px-3 py-1 border rounded hover:bg-gray-100 ${currentPage === i + 1 ? 'bg-black text-white' : ''}`}
+                            // 현재 페이지면 검은색으로 표시
+                        >
+                            {i + 1}
+                        </button>
+                    ))}
+
+                    {/* 다음 버튼 */}
+                    <button
+                        onClick={() => setCurrentPage(currentPage + 1)}
+                        disabled={currentPage >= totalPages}
+                        // disabled = 마지막 페이지면 버튼 비활성화
+                        className="px-3 py-1 border rounded disabled:opacity-30 hover:bg-gray-100"
+                    >
+                        다음
+                    </button>
+                </div>
 
             </div>
 
@@ -126,6 +192,14 @@ export default function AdminCafePage() {
                 <CafeCreateModal
                     onClose={() => setIsCreateModalOpen(false)}
                     onSubmit={handleCreate}
+                />
+            )}
+
+            {/* 상세 모달 - detailCafe 가 있을 때만 보임 */}
+            {detailCafe && (
+                <CafeDetailModal
+                    cafe={detailCafe}
+                    onClose={() => setDetailCafe(null)}
                 />
             )}
 

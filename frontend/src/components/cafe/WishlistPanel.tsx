@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Heart, X } from "lucide-react";
-import { WishlistResponse } from "@/types/cafe";
+import { Heart, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { WishlistResponse, PageResponse } from "@/types/cafe";
 import { fetchWishlist } from "@/lib/api/cafe";
 import { useAuthStore } from "@/store/authStore";
 import { useRouter } from "next/navigation";
@@ -13,7 +13,8 @@ interface WishlistPanelProps {
 }
 
 export default function WishlistPanel({ onClose, onCafeSelect }: WishlistPanelProps) {
-    const [wishlists, setWishlists] = useState<WishlistResponse[]>([]);
+    const [wishlistPage, setWishlistPage] = useState<PageResponse<WishlistResponse> | null>(null);
+    const [currentPage, setCurrentPage] = useState(0);
     const [loading, setLoading] = useState(true);
     const { isLoggedIn } = useAuthStore();
     const router = useRouter();
@@ -25,18 +26,23 @@ export default function WishlistPanel({ onClose, onCafeSelect }: WishlistPanelPr
         }
 
         const loadWishlist = async () => {
+            setLoading(true);
             try {
-                const data = await fetchWishlist();
-                setWishlists(data ?? []);
+                const data = await fetchWishlist(currentPage, 10);
+                setWishlistPage(data ?? null);
             } catch (e) {
                 console.error(e);
-                setWishlists([]);
+                setWishlistPage(null);
             } finally {
                 setLoading(false);
             }
         };
         loadWishlist();
-    }, [isLoggedIn]);
+    }, [isLoggedIn, currentPage]);
+
+    const wishlists = wishlistPage?.content ?? [];
+    const totalPages = wishlistPage?.totalPages ?? 0;
+    const totalElements = wishlistPage?.totalElements ?? 0;
 
     return (
         <div className="fixed top-[20%] left-4 bottom-4 z-50 w-[25%] bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl overflow-hidden flex flex-col border border-gray-100">
@@ -47,7 +53,7 @@ export default function WishlistPanel({ onClose, onCafeSelect }: WishlistPanelPr
                     <Heart className="text-red-500" size={18} fill="#ef4444" />
                     <h2 className="font-semibold text-gray-900">찜 목록</h2>
                     {isLoggedIn && (
-                        <span className="text-sm text-gray-400">({wishlists.length})</span>
+                        <span className="text-sm text-gray-400">({totalElements})</span>
                     )}
                 </div>
                 <button
@@ -103,6 +109,42 @@ export default function WishlistPanel({ onClose, onCafeSelect }: WishlistPanelPr
                     ))
                 )}
             </div>
+
+            {/* 페이지 버튼 */}
+            {isLoggedIn && totalPages > 1 && (
+                <div className="flex-shrink-0 border-t border-gray-100">
+                    <div className="flex items-center justify-center gap-1 py-2">
+                        <button
+                            onClick={() => setCurrentPage(prev => prev - 1)}
+                            disabled={wishlistPage?.page === 1}
+                            className="w-7 h-7 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                        >
+                            <ChevronLeft size={14} />
+                        </button>
+
+                        {Array.from({ length: totalPages }, (_, i) => (
+                            <button
+                                key={i}
+                                onClick={() => setCurrentPage(i)}
+                                className={`w-7 h-7 flex items-center justify-center rounded-lg text-xs font-medium transition-colors
+                                    ${wishlistPage?.page === i + 1
+                                        ? "bg-gray-800 text-white"
+                                        : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"}`}
+                            >
+                                {i + 1}
+                            </button>
+                        ))}
+
+                        <button
+                            onClick={() => setCurrentPage(prev => prev + 1)}
+                            disabled={!wishlistPage?.hasNext}
+                            className="w-7 h-7 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                        >
+                            <ChevronRight size={14} />
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
