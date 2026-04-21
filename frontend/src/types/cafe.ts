@@ -1,6 +1,6 @@
 // types/cafe.ts
 export type CafeType = "FRANCHISE" | "INDIVIDUAL";
-export type FranchiseType = "STARBUCKS" | "MEGA_COFFEE" | "NONE";
+export type FranchiseType = "STARBUCKS" | "MEGA_COFFEE" | "EDIYA" | "COMPOSE" | "TWOSOME" | "PAIK_DABANG" | "THE_VENTI" | "NONE";
 export type FloorCount = "ONE" | "TWO" | "THREE_OR_MORE";
 export type CongestionLevel = "LOW" | "MEDIUM" | "HIGH";
 

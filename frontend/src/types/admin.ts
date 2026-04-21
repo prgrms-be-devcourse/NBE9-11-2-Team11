@@ -8,7 +8,7 @@ export type CafeType = 'FRANCHISE' | 'INDIVIDUAL';
 
 // 프랜차이즈 종류 (스타벅스/메가커피/해당없음)
 // cafe.ts 에서 FranchiseType 으로 쓰고 있어서 맞춤
-export type FranchiseType = 'STARBUCKS' | 'MEGA_COFFEE' | 'NONE';
+export type FranchiseType = 'STARBUCKS' | 'MEGA_COFFEE' | 'EDIYA' | 'COMPOSE' | 'TWOSOME' | 'PAIK_DABANG' | 'THE_VENTI' | 'NONE';
 
 // 혼잡도 ( 여유/보통/혼잡)
 export type CongestionLevel = 'LOW' | 'MEDIUM' | 'HIGH';

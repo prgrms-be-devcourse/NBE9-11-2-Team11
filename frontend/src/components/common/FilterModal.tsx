@@ -4,6 +4,7 @@ import { useState } from "react";
 import { X } from "lucide-react";
 
 export interface FilterState {
+    type: string[];
     franchise: string[];
     hasWifi: boolean | null;
     hasOutlet: boolean | null;
@@ -20,6 +21,7 @@ interface FilterModalProps {
 }
 
 const initialFilters: FilterState = {
+    type: [],
     franchise: [],
     hasWifi: null,
     hasOutlet: null,
@@ -32,7 +34,37 @@ const initialFilters: FilterState = {
 export default function FilterModal({ onClose, onApply, currentFilters }: FilterModalProps) {
     const [filters, setFilters] = useState<FilterState>(currentFilters);
 
-    const toggleArray = (key: keyof Pick<FilterState, "franchise" | "floorCount" | "congestionLevel">, value: string) => {
+    const toggleType = (value: string) => {
+        setFilters((prev) => {
+            const isSelected = prev.type.includes(value);
+            if (isSelected) {
+                return {
+                    ...prev,
+                    type: prev.type.filter((t) => t !== value),
+                    franchise: value === "FRANCHISE" ? [] : prev.franchise,
+                };
+            }
+            return { ...prev, type: [...prev.type, value] };
+        });
+    };
+
+    const toggleBrand = (value: string) => {
+        setFilters((prev) => {
+            const newFranchise = prev.franchise.includes(value)
+                ? prev.franchise.filter((f) => f !== value)
+                : [...prev.franchise, value];
+
+            return {
+                ...prev,
+                franchise: newFranchise,
+                type: newFranchise.length === 0
+                    ? prev.type.filter((t) => t !== "FRANCHISE")
+                    : prev.type,
+            };
+        });
+    };
+
+    const toggleArray = (key: keyof Pick<FilterState, "floorCount" | "congestionLevel">, value: string) => {
         setFilters((prev) => ({
             ...prev,
             [key]: prev[key].includes(value)
@@ -47,9 +79,6 @@ export default function FilterModal({ onClose, onApply, currentFilters }: Filter
             [key]: prev[key] === true ? null : true,
         }));
     };
-
-    const isSelected = (key: "franchise" | "floorCount" | "congestionLevel", value: string) =>
-        filters[key].includes(value);
 
     const chipClass = (selected: boolean) =>
         `px-4 py-2 rounded-2xl text-sm font-medium border transition-colors cursor-pointer
@@ -81,20 +110,41 @@ export default function FilterModal({ onClose, onApply, currentFilters }: Filter
                 <div>
                     <h3 className="text-sm font-semibold text-gray-700 mb-3">카페 유형</h3>
                     <div className="flex flex-wrap gap-2">
-                        {[
-                            { label: "스타벅스", value: "STARBUCKS" },
-                            { label: "메가커피", value: "MEGA_COFFEE" },
-                            { label: "개인카페", value: "NONE" },
-                        ].map((item) => (
-                            <button
-                                key={item.value}
-                                onClick={() => toggleArray("franchise", item.value)}
-                                className={chipClass(isSelected("franchise", item.value))}
-                            >
-                                {item.label}
-                            </button>
-                        ))}
+                        <button
+                            onClick={() => toggleType("FRANCHISE")}
+                            className={chipClass(filters.type.includes("FRANCHISE"))}
+                        >
+                            프랜차이즈
+                        </button>
+                        <button
+                            onClick={() => toggleType("INDIVIDUAL")}
+                            className={chipClass(filters.type.includes("INDIVIDUAL"))}
+                        >
+                            개인카페
+                        </button>
                     </div>
+
+                    {filters.type.includes("FRANCHISE") && (
+                        <div className="flex flex-wrap gap-2 mt-3 pl-1">
+                            {[
+                                { label: "스타벅스", value: "STARBUCKS" },
+                                { label: "메가커피", value: "MEGA_COFFEE" },
+                                { label: "이디야", value: "EDIYA" },
+                                { label: "컴포즈", value: "COMPOSE" },
+                                { label: "투썸", value: "TWOSOME" },
+                                { label: "빽다방", value: "PAIK_DABANG" },
+                                { label: "더벤티", value: "THE_VENTI" },
+                            ].map((item) => (
+                                <button
+                                    key={item.value}
+                                    onClick={() => toggleBrand(item.value)}
+                                    className={chipClass(filters.franchise.includes(item.value))}
+                                >
+                                    {item.label}
+                                </button>
+                            ))}
+                        </div>
+                    )}
                 </div>
 
                 {/* 편의시설 */}
@@ -109,7 +159,7 @@ export default function FilterModal({ onClose, onApply, currentFilters }: Filter
                         ].map((item) => (
                             <button
                                 key={item.key}
-                                onClick={() => toggleBoolean(item.key as any)}
+                                onClick={() => toggleBoolean(item.key as keyof Pick<FilterState, "hasWifi" | "hasOutlet" | "hasToilet" | "hasSeparateSpace">)}
                                 className={chipClass(filters[item.key as keyof FilterState] === true)}
                             >
                                 {item.label}
@@ -130,7 +180,7 @@ export default function FilterModal({ onClose, onApply, currentFilters }: Filter
                             <button
                                 key={item.value}
                                 onClick={() => toggleArray("floorCount", item.value)}
-                                className={chipClass(isSelected("floorCount", item.value))}
+                                className={chipClass(filters.floorCount.includes(item.value))}
                             >
                                 {item.label}
                             </button>
@@ -143,14 +193,14 @@ export default function FilterModal({ onClose, onApply, currentFilters }: Filter
                     <h3 className="text-sm font-semibold text-gray-700 mb-3">혼잡도</h3>
                     <div className="flex flex-wrap gap-2">
                         {[
-                            { label: "🟢 한산", value: "LOW" },
+                            { label: "🟢 여유", value: "LOW" },
                             { label: "🟡 보통", value: "MEDIUM" },
-                            { label: "🔴 혼잡", value: "HIGH" },
+                            { label: "🟣 혼잡", value: "HIGH" },
                         ].map((item) => (
                             <button
                                 key={item.value}
                                 onClick={() => toggleArray("congestionLevel", item.value)}
-                                className={chipClass(isSelected("congestionLevel", item.value))}
+                                className={chipClass(filters.congestionLevel.includes(item.value))}
                             >
                                 {item.label}
                             </button>

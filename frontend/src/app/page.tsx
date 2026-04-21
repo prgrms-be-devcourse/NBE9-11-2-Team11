@@ -19,6 +19,7 @@ import { useRouter } from "next/navigation";
 const KakaoMap = dynamic(() => import("@/components/map/Map"), { ssr: false });
 
 const initialFilters: FilterState = {
+  type: [],
   franchise: [],
   hasWifi: null,
   hasOutlet: null,
@@ -104,10 +105,31 @@ export default function Home() {
   };
 
   const activeFilterTags: { label: string; onRemove: () => void }[] = [
+    ...(filters.type.includes("INDIVIDUAL") ? [{
+      label: "개인카페",
+      onRemove: () => setFilters((prev) => ({ ...prev, type: prev.type.filter((t) => t !== "INDIVIDUAL") })),
+    }] : []),
     ...filters.franchise.map((v) => ({
-      label: v === "STARBUCKS" ? "스타벅스" : v === "MEGA_COFFEE" ? "메가커피" : "개인카페",
-      onRemove: () => setFilters((prev) => ({ ...prev, franchise: prev.franchise.filter((f) => f !== v) })),
+      label: v === "STARBUCKS" ? "스타벅스" :
+             v === "MEGA_COFFEE" ? "메가커피" :
+             v === "EDIYA" ? "이디야" :
+             v === "COMPOSE" ? "컴포즈" :
+             v === "TWOSOME" ? "투썸" :
+             v === "PAIK_DABANG" ? "빽다방" :
+             v === "THE_VENTI" ? "더벤티" : v,
+      onRemove: () => setFilters((prev) => {
+        const newFranchise = prev.franchise.filter((f) => f !== v);
+        return {
+          ...prev,
+          franchise: newFranchise,
+          type: newFranchise.length === 0 ? prev.type.filter((t) => t !== "FRANCHISE") : prev.type,
+        };
+      }),
     })),
+    ...(filters.type.includes("FRANCHISE") && filters.franchise.length === 0 ? [{
+      label: "프랜차이즈",
+      onRemove: () => setFilters((prev) => ({ ...prev, type: prev.type.filter((t) => t !== "FRANCHISE") })),
+    }] : []),
     ...(filters.hasWifi ? [{ label: "와이파이", onRemove: () => setFilters((prev) => ({ ...prev, hasWifi: null })) }] : []),
     ...(filters.hasOutlet ? [{ label: "콘센트", onRemove: () => setFilters((prev) => ({ ...prev, hasOutlet: null })) }] : []),
     ...(filters.hasToilet ? [{ label: "화장실", onRemove: () => setFilters((prev) => ({ ...prev, hasToilet: null })) }] : []),
