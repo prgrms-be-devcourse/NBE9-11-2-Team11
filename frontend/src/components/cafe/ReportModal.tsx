@@ -179,6 +179,11 @@ export default function ReportModal({ onClose }: ReportModalProps) {
                                 {[
                                     { label: "스타벅스", value: "STARBUCKS" },
                                     { label: "메가커피", value: "MEGA_COFFEE" },
+                                    { label: "이디야", value: "EDIYA" },
+                                    { label: "컴포즈", value: "COMPOSE" },
+                                    { label: "투썸", value: "TWOSOME" },
+                                    { label: "빽다방", value: "PAIK_DABANG" },
+                                    { label: "더벤티", value: "THE_VENTI" },
                                 ].map((item) => (
                                     <button
                                         key={item.value}

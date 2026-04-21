@@ -50,7 +50,12 @@ export default function CafeDetailModal({ cafe, onClose }: Props) {
                             <span className="text-gray-500">프랜차이즈</span>
                             <span>
                                 {cafe.franchise === 'STARBUCKS' ? '스타벅스' :
-                                    cafe.franchise === 'MEGA_COFFEE' ? '메가커피' : '-'}
+                                    cafe.franchise === 'MEGA_COFFEE' ? '메가커피' :
+                                    cafe.franchise === 'EDIYA' ? '이디야' :
+                                    cafe.franchise === 'COMPOSE' ? '컴포즈' :
+                                    cafe.franchise === 'TWOSOME' ? '투썸' :
+                                    cafe.franchise === 'PAIK_DABANG' ? '빽다방' :
+                                    cafe.franchise === 'THE_VENTI' ? '더벤티' : '-'}
                             </span>
                         </div>
                     )}

@@ -110,7 +110,13 @@ export default function Home() {
       onRemove: () => setFilters((prev) => ({ ...prev, type: prev.type.filter((t) => t !== "INDIVIDUAL") })),
     }] : []),
     ...filters.franchise.map((v) => ({
-      label: v === "STARBUCKS" ? "스타벅스" : "메가커피",
+      label: v === "STARBUCKS" ? "스타벅스" :
+             v === "MEGA_COFFEE" ? "메가커피" :
+             v === "EDIYA" ? "이디야" :
+             v === "COMPOSE" ? "컴포즈" :
+             v === "TWOSOME" ? "투썸" :
+             v === "PAIK_DABANG" ? "빽다방" :
+             v === "THE_VENTI" ? "더벤티" : v,
       onRemove: () => setFilters((prev) => {
         const newFranchise = prev.franchise.filter((f) => f !== v);
         return {

@@ -151,6 +151,11 @@ export default function CafeFormFields({ formData, onChange }: Props) {
                         <option value="NONE">해당 없음</option>
                         <option value="STARBUCKS">스타벅스</option>
                         <option value="MEGA_COFFEE">메가커피</option>
+                        <option value="EDIYA">이디야</option>
+                        <option value="COMPOSE">컴포즈</option>
+                        <option value="TWOSOME">투썸</option>
+                        <option value="PAIK_DABANG">빽다방</option>
+                        <option value="THE_VENTI">더벤티</option>
                     </select>
                 </div>
             )}

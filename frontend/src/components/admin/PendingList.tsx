@@ -65,7 +65,15 @@ export default function PendingList({ cafes, onApprove, onReject, onDetail }: Pr
                                 <p><span className="font-medium">설명</span> : {cafe.description ?? '-'}</p>
                                 <p><span className="font-medium">카페 종류</span> : {cafe.type === 'FRANCHISE' ? '프랜차이즈' : '개인 카페'}</p>
                                 {cafe.type === 'FRANCHISE' && (
-                                    <p><span className="font-medium">프랜차이즈</span> : {cafe.franchise === 'STARBUCKS' ? '스타벅스' : cafe.franchise === 'MEGA_COFFEE' ? '메가커피' : '-'}</p>
+                                    <p><span className="font-medium">프랜차이즈</span> : {
+                                        cafe.franchise === 'STARBUCKS' ? '스타벅스' :
+                                        cafe.franchise === 'MEGA_COFFEE' ? '메가커피' :
+                                        cafe.franchise === 'EDIYA' ? '이디야' :
+                                        cafe.franchise === 'COMPOSE' ? '컴포즈' :
+                                        cafe.franchise === 'TWOSOME' ? '투썸' :
+                                        cafe.franchise === 'PAIK_DABANG' ? '빽다방' :
+                                        cafe.franchise === 'THE_VENTI' ? '더벤티' : '-'
+                                    }</p>
                                 )}
                                 <p><span className="font-medium">층수</span> : {cafe.floorCount === 'ONE' ? '1층' : cafe.floorCount === 'TWO' ? '2층' : '3층 이상'}</p>
                                 <p><span className="font-medium">혼잡도</span> : {cafe.congestionLevel === 'LOW' ? '여유' : cafe.congestionLevel === 'MEDIUM' ? '보통' : '혼잡'}</p>
