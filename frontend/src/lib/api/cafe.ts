@@ -1,4 +1,4 @@
-import { CafeListResponse, CafeDetailResponse, ReviewResponse, WishlistResponse, CafeReportRequest, PageResponse } from "@/types/cafe";
+import { CafeListResponse, CafeDetailResponse, ReviewResponse, WishlistResponse, CafeRequest, PageResponse } from "@/types/cafe";
 
 interface RsData<T> {
     msg: string;
@@ -109,7 +109,7 @@ export const fetchWishlist = async (page = 0, size = 10): Promise<PageResponse<W
 
 // 제보용
 
-export const reportCafe = async (form: CafeReportRequest): Promise<RsData<null>> => {
+export const reportCafe = async (form: CafeRequest): Promise<RsData<null>> => {
     const res = await fetch(`${BASE_URL}/api/V1/cafe/report`, {
         method: "POST",
         headers: {

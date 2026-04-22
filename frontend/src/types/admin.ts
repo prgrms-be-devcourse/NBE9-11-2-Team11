@@ -45,26 +45,6 @@ export interface AdminCafe {
 
 
 
-// 카페 등록할 때 백엔드로 보내는 데이터 형태
-export interface CafeCreateRequest {
-    name: string;
-    address: string;
-    latitude: number;
-    longitude: number;
-    type: CafeType;
-    franchise: FranchiseType;
-    hasToilet: boolean;
-    hasOutlet: boolean;
-    hasWifi: boolean;
-    floorCount: FloorCount;
-    hasSeparateSpace: boolean;
-    congestionLevel: CongestionLevel;
-    phone: string;
-    description?: string;             // 선택
-    imageUrl?: string;                // 선택
-}
-
-
 // 카페 수정할 때 백엔드로 보내는 데이터 형태
 // 수정은 바뀐 것만 보내도 돼서 전부 ? (선택)
 export interface CafeUpdateRequest {

@@ -63,8 +63,8 @@ export interface WishlistResponse {
     createAt: string;
 }
 
-//제보용
-export interface CafeReportRequest {
+//제보/등록 공통 요청 타입
+export interface CafeRequest {
     name: string;
     address: string;
     latitude: number;
