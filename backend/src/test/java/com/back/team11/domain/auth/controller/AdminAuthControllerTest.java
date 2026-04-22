@@ -231,7 +231,7 @@ class AdminAuthControllerTest {
         // 서비스까지 도달하여 INVALID_REFRESH_TOKEN 예외 → 401-4
         resultActions
                 .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.resultCode").value("401-4"));
+                .andExpect(jsonPath("$.resultCode").value("401-5"));
     }
 
     @Test

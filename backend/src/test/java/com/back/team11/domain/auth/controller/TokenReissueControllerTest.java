@@ -122,6 +122,6 @@ class TokenReissueControllerTest {
 
         resultActions
                 .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.resultCode").value("401-4"));
+                .andExpect(jsonPath("$.resultCode").value("401-5"));
     }
 }
