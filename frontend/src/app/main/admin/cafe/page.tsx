@@ -33,6 +33,9 @@ export default function AdminCafePage() {
     // 전체 페이지 수
     const [totalPages, setTotalPages] = useState(0);
 
+    // 전체 카페 수
+    const [totalElements, setTotalElements] = useState(0);
+
     // 검색어 상태
     const [searchName, setSearchName] = useState('');
 
@@ -44,6 +47,7 @@ export default function AdminCafePage() {
             const data = await fetchCafes('APPROVED', page, name);
             setCafes(data.content);
             setTotalPages(data.totalPages); // 전체 페이지 수 저장
+            setTotalElements(data.totalElements);
         } catch (error) {
             console.log('카페 목록 조회 실패:', error);
         } finally {
@@ -156,6 +160,7 @@ export default function AdminCafePage() {
                 {/* 카페 목록 컴포넌트 */}
                 <CafeList
                     cafes={cafes}
+                    totalElements={totalElements}
                     onEdit={(cafe) => setSelectedCafe(cafe)}
                     onDelete={handleDelete}
                     onDetail={(cafe) => setDetailCafe(cafe)}

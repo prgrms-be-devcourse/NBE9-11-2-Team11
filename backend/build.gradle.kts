@@ -1,3 +1,5 @@
+import org.gradle.kotlin.dsl.implementation
+
 plugins {
     java
     id("org.springframework.boot") version "4.0.5"
@@ -32,6 +34,9 @@ dependencies {
     annotationProcessor ("com.querydsl:querydsl-apt:5.1.0:jakarta")
     annotationProcessor ("jakarta.annotation:jakarta.annotation-api")
     annotationProcessor ("jakarta.persistence:jakarta.persistence-api")
+
+    // 스프링 배치 의존성 추가
+    implementation ("org.springframework.boot:spring-boot-starter-batch")
 
     implementation("org.springframework.boot:spring-boot-h2console")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")

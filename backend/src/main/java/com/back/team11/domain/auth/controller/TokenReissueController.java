@@ -2,6 +2,10 @@ package com.back.team11.domain.auth.controller;
 
 import com.back.team11.domain.auth.service.TokenReissueService;
 import com.back.team11.domain.global.rsData.RsData;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 // 쿠키 관련 처리는 CookieUtil, 재발급 로직은 Service에서 수행
 
+@Tag(name = "Token Reissue", description = "Access Token 재발급 API")
 @RestController
 @RequestMapping("/api/V1/auth")
 @RequiredArgsConstructor
@@ -25,6 +30,13 @@ public class TokenReissueController {
 
     //Access Token 재발급 API
     @PostMapping("/refresh")
+    @Operation(summary = "리프레쉬 토큰 재발급")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "토큰 재발급 성공"),
+            @ApiResponse(responseCode = "401", description = "로그인 후 이용해 주세요."),
+            @ApiResponse(responseCode = "401", description = "유효하지 않은 리프레쉬 토큰"),
+            @ApiResponse(responseCode = "401", description = "만료된 리프레쉬 토큰")
+    })
     public ResponseEntity<RsData<Void>> refresh(HttpServletRequest request,
                                                 HttpServletResponse response) {
         tokenReissueService.reissue(request, response);

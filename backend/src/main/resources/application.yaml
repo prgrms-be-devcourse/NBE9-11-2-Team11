@@ -17,7 +17,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
@@ -45,11 +45,20 @@ spring:
             token-uri: https://kauth.kakao.com/oauth/token
             user-info-uri: https://kapi.kakao.com/v2/user/me
             user-name-attribute: id
+  batch:
+    job:
+      enabled: true # 서버 시작시 자동실행
 
 jwt:
   secret: ${JWT_SECRET}
   access-token-expiration: 1800000
   refresh-token-expiration: 604800000
 
+kakao:
+  rest-api-key: ${KAKAO_REST_API_KEY}
+
 server:
   port: 8080
+
+springdoc:
+  default-produces-media-type: application/json; charset=UTF-8
