@@ -5,6 +5,8 @@ import { AdminCafe } from '@/types/admin';
 import { fetchCafes, approveCafe, rejectCafe } from '@/lib/api/admin';
 import PendingList from '@/components/admin/PendingList';
 import LogoutButton from '@/components/admin/Logoutbutton';
+import PaginationButtons from '@/components/admin/PaginationButtons';
+
 export default function AdminPendingPage() {
 
     // 승인 대기 카페 목록
@@ -13,13 +15,19 @@ export default function AdminPendingPage() {
     // 로딩 상태
     const [isLoading, setIsLoading] = useState(false);
 
+    // 현재 페이지 번호 (1부터 시작)
+    const [currentPage, setCurrentPage] = useState(1);
+    // 전체 페이지 수
+    const [totalPages, setTotalPages] = useState(0);
+
 
     // 승인 대기 목록 조회
-    const loadPendingCafes = async () => {
+    const loadPendingCafes = async (page: number = 1) => {
         setIsLoading(true);
         try {
-            const data = await fetchCafes('PENDING'); // status=PENDING 으로 필터링
+            const data = await fetchCafes('PENDING', page);
             setCafes(data.content);
+            setTotalPages(data.totalPages);
         } catch (error) {
             console.log('승인 대기 목록 조회 실패:', error);
         } finally {
@@ -56,10 +64,10 @@ export default function AdminPendingPage() {
     };
 
 
-    // 페이지 처음 열릴 때 목록 자동으로 불러오기
+    /// currentPage 변경 시 승인 대기 카페 목록 조회(초기 렌더 포함)
     useEffect(() => {
-        loadPendingCafes();
-    }, []);
+        loadPendingCafes(currentPage);
+    }, [currentPage]);
 
 
     return (
@@ -98,6 +106,11 @@ export default function AdminPendingPage() {
                         onDetail={() => {}}
                     />
                 )}
+                <PaginationButtons
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={(page) => setCurrentPage(page)}
+                />
 
             </div>
 
