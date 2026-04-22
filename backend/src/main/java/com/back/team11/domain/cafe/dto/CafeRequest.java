@@ -5,12 +5,12 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
 import java.math.BigDecimal;
 
+// 카페 등록/제보 공통 요청 DTO — CafeCreateRequest + CafeReportRequest 통합
 @Getter
 @NoArgsConstructor
-public class CafeCreateRequest {
+public class CafeRequest {
 
     @NotBlank(message = "카페 이름은 필수입니다.")
     private String name;
@@ -24,9 +24,8 @@ public class CafeCreateRequest {
     @NotNull(message = "경도는 필수입니다.")
     private BigDecimal longitude;
 
-    private String phone;        // 선택
-
-    private String description;  // 선택
+    private String phone;
+    private String description;
 
     @NotNull(message = "카페 유형은 필수입니다.")
     private CafeType type;
@@ -52,5 +51,5 @@ public class CafeCreateRequest {
     @NotNull(message = "혼잡도는 필수입니다.")
     private CongestionLevel congestionLevel;
 
-    private String imageUrl;     // 선택사항 (우선 주소값으로 받음)
+    private String imageUrl;
 }
