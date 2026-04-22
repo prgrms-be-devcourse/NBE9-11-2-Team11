@@ -4,12 +4,18 @@ import com.back.team11.domain.auth.dto.LoginRequestDto;
 import com.back.team11.domain.auth.service.AuthService;
 import com.back.team11.domain.auth.service.TokenReissueService;
 import com.back.team11.domain.global.rsData.RsData;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(name = "Admin Auth", description = "관리자 인증 관련 API")
 @RestController
 @RequestMapping("/api/V1/admin/auth")
 @RequiredArgsConstructor
@@ -19,6 +25,13 @@ public class AdminAuthController {
     private final AuthService authService;
 
     @PostMapping("/login")
+    @Operation(summary = "관리자 로그인",
+            security={}
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "로그인 성공"),
+            @ApiResponse(responseCode = "401-4", description = "이메일 또는 비밀번호 불일치")
+    })
     public ResponseEntity<RsData<Void>> login(
             @RequestBody LoginRequestDto loginRequestDto,
             HttpServletResponse response
@@ -35,6 +48,13 @@ public class AdminAuthController {
     }
 
     @PostMapping("/refresh")
+    @Operation(summary = "관리자 리프레쉬 토큰 발급")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "토큰 재발급 성공"),
+            @ApiResponse(responseCode = "401-1", description = "로그인 후 이용해 주세요."),
+            @ApiResponse(responseCode = "401-5", description = "유효하지 않은 리프레쉬 토큰"),
+            @ApiResponse(responseCode = "401-6", description = "만료된 리프레쉬 토큰")
+    })
     public ResponseEntity<RsData<Void>> refresh(HttpServletRequest request,
                                                 HttpServletResponse response) {
 
@@ -45,6 +65,11 @@ public class AdminAuthController {
     }
 
     @PostMapping("/logout")
+    @Operation(summary = "관리자 로그아웃")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "토큰 재발급 성공"),
+            @ApiResponse(responseCode = "401-1", description = "로그인 후 이용해 주세요."),
+    })
     public ResponseEntity<RsData<Void>> logout(
             HttpServletRequest request,
             HttpServletResponse response
