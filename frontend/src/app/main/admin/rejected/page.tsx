@@ -5,6 +5,7 @@ import { AdminCafe } from '@/types/admin';
 import { fetchCafes } from '@/lib/api/admin';
 import RejectedList from '@/components/admin/RejectedList';
 import LogoutButton from '@/components/admin/Logoutbutton';
+import PaginationButtons from '@/components/admin/PaginationButtons';
 
 export default function AdminRejectedPage() {
 
@@ -14,13 +15,19 @@ export default function AdminRejectedPage() {
     // 로딩 상태
     const [isLoading, setIsLoading] = useState(false);
 
+    // 현재 페이지 번호 (1부터 시작)
+    const [currentPage, setCurrentPage] = useState(1);
+    // 전체 페이지 수
+    const [totalPages, setTotalPages] = useState(0);
+
 
     // 승인 거절 목록 조회
-    const loadRejectedCafes = async () => {
+    const loadRejectedCafes = async (page: number = 1) => {
         setIsLoading(true);
         try {
-            const data = await fetchCafes('REJECTED'); // status=REJECTED 로 필터링
+            const data = await fetchCafes('REJECTED', page);
             setCafes(data.content);
+            setTotalPages(data.totalPages);
         } catch (error) {
             console.log('승인 거절 목록 조회 실패:', error);
         } finally {
@@ -29,10 +36,10 @@ export default function AdminRejectedPage() {
     };
 
 
-    // 페이지 처음 열릴 때 목록 자동으로 불러오기
+    //  currentPage 변경 시 거절된 카페 목록 조회 (초기 렌더 포함)
     useEffect(() => {
-        loadRejectedCafes();
-    }, []);
+        loadRejectedCafes(currentPage);
+    }, [currentPage]);
 
 
     return (
@@ -66,6 +73,12 @@ export default function AdminRejectedPage() {
                 ) : (
                     <RejectedList cafes={cafes} />
                 )}
+
+                <PaginationButtons
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={(page) => setCurrentPage(page)}
+                />
 
             </div>
 
