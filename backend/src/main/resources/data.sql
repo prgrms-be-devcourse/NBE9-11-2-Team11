@@ -1,4 +1,4 @@
--- Member 데이터 (관리자)
+/*-- Member 데이터 (관리자)
 INSERT INTO member (email, password, nickname, role, provider, created_at, updated_at)
 VALUES ('admin@test.com', '1234', '관리자', 'ADMIN', 'LOCAL', NOW(), NOW());
 
@@ -30,4 +30,4 @@ INSERT INTO wishlist (member_id, cafe_id, created_at, updated_at)
 VALUES (2, 2, NOW(), NOW());
 
 INSERT INTO wishlist (member_id, cafe_id, created_at, updated_at)
-VALUES (2, 3, NOW(), NOW());
+VALUES (2, 3, NOW(), NOW());*/
