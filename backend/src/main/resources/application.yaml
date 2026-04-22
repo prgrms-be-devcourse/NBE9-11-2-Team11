@@ -59,3 +59,6 @@ kakao:
 
 server:
   port: 8080
+
+springdoc:
+  default-produces-media-type: application/json; charset=UTF-8
