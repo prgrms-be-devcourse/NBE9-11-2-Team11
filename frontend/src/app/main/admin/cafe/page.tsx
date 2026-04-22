@@ -8,6 +8,7 @@ import CafeCreateModal from '@/components/admin/CafeCreateModal';
 import CafeEditModal from '@/components/admin/CafeEditModal';
 import CafeDetailModal from '@/components/admin/CafeDetailModal';
 import LogoutButton from '@/components/admin/Logoutbutton';
+import PaginationButtons from '@/components/admin/PaginationButtons';
 
 export default function AdminCafePage() {
 
@@ -159,40 +160,13 @@ export default function AdminCafePage() {
                     onDelete={handleDelete}
                     onDetail={(cafe) => setDetailCafe(cafe)}
                 />
+
                 {/* 페이징 버튼 */}
-                <div className="flex items-center justify-center gap-2 mt-6">
-                    {/* 이전 버튼 */}
-                    <button
-                        onClick={() => setCurrentPage(currentPage - 1)}
-                        disabled={currentPage === 1}
-                        // disabled = 첫 페이지면 버튼 비활성화
-                        className="px-3 py-1 border rounded disabled:opacity-30 hover:bg-gray-100"
-                    >
-                        이전
-                    </button>
-
-                    {/* 페이지 번호들 */}
-                    {Array.from({ length: totalPages }, (_, i) => (
-                        <button
-                            key={i + 1}
-                            onClick={() => setCurrentPage(i + 1)}
-                            className={`px-3 py-1 border rounded hover:bg-gray-100 ${currentPage === i + 1 ? 'bg-black text-white' : ''}`}
-                            // 현재 페이지면 검은색으로 표시
-                        >
-                            {i + 1}
-                        </button>
-                    ))}
-
-                    {/* 다음 버튼 */}
-                    <button
-                        onClick={() => setCurrentPage(currentPage + 1)}
-                        disabled={currentPage >= totalPages}
-                        // disabled = 마지막 페이지면 버튼 비활성화
-                        className="px-3 py-1 border rounded disabled:opacity-30 hover:bg-gray-100"
-                    >
-                        다음
-                    </button>
-                </div>
+                <PaginationButtons
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={(page) => setCurrentPage(page)}
+                />
 
             </div>
 
