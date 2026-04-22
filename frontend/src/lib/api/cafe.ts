@@ -18,13 +18,16 @@ export const fetchCafeList = async (params: {
     hasOutlet?: boolean;
     hasToilet?: boolean;
     hasSeparateSpace?: boolean;
-    floorCount?: string;
-    congestionLevel?: string;
-    franchise?: string;
+    floorCounts?: string[];
+    congestionLevels?: string[];
+    franchises?: string[];
 }): Promise<CafeListResponse[]> => {
     const query = new URLSearchParams();
     Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
+        if (value === undefined || value === null) return;
+        if (Array.isArray(value)) {
+            value.forEach((v) => query.append(key, v)); // ?franchises=A&franchises=B
+        } else {
             query.append(key, String(value));
         }
     });

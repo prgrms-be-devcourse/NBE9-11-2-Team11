@@ -79,9 +79,9 @@ export default function KakaoMap({ onCafeSelect, center, filters, onBoundsChange
                 hasOutlet: filters.hasOutlet ?? undefined,
                 hasToilet: filters.hasToilet ?? undefined,
                 hasSeparateSpace: filters.hasSeparateSpace ?? undefined,
-                floorCount: filters.floorCount[0] ?? undefined,
-                congestionLevel: filters.congestionLevel[0] ?? undefined,
-                franchise: filters.franchise[0] ?? undefined,
+                floorCounts: filters.floorCount.length > 0 ? filters.floorCount : undefined,
+                congestionLevels: filters.congestionLevel.length > 0 ? filters.congestionLevel : undefined,
+                franchises: filters.franchise.length > 0 ? filters.franchise : undefined,
             });
 
             if (!cafes || !Array.isArray(cafes)) return;

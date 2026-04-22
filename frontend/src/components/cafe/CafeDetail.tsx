@@ -195,9 +195,9 @@ export default function CafeDetail({ cafeData, onClose }: CafeDetailProps) {
                     <div>
                         <p className="text-gray-500 text-xs">혼잡도</p>
                         <p className={`font-bold mt-0.5 ${cafe?.congestionLevel === "LOW" ? "text-green-600" :
-                            cafe?.congestionLevel === "MEDIUM" ? "text-amber-600" : "text-red-600"
+                            cafe?.congestionLevel === "MEDIUM" ? "text-yellow-600" : "text-purple-600"
                             }`}>
-                            {cafe?.congestionLevel === "LOW" && "한산"}
+                            {cafe?.congestionLevel === "LOW" && "여유"}
                             {cafe?.congestionLevel === "MEDIUM" && "보통"}
                             {cafe?.congestionLevel === "HIGH" && "혼잡"}
                             {!cafe?.congestionLevel && "정보 없음"}
