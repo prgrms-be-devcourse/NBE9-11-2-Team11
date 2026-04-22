@@ -35,7 +35,7 @@ public class ReviewController {
     @Operation(summary = "리뷰 생성")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "리뷰 생성 성공"),
-            @ApiResponse(responseCode = "409-3", description = "이미 리뷰를 작성한 카페"),
+            @ApiResponse(responseCode = "409", description = "이미 리뷰를 작성한 카페"),
     })
     public ResponseEntity<RsData<ReviewResponseDto>> createReview(
             @PathVariable Long cafeId,
@@ -53,7 +53,7 @@ public class ReviewController {
     @Operation(summary = "리뷰 조회")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "리뷰 생성 성공"),
-            @ApiResponse(responseCode = "404-3", description = "존재하지 않는 카페"),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 카페"),
     })
     public ResponseEntity<RsData<List<ReviewResponseDto>>> getReviews(
             @PathVariable Long cafeId
@@ -67,7 +67,7 @@ public class ReviewController {
     @Operation(summary = "페이징 리뷰 조회")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "페이징 리뷰 조회 성공"),
-            @ApiResponse(responseCode = "404-3", description = "존재하지 않는 카페"),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 카페"),
     })
     public ResponseEntity<RsData<PageResponse<ReviewResponseDto>>> getReviewsPage(
             @PathVariable Long cafeId,
@@ -83,8 +83,8 @@ public class ReviewController {
     @Operation(summary = "리뷰 수정")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "리뷰 수정 성공"),
-            @ApiResponse(responseCode = "403-2", description = "리뷰 작성자만 수정/삭제 가능"),
-            @ApiResponse(responseCode = "404-4", description = "존재하지 않는 리뷰"),
+            @ApiResponse(responseCode = "403", description = "리뷰 작성자만 수정/삭제 가능"),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 리뷰"),
     })
     public ResponseEntity<RsData<ReviewResponseDto>> updateReview(
             @PathVariable Long cafeId,
@@ -101,8 +101,8 @@ public class ReviewController {
     @Operation(summary = "리뷰 삭제")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "리뷰 수정 성공"),
-            @ApiResponse(responseCode = "403-2", description = "리뷰 작성자만 수정/삭제 가능"),
-            @ApiResponse(responseCode = "404-4", description = "존재하지 않는 리뷰"),
+            @ApiResponse(responseCode = "403", description = "리뷰 작성자만 수정/삭제 가능"),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 리뷰"),
     })
     public ResponseEntity<RsData<Void>> deleteReview(
             @PathVariable Long cafeId,

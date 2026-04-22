@@ -37,7 +37,7 @@ public class AuthController {
     @Operation(summary = "사용자 로그아웃")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "사용자 로그아웃 성공"),
-            @ApiResponse(responseCode = "401-1", description = "로그인 후 이용해 주세요.")
+            @ApiResponse(responseCode = "401", description = "로그인 후 이용해 주세요.")
     })
     public ResponseEntity<RsData<Void>> logout(
             HttpServletRequest request,
@@ -51,7 +51,7 @@ public class AuthController {
     @Operation(summary = "사용자 내 정보 조회")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "사용자 내 정보 조회 성공"),
-            @ApiResponse(responseCode = "401-1", description = "로그인 후 이용해 주세요.")
+            @ApiResponse(responseCode = "401", description = "로그인 후 이용해 주세요.")
     })
     public ResponseEntity<RsData<MemberResponseDto>> getMe() {
         Long memberId = authUtil.getCurrentMemberId();
