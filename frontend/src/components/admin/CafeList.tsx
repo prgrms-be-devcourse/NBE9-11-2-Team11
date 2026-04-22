@@ -5,19 +5,20 @@ import { AdminCafe } from '@/types/admin';
 
 // CafeList 컴포넌트가 받는 데이터 형태 정의
 interface Props {
-    cafes: AdminCafe[];           // 카페 목록 배열
+    cafes: AdminCafe[];
+    totalElements: number; // 전체 카페 수
     onEdit: (cafe: AdminCafe) => void;    // 수정 버튼 눌렀을 때 실행할 함수
     onDelete: (cafeId: number) => void;   // 삭제 버튼 눌렀을 때 실행할 함수
     onDetail: (cafe: AdminCafe) => void;  // 카페 클릭 시 상세 보기
 }
 
-export default function CafeList({ cafes, onEdit, onDelete, onDetail }: Props) {
+export default function CafeList({ cafes, totalElements, onEdit, onDelete, onDetail }: Props) {
     return (
         <div className="w-full">
 
             {/* 카페 총 개수 표시 */}
             <p className="mb-4 text-sm text-gray-500">
-                총 {cafes.length}곳
+                총 {totalElements}곳
             </p>
 
             {/* 카페 목록 */}
