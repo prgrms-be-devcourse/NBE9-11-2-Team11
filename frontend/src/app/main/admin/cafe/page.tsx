@@ -7,6 +7,7 @@ import CafeList from '@/components/admin/CafeList';
 import CafeCreateModal from '@/components/admin/CafeCreateModal';
 import CafeEditModal from '@/components/admin/CafeEditModal';
 import CafeDetailModal from '@/components/admin/CafeDetailModal';
+import LogoutButton from '@/components/admin/Logoutbutton';
 
 export default function AdminCafePage() {
 
@@ -39,7 +40,7 @@ export default function AdminCafePage() {
     const loadCafes = async (page: number = 1, name: string = '') => {
         setIsLoading(true);
         try {
-            const data = await fetchCafes(undefined, page, name);
+            const data = await fetchCafes('APPROVED', page, name);
             setCafes(data.content);
             setTotalPages(data.totalPages); // 전체 페이지 수 저장
         } catch (error) {
@@ -105,6 +106,14 @@ export default function AdminCafePage() {
                 <a href="/main/admin/cafe" className="font-medium">카페 목록</a>
                 <a href="/main/admin/pending" className="text-gray-500">승인 대기</a>
                 <a href="/main/admin/rejected" className="text-gray-500">승인 거절</a>
+
+                {/* 하단으로 밀어내기 위한 여백 공간 */}
+                <div className="flex-1"></div>
+
+                {/* 사이드바 맨 하단에 로그아웃 버튼 추가 */}
+                <div className="pt-4 border-t">
+                    <LogoutButton />
+                </div>
             </div>
 
             {/* 오른쪽 메인 영역 */}

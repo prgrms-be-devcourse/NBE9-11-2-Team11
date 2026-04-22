@@ -24,3 +24,8 @@ export const logoutApi = async () => {
     });
     return res.ok;
 };
+
+export const logoutAdmin = async () => {
+    await logoutApi();
+    window.location.href = `/main/admin/login`;
+};
