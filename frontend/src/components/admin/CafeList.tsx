@@ -22,37 +22,40 @@ export default function CafeList({ cafes, onEdit, onDelete, onDetail }: Props) {
 
             {/* 카페 목록 */}
             <div className="flex flex-col gap-2">
-                {cafes.map((cafe) => (
-                    // cafe.cafeId 를 key 로 사용
-                    <div
-                        key={cafe.cafeId}
-                        className="flex items-center justify-between p-4 border rounded-lg"
-                    >
-                        {/* 카페 이름 */}
-                        <span
-                            className="font-medium cursor-pointer hover:underline"
-                            onClick={() => onDetail(cafe)}
+                {cafes.map((item) => {
+                    const { cafe } = item;
+                    return (
+                        // cafe.cafeId 를 key 로 사용
+                        <div
+                            key={cafe.cafeId}
+                            className="flex items-center justify-between p-4 border rounded-lg"
                         >
-                            {cafe.name}
-                        </span>
+                            {/* 카페 이름 */}
+                            <span
+                                className="font-medium cursor-pointer hover:underline"
+                                onClick={() => onDetail(item)}
+                            >
+                                {cafe.name}
+                            </span>
 
-                        {/* 수정 / 삭제 버튼 */}
-                        <div className="flex gap-2">
-                            <button
-                                onClick={() => onEdit(cafe)}  // 수정 시 선택된 카페 전달
-                                className="px-3 py-1 text-sm border rounded hover:bg-gray-100"
-                            >
-                                수정
-                            </button>
-                            <button
-                                onClick={() => onDelete(cafe.cafeId)} // 삭제는 ID만 필요
-                                className="px-3 py-1 text-sm border rounded text-red-500 hover:bg-red-50"
-                            >
-                                삭제
-                            </button>
+                            {/* 수정 / 삭제 버튼 */}
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={() => onEdit(item)}  // 수정 시 선택된 카페 전달
+                                    className="px-3 py-1 text-sm border rounded hover:bg-gray-100"
+                                >
+                                    수정
+                                </button>
+                                <button
+                                    onClick={() => onDelete(cafe.cafeId)} // 삭제는 ID만 필요
+                                    className="px-3 py-1 text-sm border rounded text-red-500 hover:bg-red-50"
+                                >
+                                    삭제
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                ))}
+                    );
+                })}
             </div>
         </div>
     );

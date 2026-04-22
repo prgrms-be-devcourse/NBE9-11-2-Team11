@@ -101,7 +101,8 @@ export default function KakaoMap({ onCafeSelect, center, filters, onBoundsChange
             clustererInstance.current.clear();
         }
 
-        const markers = cafes.map((cafe) => {
+        const markers = cafes.map((item) => {
+            const { cafe } = item;
             const position = new window.kakao.maps.LatLng(cafe.latitude, cafe.longitude);
             const marker = new window.kakao.maps.Marker({ position, title: cafe.name });
 
