@@ -115,9 +115,10 @@ class CafeControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.msg").value("카페 제보가 접수되었습니다."))
                 .andExpect(jsonPath("$.resultCode").value("201"))
-                .andExpect(jsonPath("$.data.name").value("스터디 카페"))
-                .andExpect(jsonPath("$.data.address").value("서울시 강남구 테헤란로 1"))
-                .andExpect(jsonPath("$.data.cafeId").exists());
+                .andExpect(jsonPath("$.data.cafe.name").value("스터디 카페"))
+                .andExpect(jsonPath("$.data.cafe.address").value("서울시 강남구 테헤란로 1"))
+                .andExpect(jsonPath("$.data.cafe.cafeId").exists())
+                .andExpect(jsonPath("$.data.createdAt").exists());
     }
 
     @Test

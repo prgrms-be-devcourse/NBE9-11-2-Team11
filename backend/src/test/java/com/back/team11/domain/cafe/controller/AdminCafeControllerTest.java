@@ -111,7 +111,12 @@ class AdminCafeControllerTest {
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.msg").value("카페 등록 성공"))
-                .andExpect(jsonPath("$.data.name").value("테스트카페"));
+                .andExpect(jsonPath("$.resultCode").value("201"))
+                .andExpect(jsonPath("$.data.cafe.name").value("테스트카페"))
+                .andExpect(jsonPath("$.data.cafe.address").value("서울시 강남구"))
+                .andExpect(jsonPath("$.data.cafe.cafeId").exists())
+                .andExpect(jsonPath("$.data.status").value("APPROVED"))
+                .andExpect(jsonPath("$.data.createdAt").exists());
     }
 
 
@@ -172,31 +177,31 @@ class AdminCafeControllerTest {
 
         Cookie accessToken = loginAsAdmin().getResponse().getCookie("accessToken");
 
-        // 먼저 생성
         MvcResult result = mvc.perform(
                 post("/api/V1/admin/cafe/post")
                         .cookie(accessToken)
                         .contentType("application/json")
                         .content("""
-                                        {
-                                            "name": "카페1",
-                                            "address": "서울",
-                                            "latitude": 37.1,
-                                            "longitude": 127.1,
-                                            "type": "FRANCHISE",
-                                            "franchise": "STARBUCKS",
-                                            "hasToilet": true,
-                                            "hasOutlet": true,
-                                            "hasWifi": true,
-                                            "floorCount": "ONE",
-                                            "hasSeparateSpace": false,
-                                            "congestionLevel": "LOW"
-                                        }
-                                        """)
+                                {
+                                    "name": "카페1",
+                                    "address": "서울",
+                                    "latitude": 37.1,
+                                    "longitude": 127.1,
+                                    "type": "FRANCHISE",
+                                    "franchise": "STARBUCKS",
+                                    "hasToilet": true,
+                                    "hasOutlet": true,
+                                    "hasWifi": true,
+                                    "floorCount": "ONE",
+                                    "hasSeparateSpace": false,
+                                    "congestionLevel": "LOW"
+                                }
+                                """)
         ).andReturn();
 
+        // AdminCafeResponse 구조: { data: { cafe: { cafeId, ... }, status, createdAt } }
         Long cafeId = Long.valueOf(
-                JsonPath.read(result.getResponse().getContentAsString(), "$.data.cafeId").toString()
+                JsonPath.read(result.getResponse().getContentAsString(), "$.data.cafe.cafeId").toString()
         );
 
         mvc.perform(
@@ -205,7 +210,9 @@ class AdminCafeControllerTest {
                 )
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.cafeId").value(cafeId));
+                .andExpect(jsonPath("$.data.cafe.cafeId").value(cafeId))
+                .andExpect(jsonPath("$.data.cafe.name").value("카페1"))
+                .andExpect(jsonPath("$.data.status").value("APPROVED"));
     }
 
     @Test
@@ -237,7 +244,7 @@ class AdminCafeControllerTest {
         ).andReturn();
 
         Long cafeId = Long.valueOf(
-                JsonPath.read(result.getResponse().getContentAsString(), "$.data.cafeId").toString()
+                JsonPath.read(result.getResponse().getContentAsString(), "$.data.cafe.cafeId").toString()
         );
 
         mvc.perform(
@@ -252,9 +259,9 @@ class AdminCafeControllerTest {
                 )
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.name").value("수정카페"));
+                .andExpect(jsonPath("$.data.cafe.name").value("수정카페"))
+                .andExpect(jsonPath("$.data.cafe.cafeId").value(cafeId));
     }
-
 
     @Test
     @DisplayName("카페 삭제 성공")
@@ -285,7 +292,7 @@ class AdminCafeControllerTest {
         ).andReturn();
 
         Long cafeId = Long.valueOf(
-                JsonPath.read(result.getResponse().getContentAsString(), "$.data.cafeId").toString()
+                JsonPath.read(result.getResponse().getContentAsString(), "$.data.cafe.cafeId").toString()
         );
 
         mvc.perform(
@@ -294,7 +301,8 @@ class AdminCafeControllerTest {
                 )
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.msg").value("카페 삭제 성공"));
+                .andExpect(jsonPath("$.msg").value("카페 삭제 성공"))
+                .andExpect(jsonPath("$.resultCode").value("200"));
     }
 
 
@@ -487,44 +495,42 @@ class AdminCafeControllerTest {
 
         Cookie accessToken = loginAsAdmin().getResponse().getCookie("accessToken");
 
-        // 정상 카페 생성
         MvcResult result = mvc.perform(
                 post("/api/V1/admin/cafe/post")
                         .cookie(accessToken)
                         .contentType("application/json")
                         .content("""
-                            {
-                                "name": "카페1",
-                                "address": "서울",
-                                "latitude": 37.1,
-                                "longitude": 127.1,
-                                "type": "FRANCHISE",
-                                "franchise": "STARBUCKS",
-                                "hasToilet": true,
-                                "hasOutlet": true,
-                                "hasWifi": true,
-                                "floorCount": "ONE",
-                                "hasSeparateSpace": false,
-                                "congestionLevel": "LOW"
-                            }
-                            """)
+                                {
+                                    "name": "카페1",
+                                    "address": "서울",
+                                    "latitude": 37.1,
+                                    "longitude": 127.1,
+                                    "type": "FRANCHISE",
+                                    "franchise": "STARBUCKS",
+                                    "hasToilet": true,
+                                    "hasOutlet": true,
+                                    "hasWifi": true,
+                                    "floorCount": "ONE",
+                                    "hasSeparateSpace": false,
+                                    "congestionLevel": "LOW"
+                                }
+                                """)
         ).andReturn();
 
         Long cafeId = Long.valueOf(
-                JsonPath.read(result.getResponse().getContentAsString(), "$.data.cafeId").toString()
+                JsonPath.read(result.getResponse().getContentAsString(), "$.data.cafe.cafeId").toString()
         );
 
-        // 잘못된 수정 요청
         mvc.perform(
                         patch("/api/V1/admin/cafe/" + cafeId)
                                 .cookie(accessToken)
                                 .contentType("application/json")
                                 .content("""
-                                    {
-                                        "type": "INDIVIDUAL",
-                                        "franchise": "STARBUCKS"
-                                    }
-                                    """)
+                                        {
+                                            "type": "INDIVIDUAL",
+                                            "franchise": "STARBUCKS"
+                                        }
+                                        """)
                 )
                 .andDo(print())
                 .andExpect(status().isBadRequest())
