@@ -1,4 +1,4 @@
-import { CafeListResponse, CafeDetailResponse, ReviewResponse, WishlistResponse, CafeReportRequest, PageResponse } from "@/types/cafe";
+import { CafeListResponse, CafeDetailResponse, ReviewResponse, WishlistResponse, CafeRequest, PageResponse } from "@/types/cafe";
 
 interface RsData<T> {
     msg: string;
@@ -18,13 +18,16 @@ export const fetchCafeList = async (params: {
     hasOutlet?: boolean;
     hasToilet?: boolean;
     hasSeparateSpace?: boolean;
-    floorCount?: string;
-    congestionLevel?: string;
-    franchise?: string;
+    floorCounts?: string[];
+    congestionLevels?: string[];
+    franchises?: string[];
 }): Promise<CafeListResponse[]> => {
     const query = new URLSearchParams();
     Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
+        if (value === undefined || value === null) return;
+        if (Array.isArray(value)) {
+            value.forEach((v) => query.append(key, v)); // ?franchises=A&franchises=B
+        } else {
             query.append(key, String(value));
         }
     });
@@ -109,7 +112,7 @@ export const fetchWishlist = async (page = 0, size = 10): Promise<PageResponse<W
 
 // 제보용
 
-export const reportCafe = async (form: CafeReportRequest): Promise<RsData<null>> => {
+export const reportCafe = async (form: CafeRequest): Promise<RsData<null>> => {
     const res = await fetch(`${BASE_URL}/api/V1/cafe/report`, {
         method: "POST",
         headers: {

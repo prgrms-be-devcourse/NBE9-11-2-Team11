@@ -9,6 +9,8 @@ import jakarta.validation.constraints.DecimalMin;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 public class CafeSearchCondition {
@@ -31,11 +33,11 @@ public class CafeSearchCondition {
 
     // 필터링
     private CafeType type;
-    private Franchise franchise;
+    private List<Franchise> franchises;   // 다중 선택
     private Boolean hasToilet;
     private Boolean hasOutlet;
     private Boolean hasWifi;
-    private FloorCount floorCount;
+    private List<FloorCount> floorCounts;         // 다중 선택
     private Boolean hasSeparateSpace;
-    private CongestionLevel congestionLevel;
+    private List<CongestionLevel> congestionLevels; // 다중 선택
 }

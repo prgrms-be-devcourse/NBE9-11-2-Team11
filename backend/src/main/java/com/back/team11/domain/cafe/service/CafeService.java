@@ -2,7 +2,7 @@ package com.back.team11.domain.cafe.service;
 
 import com.back.team11.domain.cafe.dto.CafeDetailResponse;
 import com.back.team11.domain.cafe.dto.CafeListResponse;
-import com.back.team11.domain.cafe.dto.CafeReportRequest;
+import com.back.team11.domain.cafe.dto.CafeRequest;
 import com.back.team11.domain.cafe.dto.CafeResponse;
 import com.back.team11.domain.cafe.entity.Cafe;
 import com.back.team11.domain.cafe.repository.CafeRepository;
@@ -51,13 +51,12 @@ public class CafeService {
         return CafeDetailResponse.from(cafe, wishlistCount, isWishlisted);
     }
 
-
     /**
      * 사용자 - 카페 정보 생성 요청(제보) (POST /api/V1/cafe/report)
      * 로그인한 사용자 정보를 member 필드에 연결, status는 PENDING으로 저장
      */
     @Transactional
-    public CafeResponse reportCafe(Long memberId, CafeReportRequest request) {
+    public CafeResponse reportCafe(Long memberId, CafeRequest request) {
         // 로그인한 사용자 조회
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
@@ -83,6 +82,4 @@ public class CafeService {
 
         return CafeResponse.from(cafeRepository.save(cafe));
     }
-
-
 }

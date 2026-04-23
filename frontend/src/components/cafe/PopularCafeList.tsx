@@ -58,34 +58,37 @@ export default function PopularCafeList({ onCafeSelect, bounds }: PopularCafeLis
 
             {/* 목록 */}
             <div className="p-3 space-y-2">
-                {cafes.map((cafe, index) => (
-                    <button
-                        key={cafe.cafeId}
-                        onClick={() => onCafeSelect(cafe.cafeId)}
-                        className="w-full flex items-center gap-3 bg-white rounded-2xl p-3 shadow-sm hover:shadow-md transition-shadow text-left"
-                    >
-                        {/* 순위 */}
-                        <div className={`w-6 h-6 rounded-lg flex items-center justify-center text-xs font-bold flex-shrink-0
-                            ${index === 0 ? "bg-amber-100 text-amber-600" :
-                                index === 1 ? "bg-gray-100 text-gray-500" :
-                                    "bg-orange-100 text-orange-500"}`}
+                {cafes.map((item, index) => {
+                    const { cafe, wishlistCount } = item;
+                    return (
+                        <button
+                            key={cafe.cafeId}
+                            onClick={() => onCafeSelect(cafe.cafeId)}
+                            className="w-full flex items-center gap-3 bg-white rounded-2xl p-3 shadow-sm hover:shadow-md transition-shadow text-left"
                         >
-                            {index + 1}
-                        </div>
+                            {/* 순위 */}
+                            <div className={`w-6 h-6 rounded-lg flex items-center justify-center text-xs font-bold flex-shrink-0
+                                ${index === 0 ? "bg-amber-100 text-amber-600" :
+                                    index === 1 ? "bg-gray-100 text-gray-500" :
+                                        "bg-orange-100 text-orange-500"}`}
+                            >
+                                {index + 1}
+                            </div>
 
-                        {/* 정보 */}
-                        <div className="flex-1 min-w-0">
-                            <p className="font-semibold text-gray-900 text-xs truncate">{cafe.name}</p>
-                            <p className="text-xs text-gray-400 truncate mt-0.5">{cafe.address.split(" ").slice(0, 3).join(" ")}</p>
-                        </div>
+                            {/* 정보 */}
+                            <div className="flex-1 min-w-0">
+                                <p className="font-semibold text-gray-900 text-xs truncate">{cafe.name}</p>
+                                <p className="text-xs text-gray-400 truncate mt-0.5">{cafe.address.split(" ").slice(0, 3).join(" ")}</p>
+                            </div>
 
-                        {/* 찜 수 */}
-                        <div className="flex items-center gap-1 flex-shrink-0">
-                            <Heart size={10} className="text-red-400" fill="#f87171" />
-                            <span className="text-xs text-gray-400">{cafe.wishlistCount.toLocaleString()}</span>
-                        </div>
-                    </button>
-                ))}
+                            {/* 찜 수 */}
+                            <div className="flex items-center gap-1 flex-shrink-0">
+                                <Heart size={10} className="text-red-400" fill="#f87171" />
+                                <span className="text-xs text-gray-400">{wishlistCount.toLocaleString()}</span>
+                            </div>
+                        </button>
+                    );
+                })}
             </div>
         </div>
     );

@@ -16,37 +16,15 @@ export type CongestionLevel = 'LOW' | 'MEDIUM' | 'HIGH';
 // 층수 (1층/2층/3층이상)
 export type FloorCount = 'ONE' | 'TWO' | 'THREE_OR_MORE';
 
-
-// 백엔드에서 프론트로 오는 데이터 형태
-export interface AdminCafe {
-    cafeId: number;               // 카페 고유 번호
-    name: string;                 // 카페 이름
-    address: string;              // 주소
-    latitude: number;             // 위도 (지도 좌표)
-    longitude: number;            // 경도 (지도 좌표)
-    phone: string | null;         // 전화번호 (없을 수도 있음)
-    description: string | null;   // 설명 (없을 수도 있음)
-    type: CafeType;               // 카페 종류
-    franchise: FranchiseType;     // 프랜차이즈 종류
-    hasToilet: boolean;           // 화장실 있음/없음
-    hasOutlet: boolean;           // 콘센트 있음/없음
-    hasWifi: boolean;             // 와이파이 있음/없음
-    floorCount: FloorCount;       // 층수
-    hasSeparateSpace: boolean;    // 독립 공간 있음/없음
-    congestionLevel: CongestionLevel; // 혼잡도
-    imageUrl: string | null;      // 이미지 주소 (없을 수도 있음)
-    status: CafeStatus;           // 승인 상태 (관리자만 볼 수 있음)
-    createdAt: string;            // 등록일
-}
-
-
-
-// 카페 등록할 때 백엔드로 보내는 데이터 형태
-export interface CafeCreateRequest {
+// 공통 기본 정보
+export interface AdminCafeBaseInfo {
+    cafeId: number;
     name: string;
     address: string;
     latitude: number;
     longitude: number;
+    phone: string | null;
+    description: string | null;
     type: CafeType;
     franchise: FranchiseType;
     hasToilet: boolean;
@@ -55,10 +33,16 @@ export interface CafeCreateRequest {
     floorCount: FloorCount;
     hasSeparateSpace: boolean;
     congestionLevel: CongestionLevel;
-    phone: string;
-    description?: string;             // 선택
-    imageUrl?: string;                // 선택
+    imageUrl: string | null;
 }
+
+// 백엔드에서 프론트로 오는 데이터 형태
+export interface AdminCafe {
+    cafe: AdminCafeBaseInfo;      // 공통 기본 정보
+    status: CafeStatus;           // 승인 상태 (관리자만 볼 수 있음)
+    createdAt: string;            // 등록일
+}
+
 
 
 // 카페 수정할 때 백엔드로 보내는 데이터 형태

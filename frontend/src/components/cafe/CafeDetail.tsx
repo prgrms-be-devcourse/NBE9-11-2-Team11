@@ -8,13 +8,14 @@ import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/authStore";
 
 interface CafeDetailProps {
-    cafe: CafeDetailResponse;
+    cafeData: CafeDetailResponse;
     onClose: () => void;
 }
 
-export default function CafeDetail({ cafe, onClose }: CafeDetailProps) {
-    const [isWishlisted, setIsWishlisted] = useState(cafe.isWishlisted);
-    const [wishlistCount, setWishlistCount] = useState(cafe.wishlistCount);
+export default function CafeDetail({ cafeData, onClose }: CafeDetailProps) {
+    const { cafe, wishlistCount: initialWishlistCount, isWishlisted: initialIsWishlisted } = cafeData;
+    const [isWishlisted, setIsWishlisted] = useState(initialIsWishlisted);
+    const [wishlistCount, setWishlistCount] = useState(initialWishlistCount);
     const [reviewContent, setReviewContent] = useState("");
     const [reviewPage, setReviewPage] = useState<PageResponse<ReviewResponse> | null>(null);
     const [reviewCurrentPage, setReviewCurrentPage] = useState(0);
@@ -37,10 +38,9 @@ export default function CafeDetail({ cafe, onClose }: CafeDetailProps) {
         loadReviews();
     }, [cafe.cafeId, reviewCurrentPage]);
 
-
     useEffect(() => {
-        setIsWishlisted(cafe.isWishlisted);
-        setWishlistCount(cafe.wishlistCount);
+        setIsWishlisted(initialIsWishlisted);
+        setWishlistCount(initialWishlistCount);
     }, [cafe.cafeId]);
 
     // 찜 버튼 클릭 (낙관적 업데이트)
@@ -62,7 +62,7 @@ export default function CafeDetail({ cafe, onClose }: CafeDetailProps) {
             }
         } catch (e) {
             setIsWishlisted(prev);
-            setWishlistCount(cafe.wishlistCount);
+            setWishlistCount(initialWishlistCount);
         }
     };
 
@@ -195,9 +195,9 @@ export default function CafeDetail({ cafe, onClose }: CafeDetailProps) {
                     <div>
                         <p className="text-gray-500 text-xs">혼잡도</p>
                         <p className={`font-bold mt-0.5 ${cafe?.congestionLevel === "LOW" ? "text-green-600" :
-                            cafe?.congestionLevel === "MEDIUM" ? "text-amber-600" : "text-red-600"
+                            cafe?.congestionLevel === "MEDIUM" ? "text-yellow-600" : "text-purple-600"
                             }`}>
-                            {cafe?.congestionLevel === "LOW" && "한산"}
+                            {cafe?.congestionLevel === "LOW" && "여유"}
                             {cafe?.congestionLevel === "MEDIUM" && "보통"}
                             {cafe?.congestionLevel === "HIGH" && "혼잡"}
                             {!cafe?.congestionLevel && "정보 없음"}

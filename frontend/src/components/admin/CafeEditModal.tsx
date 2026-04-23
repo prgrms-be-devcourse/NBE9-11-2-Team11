@@ -10,7 +10,8 @@ interface Props {
     onSubmit: (cafeId: number, data: CafeUpdateRequest) => void; // 수정하기 버튼 눌렀을 때
 }
 
-export default function CafeEditModal({ cafe, onClose, onSubmit }: Props) {
+export default function CafeEditModal({ cafe: cafeData, onClose, onSubmit }: Props) {
+    const { cafe } = cafeData;
 
     // 기존 카페 데이터로 초기값 설정
     // ?? '' = null이면 빈 문자열로 대체

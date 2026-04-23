@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect} from 'react';
-import { AdminCafe, CafeCreateRequest, CafeUpdateRequest } from '@/types/admin';
+import { AdminCafe, CafeUpdateRequest } from '@/types/admin';
+import { CafeRequest } from '@/types/cafe';
 import { fetchCafes, createCafe, updateCafe, deleteCafe } from '@/lib/api/admin'; // API 함수 가져오기
 import CafeList from '@/components/admin/CafeList';
 import CafeCreateModal from '@/components/admin/CafeCreateModal';
@@ -56,7 +57,7 @@ export default function AdminCafePage() {
     };
 
     // 카페 등록 처리
-    const handleCreate = async (data: CafeCreateRequest) => {
+    const handleCreate = async (data: CafeRequest) => {
         try {
             await createCafe(data); // API 호출
             alert('카페 등록 성공');

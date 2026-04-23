@@ -21,7 +21,7 @@ public class AdminCafeController {
      **/
     @PostMapping("/cafe/post")
     public ResponseEntity<RsData<AdminCafeResponse>> createCafe(
-            @RequestBody @Valid CafeCreateRequest request
+            @RequestBody @Valid CafeRequest request
     ) {
         AdminCafeResponse response = adminCafeService.createCafe(request);
         return ResponseEntity
@@ -80,7 +80,6 @@ public class AdminCafeController {
                 .ok(new RsData<>("카페 삭제 성공", "200"));
     }
 
-
     /**
      * 관리자 - 카페 승인 (PATCH /api/V1/admin/cafe/{cafeId}/approve)
      */
@@ -104,6 +103,4 @@ public class AdminCafeController {
         return ResponseEntity
                 .ok(new RsData<>("카페 승인 거부 성공", "200", response));
     }
-
-
 }
