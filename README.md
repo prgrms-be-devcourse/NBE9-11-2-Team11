@@ -5,7 +5,7 @@
 
 > 카카오맵 기반으로 카공하기 좋은 카페를 탐색하고, 찜·리뷰·제보 기능과 관리자 운영 기능을 제공하는 웹 서비스
  
----
+
 
 ## 📌 프로젝트 소개
 
@@ -14,7 +14,7 @@
 
 카공데이는 이러한 불편함을 해결하기 위해, 혼잡도·콘센트·분리된 공간 등 **카공 환경 정보를 지도 기반으로 직관적으로 제공**하고사용자가 직접 카페를 제보해 **최신 정보를 함께 만들어 나가는 서비스**입니다.
 
----
+
 
 
 ## 💡 주요 기능
@@ -49,7 +49,7 @@
 - 카페 등록 / 삭제 / 승인 관리
 - 관리자 API 호출 공통화
 
----
+
 
 ## 👥 팀원 소개
 
@@ -85,7 +85,7 @@
 ![Kakao Map](https://img.shields.io/badge/Kakao_Map-FFCD00?style=flat&logoColor=black)
 ![Kakao OAuth](https://img.shields.io/badge/Kakao_OAuth-FFCD00?style=flat&logoColor=black)
 
----
+
 
 ## 📁 프로젝트 구조
 ### 백엔드
