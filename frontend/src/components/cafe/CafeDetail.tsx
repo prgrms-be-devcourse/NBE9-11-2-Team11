@@ -68,12 +68,28 @@ export default function CafeDetail({ cafeData, onClose }: CafeDetailProps) {
         }
     };
 
+    const hasMyReview = reviewPage?.content?.some(
+        (review) => review.memberId === member?.memberId
+    );
+
     const handleReviewSubmit = async () => {
         if (!reviewContent.trim()) return;
+    
+        // 이미 리뷰 작성한 경우
+        if (hasMyReview) {
+            alert("한 카페에는 리뷰를 1개만 작성할 수 있습니다.");
+            return;
+        }
+    
         try {
             await createReview(cafe.cafeId, reviewContent);
             setReviewContent("");
-            const data = await fetchCafeReviewsPage(cafe.cafeId, reviewCurrentPage, 10);
+    
+            const data = await fetchCafeReviewsPage(
+                cafe.cafeId,
+                reviewCurrentPage,
+                10
+            );
             setReviewPage(data);
         } catch (e) {
             console.error(e);
