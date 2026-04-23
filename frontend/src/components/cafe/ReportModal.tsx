@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { X } from "lucide-react";
 import { reportCafe } from "@/lib/api/cafe";
-import { CafeReportRequest } from "@/types/cafe";
+import { CafeRequest } from "@/types/cafe";
 
 interface ReportModalProps {
     onClose: () => void;
@@ -53,7 +53,7 @@ export default function ReportModal({ onClose }: ReportModalProps) {
             return;
         }
 
-        const request: CafeReportRequest = {
+        const request: CafeRequest = {
             name: form.name,
             address: form.address,
             latitude: form.latitude,
@@ -249,9 +249,9 @@ export default function ReportModal({ onClose }: ReportModalProps) {
                         </label>
                         <div className="flex gap-2">
                             {[
-                                { label: "🟢 한산", value: "LOW" },
+                                { label: "🟢 여유", value: "LOW" },
                                 { label: "🟡 보통", value: "MEDIUM" },
-                                { label: "🔴 혼잡", value: "HIGH" },
+                                { label: "🟣 혼잡", value: "HIGH" },
                             ].map((item) => (
                                 <button
                                     key={item.value}

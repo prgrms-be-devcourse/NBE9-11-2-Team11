@@ -1,12 +1,12 @@
 'use client';
 
 import { useState } from 'react'; // useState = 값이 바뀌는 데이터를 저장하는 도구
-import { CafeCreateRequest } from '@/types/admin';
+import { CafeRequest } from '@/types/cafe';
 import CafeFormFields, { CafeFormData, defaultFormData } from '@/components/admin/CafeFormFields';
 
 interface Props {
     onClose: () => void;                        // 모달 닫기 버튼 눌렀을 때
-    onSubmit: (data: CafeCreateRequest) => void; // 등록하기 버튼 눌렀을 때
+    onSubmit: (data: CafeRequest) => void; // 등록하기 버튼 눌렀을 때
 }
 
 export default function CafeCreateModal({ onClose, onSubmit }: Props) {

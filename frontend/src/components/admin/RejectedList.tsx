@@ -18,20 +18,23 @@ export default function RejectedList({ cafes }: Props) {
 
             {/* 승인 거절 목록 */}
             <div className="flex flex-col gap-2">
-                {cafes.map((cafe) => (
-                    <div
-                        key={cafe.cafeId}
-                        className="flex items-center justify-between p-4 border rounded-lg"
-                    >
-                        {/* 카페 이름 */}
-                        <span className="font-medium">{cafe.name}</span>
+                {cafes.map((item) => {
+                    const { cafe } = item;
+                    return (
+                        <div
+                            key={cafe.cafeId}
+                            className="flex items-center justify-between p-4 border rounded-lg"
+                        >
+                            {/* 카페 이름 */}
+                            <span className="font-medium">{cafe.name}</span>
 
-                        {/* 거절 상태 표시 */}
-                        <span className="px-3 py-1 text-sm text-red-500">
-              거절됨
-            </span>
-                    </div>
-                ))}
+                            {/* 거절 상태 표시 */}
+                            <span className="px-3 py-1 text-sm text-red-500">
+                                거절됨
+                            </span>
+                        </div>
+                    );
+                })}
             </div>
 
         </div>

@@ -1,6 +1,6 @@
 package com.back.team11.domain.cafe.controller;
 
-import com.back.team11.domain.cafe.dto.CafeReportRequest;
+import com.back.team11.domain.cafe.dto.CafeRequest;
 import com.back.team11.domain.cafe.dto.CafeResponse;
 import com.back.team11.domain.cafe.service.CafeService;
 import com.back.team11.domain.global.rsData.RsData;
@@ -36,7 +36,7 @@ public class CafeController {
     @PostMapping("/report")
     public ResponseEntity<RsData<CafeResponse>> reportCafe(
             @AuthenticationPrincipal Long memberId,
-            @RequestBody @Valid CafeReportRequest request
+            @RequestBody @Valid CafeRequest request
     ) {
         CafeResponse response = cafeService.reportCafe(memberId, request);
         return ResponseEntity

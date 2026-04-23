@@ -95,8 +95,9 @@ export default function Home() {
   // 찜 목록, 인기 카페 클릭용 (지도 이동 있음)
   const handleCafeSelect = async (cafeId: number) => {
     try {
-      const cafe = await fetchCafeDetail(cafeId);
-      setSelectedCafe(cafe);
+      const cafeData = await fetchCafeDetail(cafeId);
+      const { cafe } = cafeData;
+      setSelectedCafe(cafeData);
       setShowWishlist(false);
       setMapCenter({ lat: cafe.latitude, lng: cafe.longitude });
     } catch (e) {
@@ -111,12 +112,12 @@ export default function Home() {
     }] : []),
     ...filters.franchise.map((v) => ({
       label: v === "STARBUCKS" ? "스타벅스" :
-             v === "MEGA_COFFEE" ? "메가커피" :
-             v === "EDIYA" ? "이디야" :
-             v === "COMPOSE" ? "컴포즈" :
-             v === "TWOSOME" ? "투썸" :
-             v === "PAIK_DABANG" ? "빽다방" :
-             v === "THE_VENTI" ? "더벤티" : v,
+        v === "MEGA_COFFEE" ? "메가커피" :
+          v === "EDIYA" ? "이디야" :
+            v === "COMPOSE" ? "컴포즈" :
+              v === "TWOSOME" ? "투썸" :
+                v === "PAIK_DABANG" ? "빽다방" :
+                  v === "THE_VENTI" ? "더벤티" : v,
       onRemove: () => setFilters((prev) => {
         const newFranchise = prev.franchise.filter((f) => f !== v);
         return {
@@ -139,7 +140,7 @@ export default function Home() {
       onRemove: () => setFilters((prev) => ({ ...prev, floorCount: prev.floorCount.filter((f) => f !== v) })),
     })),
     ...filters.congestionLevel.map((v) => ({
-      label: v === "LOW" ? "한산" : v === "MEDIUM" ? "보통" : "혼잡",
+      label: v === "LOW" ? "여유" : v === "MEDIUM" ? "보통" : "혼잡",
       onRemove: () => setFilters((prev) => ({ ...prev, congestionLevel: prev.congestionLevel.filter((f) => f !== v) })),
     })),
   ];
@@ -221,7 +222,7 @@ export default function Home() {
 
       {selectedCafe && (
         <CafeDetail
-          cafe={selectedCafe}
+          cafeData={selectedCafe}
           onClose={() => setSelectedCafe(null)}
         />
       )}

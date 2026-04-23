@@ -1,3 +1,5 @@
+import org.gradle.kotlin.dsl.implementation
+
 plugins {
     java
     id("org.springframework.boot") version "4.0.5"
@@ -33,6 +35,9 @@ dependencies {
     annotationProcessor ("jakarta.annotation:jakarta.annotation-api")
     annotationProcessor ("jakarta.persistence:jakarta.persistence-api")
 
+    // 스프링 배치 의존성 추가
+    implementation ("org.springframework.boot:spring-boot-starter-batch")
+
     implementation("org.springframework.boot:spring-boot-h2console")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-security")
@@ -41,7 +46,6 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-webmvc")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.2")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
-    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.2")
     compileOnly("org.projectlombok:lombok")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     runtimeOnly("com.h2database:h2")

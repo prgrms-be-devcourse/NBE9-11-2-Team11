@@ -4,7 +4,8 @@ export type FranchiseType = "STARBUCKS" | "MEGA_COFFEE" | "EDIYA" | "COMPOSE" | 
 export type FloorCount = "ONE" | "TWO" | "THREE_OR_MORE";
 export type CongestionLevel = "LOW" | "MEDIUM" | "HIGH";
 
-export interface CafeResponse {
+// 공통 기본 정보 (CafeBaseInfo)
+export interface CafeBaseInfo {
     cafeId: number;
     name: string;
     address: string;
@@ -21,54 +22,25 @@ export interface CafeResponse {
     hasSeparateSpace: boolean;
     congestionLevel: CongestionLevel;
     imageUrl: string | null;
+}
 
-    // 유지할 필드
-    wishlistCount: number;     // 찜 개수
-    reviewCount: number;       // 리뷰 개수
-
+export interface CafeResponse {
+    cafe: CafeBaseInfo;
+    wishlistCount: number; // 찜 개수
+    reviewCount: number;   // 리뷰 개수
 }
 
 // 목록/마커용
 export interface CafeListResponse {
-    cafeId: number;
-    name: string;
-    address: string;
-    latitude: number;
-    longitude: number;
-    phone: string | null;
-    description: string | null;
-    type: CafeType;
-    franchise: FranchiseType;
-    hasToilet: boolean;
-    hasOutlet: boolean;
-    hasWifi: boolean;
-    floorCount: FloorCount;
-    hasSeparateSpace: boolean;
-    congestionLevel: CongestionLevel;
-    imageUrl: string | null;
-    wishlistCount: number;
+    cafe: CafeBaseInfo;
+    wishlistCount: number; // 찜 개수
     createdAt: string;
 }
 
 // 상세 조회용
 export interface CafeDetailResponse {
-    cafeId: number;
-    name: string;
-    address: string;
-    latitude: number;
-    longitude: number;
-    phone: string | null;
-    description: string | null;
-    type: CafeType;
-    franchise: FranchiseType;
-    hasToilet: boolean;
-    hasOutlet: boolean;
-    hasWifi: boolean;
-    floorCount: FloorCount;
-    hasSeparateSpace: boolean;
-    congestionLevel: CongestionLevel;
-    imageUrl: string | null;
-    wishlistCount: number;
+    cafe: CafeBaseInfo;
+    wishlistCount: number; // 찜 개수
     isWishlisted: boolean;
     createdAt: string;
 }
@@ -77,7 +49,7 @@ export interface CafeDetailResponse {
 export interface ReviewResponse {
     id: number;
     cafeId: number;
-    memberId: number;  // 추가
+    memberId: number;
     nickname: string;
     content: string;
     createdAt: string;
@@ -91,8 +63,8 @@ export interface WishlistResponse {
     createAt: string;
 }
 
-//제보용
-export interface CafeReportRequest {
+//제보/등록 공통 요청 타입
+export interface CafeRequest {
     name: string;
     address: string;
     latitude: number;

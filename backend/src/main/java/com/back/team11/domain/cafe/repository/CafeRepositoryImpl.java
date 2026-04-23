@@ -30,13 +30,13 @@ public class CafeRepositoryImpl implements CafeRepositoryCustom{
                         latBetween(condition.getSwLat(), condition.getNeLat()),//AND latitude BETWEEN swLat AND neLat
                         lngBetween(condition.getSwLng(), condition.getNeLng()),// AND longitude BETWEEN swLng AND neLng
                         cafeTypeEq(condition.getType()),// AND type = ?
-                        franchiseEq(condition.getFranchise()),// AND franchise = ?
+                        franchiseIn(condition.getFranchises()),// AND franchise IN (?)
                         hasToiletEq(condition.getHasToilet()),// AND has_toilet = ?
                         hasOutletEq(condition.getHasOutlet()),// AND has_outlet = ?
                         hasWifiEq(condition.getHasWifi()),// AND has_wifi = ?
-                        floorCountEq(condition.getFloorCount()),// AND floor_count = ?
+                        floorCountIn(condition.getFloorCounts()),// AND floor_count IN (?)
                         hasSeparateSpaceEq(condition.getHasSeparateSpace()),// AND has_separate_space = ?
-                        congestionEq(condition.getCongestionLevel())// AND congestion_level = ?
+                        congestionIn(condition.getCongestionLevels())// AND congestion_level IN (?)
                 )
                 .fetch();// List<Cafe> 반환
     }
@@ -59,8 +59,8 @@ public class CafeRepositoryImpl implements CafeRepositoryCustom{
         return type != null ? cafe.type.eq(type) : null;
     }
 
-    private BooleanExpression franchiseEq(Franchise franchise) {
-        return franchise != null ? cafe.franchise.eq(franchise) : null;
+    private BooleanExpression franchiseIn(List<Franchise> franchises) {
+        return (franchises != null && !franchises.isEmpty()) ? cafe.franchise.in(franchises) : null;
     }
 
     private BooleanExpression hasToiletEq(Boolean hasToilet) {
@@ -75,16 +75,16 @@ public class CafeRepositoryImpl implements CafeRepositoryCustom{
         return hasWifi != null ? cafe.hasWifi.eq(hasWifi) : null;
     }
 
-    private BooleanExpression floorCountEq(FloorCount floorCount) {
-        return floorCount != null ? cafe.floorCount.eq(floorCount) : null;
+    private BooleanExpression floorCountIn(List<FloorCount> floorCounts) {
+        return (floorCounts != null && !floorCounts.isEmpty()) ? cafe.floorCount.in(floorCounts) : null;
     }
 
     private BooleanExpression hasSeparateSpaceEq(Boolean hasSeparateSpace) {
         return hasSeparateSpace != null ? cafe.hasSeparateSpace.eq(hasSeparateSpace) : null;
     }
 
-    private BooleanExpression congestionEq(CongestionLevel congestionLevel) {
-        return congestionLevel != null ? cafe.congestionLevel.eq(congestionLevel) : null;
+    private BooleanExpression congestionIn(List<CongestionLevel> congestionLevels) {
+        return (congestionLevels != null && !congestionLevels.isEmpty()) ? cafe.congestionLevel.in(congestionLevels) : null;
     }
 
 

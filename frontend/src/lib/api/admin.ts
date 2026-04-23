@@ -1,6 +1,7 @@
 // 관리자 API 함수 추가
 
-import { AdminCafe, CafeCreateRequest, CafeUpdateRequest, CafeStatus, PageResponse } from '@/types/admin';
+import { AdminCafe, CafeUpdateRequest, CafeStatus, PageResponse } from '@/types/admin';
+import { CafeRequest } from '@/types/cafe';
 import { apiFetch } from '@/app/api/client'; // apiFetch: 팀원이 만든 공통 fetch 함수 (baseURL + credentials: include 처리)
 
 // 카페 목록 조회
@@ -21,7 +22,7 @@ export const fetchCafes = async (status?: CafeStatus, page: number = 1, name?: s
 
 // 카페 등록
 // POST /api/V1/admin/cafe/post
-export const createCafe = async (request: CafeCreateRequest): Promise<AdminCafe> => {
+export const createCafe = async (request: CafeRequest): Promise<AdminCafe> => {
     const data = await apiFetch('/api/V1/admin/cafe/post', {
         method: 'POST',
         body: JSON.stringify(request),

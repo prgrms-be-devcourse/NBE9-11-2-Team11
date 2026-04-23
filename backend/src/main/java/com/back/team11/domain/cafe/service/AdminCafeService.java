@@ -29,7 +29,7 @@ public class AdminCafeService {
      관리자 - 카페 정보 생성 (POST /api/V1/admin/cafe/post)
      **/
     @Transactional
-    public AdminCafeResponse createCafe(CafeCreateRequest request) {
+    public AdminCafeResponse createCafe(CafeRequest request) {
 
         // type과 franchise 일관성 검증
         validateFranchiseConsistency(request.getType(), request.getFranchise());
@@ -95,7 +95,6 @@ public class AdminCafeService {
     }
 
     // INDIVIDUAL 타입 ↔ Franchise 브랜드 일관성 검증
-
     private void validateFranchiseConsistency(CafeType type, Franchise franchise) {
         boolean hasBrand = franchise != null && franchise != Franchise.NONE;
 
@@ -109,7 +108,6 @@ public class AdminCafeService {
             throw new CustomException(ErrorCode.INVALID_INPUT_VALUE);
         }
     }
-
 
     /**
      관리자 - 카페 목록 조회 (페이징 및 필터링)
@@ -128,7 +126,6 @@ public class AdminCafeService {
         return PageResponse.of(dtoPage);
     }
 
-
     /**
      * 관리자 - 카페 상세 조회
      */
@@ -140,7 +137,6 @@ public class AdminCafeService {
 
         return AdminCafeResponse.from(cafe);
     }
-
 
     /**
      * 관리자 - 카페 정보 삭제 (DELETE /api/V1/admin/cafe/{cafeId})
@@ -183,8 +179,6 @@ public class AdminCafeService {
         return AdminCafeResponse.from(cafe);
     }
 
-
-
     /**
      * 관리자 - 사용자 카페 정보 등록 - 거부 (PATCH /api/V1/admin/cafe/{cafeId}/reject)
      * 이미 거절된 카페 재거절 시 409 에러
@@ -205,8 +199,4 @@ public class AdminCafeService {
 
         return AdminCafeResponse.from(cafe);
     }
-
-
-
-
 }
