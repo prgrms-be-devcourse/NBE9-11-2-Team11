@@ -99,7 +99,7 @@ backend/
 │   │   │   │   │   ├── entity/
 │   │   │   │   │   │   ├── Member.java                    # Entity
 │   │   │   │   │   │   ├── MemberRole.java                # Enum - ADMIN / USER
-│   │   │   │   │   │   └── Provider.java             # Enum - LOCAL / KAKAO
+│   │   │   │   │   │   └── Provider.java                  # Enum - LOCAL / KAKAO
 │   │   │   │   │   ├── repository/
 │   │   │   │   │   │   └── MemberRepository.java          # Repo
 │   │   │   │   │   ├── service/
