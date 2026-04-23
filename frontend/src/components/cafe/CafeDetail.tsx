@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { CafeDetailResponse, PageResponse, ReviewResponse } from "@/types/cafe";
 import { X, MapPin, Phone, Heart, MessageCircle, ChevronRight, ChevronLeft } from "lucide-react";
-import { addWishlist, removeWishlist, fetchCafeReviewsPage, createReview, deleteReview } from "@/lib/api/cafe";
+import { addWishlist, removeWishlist, fetchCafeReviewsPage, createReview, deleteReview, updateReview } from "@/lib/api/cafe";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/authStore";
 
@@ -20,6 +20,8 @@ export default function CafeDetail({ cafeData, onClose }: CafeDetailProps) {
     const [reviewPage, setReviewPage] = useState<PageResponse<ReviewResponse> | null>(null);
     const [reviewCurrentPage, setReviewCurrentPage] = useState(0);
     const [reviewLoading, setReviewLoading] = useState(true);
+    const [editingReviewId, setEditingReviewId] = useState<number | null>(null);
+    const [editContent, setEditContent] = useState(""); 
     const { isLoggedIn, member } = useAuthStore();
     const router = useRouter();
 
@@ -82,6 +84,26 @@ export default function CafeDetail({ cafeData, onClose }: CafeDetailProps) {
         try {
             await deleteReview(cafe.cafeId, reviewId);
             const data = await fetchCafeReviewsPage(cafe.cafeId, reviewCurrentPage, 10);
+            setReviewPage(data);
+        } catch (e) {
+            console.error(e);
+        }
+    };
+
+    const handleReviewUpdate = async (reviewId: number) => {
+        if (!editContent.trim()) return;
+    
+        try {
+            await updateReview(cafe.cafeId, reviewId, editContent);
+    
+            setEditingReviewId(null);
+            setEditContent("");
+    
+            const data = await fetchCafeReviewsPage(
+                cafe.cafeId,
+                reviewCurrentPage,
+                10
+            );
             setReviewPage(data);
         } catch (e) {
             console.error(e);
@@ -278,8 +300,26 @@ export default function CafeDetail({ cafeData, onClose }: CafeDetailProps) {
                                     <div className="flex items-center justify-between mb-1">
                                         <span className="text-sm font-semibold text-gray-800">{review.nickname}</span>
                                         <div className="flex items-center gap-2">
-                                            <span className="text-xs text-gray-400">{review.createdAt.slice(0, 10)}</span>
-                                            {(review.memberId === member?.memberId || member?.role === "ADMIN") && (
+                                        <span className="text-xs text-gray-400">
+                                            {review.createdAt.slice(0, 10)}
+                                        </span>
+
+                                            {/* 본인 리뷰만 수정 가능 */}
+                                            {review.memberId === member?.memberId && (
+                                                <button
+                                                    onClick={() => {
+                                                        setEditingReviewId(review.id);
+                                                        setEditContent(review.content);
+                                                    }}
+                                                    className="text-xs text-blue-400 hover:text-blue-600 transition-colors"
+                                                >
+                                                    수정
+                                                </button>
+                                            )}
+
+                                            {/* 삭제는 본인 or 관리자 */}
+                                            {(review.memberId === member?.memberId ||
+                                                member?.role === "ADMIN") && (
                                                 <button
                                                     onClick={() => handleReviewDelete(review.id)}
                                                     className="text-xs text-red-400 hover:text-red-600 transition-colors"
@@ -287,9 +327,41 @@ export default function CafeDetail({ cafeData, onClose }: CafeDetailProps) {
                                                     삭제
                                                 </button>
                                             )}
-                                        </div>
                                     </div>
-                                    <p className="text-sm text-gray-600">{review.content}</p>
+                                    </div>
+                                            {editingReviewId === review.id ? (
+                                            <div className="mt-2">
+                                                <textarea
+                                                    value={editContent}
+                                                    onChange={(e) => setEditContent(e.target.value)}
+                                                    rows={2}
+                                                    className="w-full px-3 py-2 border rounded-xl text-sm"
+                                                />
+
+                                                <div className="flex gap-2 mt-2">
+                                                    <button
+                                                        onClick={() => handleReviewUpdate(review.id)}
+                                                        className="px-3 py-1 bg-blue-500 text-white rounded-lg text-xs"
+                                                    >
+                                                        저장
+                                                    </button>
+
+                                                    <button
+                                                        onClick={() => {
+                                                            setEditingReviewId(null);
+                                                            setEditContent("");
+                                                        }}
+                                                        className="px-3 py-1 bg-gray-300 rounded-lg text-xs"
+                                                    >
+                                                        취소
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <p className="text-sm text-gray-600">
+                                                {review.content}
+                                            </p>
+                                        )}
                                 </div>
                             ))}
                         </div>
