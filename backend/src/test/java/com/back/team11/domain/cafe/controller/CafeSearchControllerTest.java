@@ -170,10 +170,11 @@ class CafeSearchControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.msg").value("카페 조회 성공"))
                 .andExpect(jsonPath("$.resultCode").value("200"))
-                .andExpect(jsonPath("$.data.cafeId").value(savedCafe.getId()))
-                .andExpect(jsonPath("$.data.name").value("테스트 카페"))
-                .andExpect(jsonPath("$.data.address").value("서울시 강남구 테헤란로 1"))
-                .andExpect(jsonPath("$.data.wishlistCount").value(0));
+                .andExpect(jsonPath("$.data.cafe.cafeId").value(savedCafe.getId()))
+                .andExpect(jsonPath("$.data.cafe.name").value("테스트 카페"))
+                .andExpect(jsonPath("$.data.cafe.address").value("서울시 강남구 테헤란로 1"))
+                .andExpect(jsonPath("$.data.wishlistCount").value(0))
+                .andExpect(jsonPath("$.data.createdAt").exists());
     }
 
     @Test
