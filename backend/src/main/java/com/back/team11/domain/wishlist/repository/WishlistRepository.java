@@ -4,11 +4,10 @@ import com.back.team11.domain.wishlist.entity.Wishlist;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
 
 @Repository
 public interface WishlistRepository extends JpaRepository<Wishlist, Long> {
@@ -23,7 +22,11 @@ public interface WishlistRepository extends JpaRepository<Wishlist, Long> {
 
     long countByCafeId(Long cafeId);
 
-    // 카페 삭제 시 연관된 찜 목록 일괄 삭제
-    void deleteByCafeId(Long cafeId);
+
+    // @Modifying은 조회가 아닌 데이터 변경(INSERT, UPDATE, DELETE)임을 나타냄
+    // clearAutomatically = true는 벌크 연산 후 영속성 컨텍스트를 비워 데이터 불일치를 방지
+    @Modifying(clearAutomatically = true)
+    @Query("DELETE FROM Wishlist w WHERE w.cafe.id = :cafeId")
+    void deleteByCafeId(@Param("cafeId") Long cafeId);
 
 }
